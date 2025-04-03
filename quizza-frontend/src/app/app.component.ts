@@ -1,8 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { defer, interval, Observable, switchMap } from 'rxjs';
+import { Login } from './models/backendmodels-copy';
 
 @Component({
   selector: 'app-root',
@@ -10,8 +11,26 @@ import { defer, interval, Observable, switchMap } from 'rxjs';
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
-export class AppComponent {
+export class AppComponent implements OnInit, OnDestroy {
+  // private storageListener: (event: StorageEvent) => void;
+  responseMessage: Login = { playerName: "", playerToken: "" };
+
+
   constructor(private http: HttpClient) { }
+
+  ngOnInit(): void {
+    // // Define the listener
+    // this.storageListener = (event: StorageEvent) => {
+    //   if (event.storageArea === localStorage) {
+    //     console.log('LocalStorage key changed:', event.key);
+    //     console.log('Old value:', event.oldValue);
+    //     console.log('New value:', event.newValue);
+    //   }
+    // };
+
+    // Add the listener
+    // window.addEventListener('storage', this.storageListener);
+  }
 
   message$ = defer(() =>
     interval(1000).pipe(
@@ -23,9 +42,10 @@ export class AppComponent {
 
   private apiUrl = 'http://localhost:3000';
 
-  getIsAlivePing(): Observable<{ message: string }> {
+  getIsAlivePing(): Observable<{ message: string, serverTime: string }> {
     return this.http.get<{
-      message: string
+      message: string,
+      serverTime: string
     }>(this.apiUrl);
   }
 
@@ -33,16 +53,29 @@ export class AppComponent {
     return this.http.get<{ message: string }>(this.apiUrl);
   }
 
-  sendRequest(): void {
-    this.http.get<{ message: string }>(this.apiUrl).subscribe({
+  sendLoginRequest(playerName: string): void {
+    const loginUrl = `${this.apiUrl}/login`;
+    const payload = { playerName, gameId: "GET THIS FROM URL" };
+  
+    console.log('Sending login request to:', loginUrl, payload);
+    this.http.post<Login>(loginUrl, payload).subscribe({
       next: (response) => {
-        console.log('Response from backend:', response);
-        alert(`Response: ${response.message}`);
+        this.responseMessage = response;
+        this.saveToLocalStorage('playerName', response.playerName);
       },
       error: (error) => {
         console.error('Error from backend:', error);
-        alert('An error occurred while sending the request.');
+        alert('An error occurred while sending the login request.');
       }
     });
+  }
+
+  saveToLocalStorage(key: string, value: string): void {
+    localStorage.setItem(key, value);
+  } 
+
+  ngOnDestroy(): void {
+    // Remove the listener to avoid memory leaks
+    // window.removeEventListener('storage', this.storageListener);
   }
 }
