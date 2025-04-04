@@ -4,4 +4,19 @@ main {
     align-items: center;
     justify-content: center;
     height: 100vh;
+
+}
+
+.element-view {
+    background-color: #f10000;
+    border: 0.5rem solid;
+    border-radius: 1rem;
+    padding: 1rem;
+    margin: 0.5rem;
+}
+
+.element-view h2 {
+    font-size: 2rem;
+    text-align: center;
+    color: #ffffff;
 }

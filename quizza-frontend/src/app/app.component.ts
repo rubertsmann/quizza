@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { defer, interval, Observable, switchMap } from 'rxjs';
-import { Login } from './models/backendmodels-copy';
+import { GameState, Login } from './models/backendmodels-copy';
 
 @Component({
   selector: 'app-root',
@@ -32,9 +32,16 @@ export class AppComponent implements OnInit, OnDestroy {
     // window.addEventListener('storage', this.storageListener);
   }
 
-  message$ = defer(() =>
+  intialConnection$ = defer(() =>
     interval(1000).pipe(
       switchMap(() => this.getIsAlivePing())
+    )
+  );
+
+  
+  getGameState$ = defer(() =>
+    interval(1000).pipe(
+      switchMap(() => this.getGameState())
     )
   );
 
@@ -49,9 +56,10 @@ export class AppComponent implements OnInit, OnDestroy {
     }>(this.apiUrl);
   }
 
-  getGameState(): Observable<{ message: string }> {
-    return this.http.get<{ message: string }>(this.apiUrl);
+  getGameState(): Observable<GameState> {
+    return this.http.get<GameState>(this.apiUrl);
   }
+
 
   sendLoginRequest(playerName: string): void {
     const loginUrl = `${this.apiUrl}/login`;
