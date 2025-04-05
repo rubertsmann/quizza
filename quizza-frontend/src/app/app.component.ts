@@ -8,7 +8,87 @@ import { GameState, Login } from './models/backendmodels-copy';
 @Component({
   selector: 'app-root',
   imports: [RouterOutlet, CommonModule],
-  templateUrl: './app.component.html',
+  standalone: true,
+  template: ` 
+  <main class="main">
+  <router-outlet />
+
+  <ng-container *ngIf="intialConnection$ | async as result; else loading">
+    <div>
+      <h1>Quizza App</h1>
+
+      <div class="element-view">
+        <h2>Server Connection Status</h2>
+        <p>{{ result.message }}</p>
+        <p>ServerTime: {{ result.serverTime }}</p>  
+      </div>
+  
+  
+      <div class="element-view">
+        <h2>Player Login</h2>
+        <input type="text" placeholder="Enter your name" #playerNameInput />
+        <button (click)="sendLoginRequest(playerNameInput.value)">Send Request</button>
+
+        <div>Select Player - Click here instead of entering a player</div>
+        <ul>
+          <li>SomeNameFromBackend1</li>
+          <li>SomeNameFromBackend2</li>
+          <li>SomeNameFromBackend3</li>
+          <li>SomeNameFromBackend4</li>
+        </ul>
+
+        <hr>
+        <h3>Room Information</h3>
+        <p *ngIf="responseMessage">{{ responseMessage | json }}</p>
+      </div>
+  
+      <div class="element-view">
+        <!-- @TODO Replace PlayerName with room name -->
+        <h2>Active Room - <div *ngIf="responseMessage">{{responseMessage.playerName}}</div></h2>
+        <div>Player List</div>
+        <ul>
+          <li>SomeNameFromBackend1</li>
+          <li>SomeNameFromBackend2</li>
+          <li>SomeNameFromBackend3</li>
+          <li>SomeNameFromBackend4</li>
+        </ul>
+
+        <h2>Active Question</h2>
+        <ng-container *ngIf="getGameState$ | async as gameState">
+          <div *ngIf="gameState.currentQuestion.question; else notActive">
+            <h3>{{gameState.currentQuestion.question}}</h3>
+            <ul>
+              <li *ngFor="let answer of gameState.currentQuestion.answers">
+                <button (click)="sendAnswer(answer.answerId)">{{answer.answerText}}</button>
+              </li>
+            </ul>
+          </div>
+
+          <ng-template #notActive>
+            <p>No Active Question</p>
+          </ng-template>
+
+        </ng-container>
+      </div>
+
+  
+      
+    </div>
+    
+  </ng-container>
+
+  <ng-template #loading>
+    <p>Loading...</p>
+  </ng-template>
+
+  <ng-template #error let-error>
+    <p>Error: {{ error }}</p>
+  </ng-template>
+
+
+
+</main>
+`,
   styleUrl: './app.component.css'
 })
 export class AppComponent implements OnInit, OnDestroy {
@@ -38,7 +118,6 @@ export class AppComponent implements OnInit, OnDestroy {
     )
   );
 
-  
   getGameState$ = defer(() =>
     interval(1000).pipe(
       switchMap(() => this.getGameState())
@@ -57,14 +136,14 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   getGameState(): Observable<GameState> {
-    return this.http.get<GameState>(this.apiUrl);
+    return this.http.get<GameState>(this.apiUrl + '/gamestate');
   }
 
 
   sendLoginRequest(playerName: string): void {
-    const loginUrl = `${this.apiUrl}/login`;
+    const loginUrl = `${this.apiUrl} / login`;
     const payload = { playerName, gameId: "GET THIS FROM URL" };
-  
+
     console.log('Sending login request to:', loginUrl, payload);
     this.http.post<Login>(loginUrl, payload).subscribe({
       next: (response) => {
@@ -78,9 +157,13 @@ export class AppComponent implements OnInit, OnDestroy {
     });
   }
 
+  sendAnswer(arg0: number) {
+    //throw new Error('Method not implemented.');
+  }
+
   saveToLocalStorage(key: string, value: string): void {
     localStorage.setItem(key, value);
-  } 
+  }
 
   ngOnDestroy(): void {
     // Remove the listener to avoid memory leaks
