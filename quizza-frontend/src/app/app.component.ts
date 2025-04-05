@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { defer, interval, Observable, switchMap } from 'rxjs';
-import { GameState, Login } from './models/backendmodels-copy';
+import { Answer, GameState, Login, Question } from './models/backendmodels-copy';
 
 @Component({
   selector: 'app-root',
@@ -54,12 +54,15 @@ import { GameState, Login } from './models/backendmodels-copy';
         </ul>
 
         <h2>Active Question</h2>
-        <ng-container *ngIf="getGameState$ | async as gameState">
-          <div *ngIf="gameState.currentQuestion.question; else notActive">
-            <h3>{{gameState.currentQuestion.question}}</h3>
+        <ng-container *ngIf="getGameState$ | async as gamestate">
+          <div *ngIf="gamestate.currentQuestion.question; else notActive">
+            <h3>{{gamestate.currentQuestion.question}}</h3>
             <ul>
-              <li *ngFor="let answer of gameState.currentQuestion.answers">
-                <button (click)="sendAnswer(answer.answerId)">{{answer.answerText}}</button>
+              <li *ngFor="let answer of gamestate.currentQuestion.answers; trackBy: trackById">
+                <label>
+                <input type="radio" [value]="answer.answerId" name="answers" (change)="onAnswerChange($event)">
+                {{answer.answerText}}
+                </label>
               </li>
             </ul>
           </div>
@@ -165,8 +168,16 @@ export class AppComponent implements OnInit, OnDestroy {
     localStorage.setItem(key, value);
   }
 
+  onAnswerChange($event: Event) {
+    console.log($event)
+  }
+
   ngOnDestroy(): void {
     // Remove the listener to avoid memory leaks
     // window.removeEventListener('storage', this.storageListener);
+  }
+
+  trackById(index: number, item: Omit<Answer, "questionId">) {
+    return item.answerId; // assuming each question has a unique id
   }
 }

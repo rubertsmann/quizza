@@ -12,11 +12,11 @@ export interface GameState {
 export interface Question {
     id: number,
     question: string,
-    answers: Omit<AnswerId, "questionId">[],
+    answers: Omit<Answer, "questionId">[],
     selectedAnswerId: number,
 }
 
-export interface AnswerId {
+export interface Answer {
     questionId: number,
     answerId: number
     answerText: string
