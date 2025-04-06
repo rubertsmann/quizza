@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { AppService } from './app.service';
 
 @Controller()
@@ -10,14 +10,20 @@ export class AppController {
     return this.appService.getHello();
   }
 
-  @Get("/gamestate")
-  getGameState(playerToken: string): GameState {
-    return this.appService.getGameState(playerToken);
+  @Get('/gamestate/:playerName')
+  getGameState(@Param('playerName') playerName: string): GameState {
+    return this.appService.getGameState(playerName);
   }
 
   @Post("/login")
   postLogin(@Body() body: { playerName: string, gameId: string }) {
     console.log("POST /login", body.playerName, body.gameId);
     return this.appService.login(body.playerName, body.gameId);
+  }
+
+  @Post("/answer")
+  postAnswer(@Body() body: { playerName: string, answerId: string }) {
+    console.log("POST /answer", body.playerName, body.answerId);
+    return this.appService.answerQuestionForPlayer(body.playerName, body.answerId);
   }
 }

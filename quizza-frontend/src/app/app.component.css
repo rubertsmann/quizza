@@ -1,134 +1,124 @@
 main {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    height: 100vh;
-    overflow-y: auto;
-    overflow-x: hidden;
-    box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
 h1 {
-    text-align: center;
+  text-align: center;
 }
 
 .element-header {
-    text-align: center;
-    color: #000000;
-    background-color: rgb(253, 255, 232);
-    margin-bottom: 1rem;
-    width: 100%;
-    padding: 0rem;
+  text-align: center;
+  color: #000000;
+  background-color: rgb(253, 255, 232);
+  margin-bottom: 1rem;
+  width: 100%;
+  padding: 0rem;
 }
 
 .gradient-background {
-    background: linear-gradient(300deg, deepskyblue, darkviolet, blue);
-    background-size: 180% 180%;
-    animation: gradient-animation 18s ease infinite;
+  background: linear-gradient(300deg, deepskyblue, darkviolet, blue);
+  background-size: 180% 180%;
+  animation: gradient-animation 18s ease infinite;
 }
 
 @keyframes gradient-animation {
-    0% {
-        background-position: 0% 50%;
-    }
+  0% {
+    background-position: 0% 50%;
+  }
 
-    50% {
-        background-position: 100% 50%;
-    }
+  50% {
+    background-position: 100% 50%;
+  }
 
-    100% {
-        background-position: 0% 50%;
-    }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 .element-view {
-    background-color: rgb(253, 255, 232);
-    border-radius: 1rem;
-    padding: 1rem;
-    margin: 1rem;
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
-    color: #3d3d3d;
+  background-color: rgb(253, 255, 232);
+  border-radius: 1rem;
+  padding: 1rem;
+  margin: 1rem;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+  color: #3d3d3d;
 }
 
 .element-view h2 {
-    font-size: 2rem;
-    text-align: center;
-    color: #000000;
+  font-size: 2rem;
+  text-align: center;
+  color: #000000;
 }
 
 li {
-    height: 1rem;
-    width: 100%;
-    margin: 0.5rem;
+  height: 1rem;
+  width: 100%;
+  margin: 0.5rem;
 }
 
 .icon-thing {
-    width: 2rem;
-    height: 2rem;
-    margin-right: 0.5rem;
-    vertical-align: middle;
-    background-color: red;
-    text-align: center;
+  width: 2rem;
+  height: 2rem;
+  margin-right: 0.5rem;
+  vertical-align: middle;
+  text-align: center;
 }
 
 .radio-input {
-    position: fixed;
-    opacity: 0;
-    pointer-events: none;
-    background-color: red;
-    width: 2rem;
-    height: 2rem;
+  position: fixed;
+  background-color: red;
+  width: 2rem;
+  height: 2rem;
 }
 
 .radio-input:checked {
-    background-color: #3d3d3d;
-    border-color: #00ff00;
-    box-shadow: 0 0 0.5rem rgba(0, 255, 0, 0.5);
+  background-color: #3d3d3d;
+  border-color: #00ff00;
+  box-shadow: 0 0 0.5rem rgba(0, 255, 0, 0.5);
 }
 
 .radio-input:hover {
-    border-color: #00ff00;
-    box-shadow: 0 0 0.3rem rgba(0, 255, 0, 0.3);
-    /* Subtle glow on hover */
+  border-color: #00ff00;
+  box-shadow: 0 0 0.3rem rgba(0, 255, 0, 0.3);
+  /* Subtle glow on hover */
 }
 
 .radio-input:focus {
-    outline: none;
-    /* Remove default focus outline */
-    box-shadow: 0 0 0.5rem rgba(0, 255, 0, 0.5);
-    /* Add a focus glow */
+  outline: none;
+  /* Remove default focus outline */
+  box-shadow: 0 0 0.5rem rgba(0, 255, 0, 0.5);
+  /* Add a focus glow */
 }
 
 .flex-column {
-    display: flex;
-    flex-direction: column;
-    /* Arrange items vertically */
-    align-items: flex-start;
-    /* Align items to the start of the container */
-    gap: 0.5rem;
-    /* Add spacing between items */
-    padding: 0;
-    /* Remove default padding */
-    margin: 0;
-    /* Remove default margin */
-    list-style: none;
-    /* Remove bullet points */
-    width: 100%;
-    /* Make the container take full width */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  width: 100%;
 }
 
 .flex-column li {
-    width: 100%;
-    /* Make each item take full width */
-    padding: 0.5rem;
-    /* Add padding for better spacing */
-    background-color: rgba(0, 0, 0, 0.05);
-    /* Light background for items */
-    border-radius: 0.5rem;
-    /* Add rounded corners */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    /* Add a subtle shadow */
-    text-align: left;
-    /* Align text to the left */
+  width: 100%;
+  /* Make each item take full width */
+  padding: 0.5rem;
+  /* Add padding for better spacing */
+  background-color: rgba(0, 0, 0, 0.05);
+  /* Light background for items */
+  border-radius: 0.5rem;
+  /* Add rounded corners */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  /* Add a subtle shadow */
+  text-align: left;
+  /* Align text to the left */
 }
