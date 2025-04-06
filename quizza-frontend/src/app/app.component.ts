@@ -10,12 +10,12 @@ import { Answer, GameState, Login, Question } from './models/backendmodels-copy'
   imports: [RouterOutlet, CommonModule],
   standalone: true,
   template: ` 
-  <main class="main">
+  <main class="main gradient-background">
   <router-outlet />
 
   <ng-container *ngIf="intialConnection$ | async as result; else loading">
     <div>
-      <h1>Quizza App</h1>
+      <div class="element-header"><h1>Header</h1></div>
 
       <div class="element-view">
         <h2>Server Connection Status</h2>
@@ -57,14 +57,16 @@ import { Answer, GameState, Login, Question } from './models/backendmodels-copy'
         <ng-container *ngIf="getGameState$ | async as gamestate">
           <div *ngIf="gamestate.currentQuestion.question; else notActive">
             <h3>{{gamestate.currentQuestion.question}}</h3>
-            <ul>
-              <li *ngFor="let answer of gamestate.currentQuestion.answers; trackBy: trackById">
+  
+            <div class="flex-column">
+            <div class="icon-thing" style="width: 100%" *ngFor="let answer of gamestate.currentQuestion.answers; trackBy: trackById">
                 <label>
-                <input type="radio" [value]="answer.answerId" name="answers" (change)="onAnswerChange($event)">
-                {{answer.answerText}}
+                  <input type="radio" class="radio-input" [value]="answer.answerId" name="answers" (change)="onAnswerChange($event)">
+                  {{answer.answerText}}
                 </label>
-              </li>
-            </ul>
+</div>
+    
+          </div>
           </div>
 
           <ng-template #notActive>
