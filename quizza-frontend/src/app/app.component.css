@@ -75,6 +75,7 @@ li {
     margin-right: 0.5rem; /* Space between icon and text */
     vertical-align: middle; /* Align icon vertically with text */
     background-color: red;
+    text-align: center; /* Center text inside the icon */
 }
 
 .radio-input {
@@ -82,6 +83,7 @@ li {
     opacity: 0;
     pointer-events: none;
     background-color: red;
+    
     width: 2rem; /* Width of the radio button */
     height: 2rem; /* Height of the radio button */
 }

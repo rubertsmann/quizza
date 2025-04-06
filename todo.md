@@ -4,3 +4,7 @@
 4. Create JSON File Loader
 5. Create api call that is called in a loop - works
 6. Display Questions
+
+
+7. Send answer to backend - send answer is selected - update gamestate to actually which answer is selected
+8. make either timer or admin view to end round and show next question.

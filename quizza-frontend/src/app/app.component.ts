@@ -61,11 +61,11 @@ import { Answer, GameState, Login, Question } from './models/backendmodels-copy'
             <div class="flex-column">
             <div class="icon-thing" style="width: 100%" *ngFor="let answer of gamestate.currentQuestion.answers; trackBy: trackById">
                 <label>
+                  <!-- //TODO - Replace it to make it actually be hilighted when selected -->
                   <input type="radio" class="radio-input" [value]="answer.answerId" name="answers" (change)="onAnswerChange($event)">
                   {{answer.answerText}}
                 </label>
-</div>
-    
+            </div>
           </div>
           </div>
 
