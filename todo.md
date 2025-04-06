@@ -6,5 +6,5 @@
 6. Display Questions
 
 
-7. Send answer to backend - send answer is selected - update gamestate to actually which answer is selected
+7. Send answer to backend - send answer is selected - update gamestate to actually which answer is selected - done
 8. make either timer or admin view to end round and show next question.
