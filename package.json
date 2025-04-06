@@ -1,0 +1,10 @@
+{
+    "name": "project-root",
+    "private": true,
+    "scripts": {
+        "dev": "concurrently \"npm --prefix quizza-frontend run start\" \"npm --prefix quizza-backend run start:dev\""
+    },
+    "devDependencies": {
+        "concurrently": "^8.0.0"
+    }
+}

@@ -2,14 +2,13 @@ main {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: flex-start; /* Align content to the top */
-    height: 100vh; /* Full viewport height */
-    overflow-y: auto; /* Enable vertical scrolling */
-    overflow-x: hidden; /* Prevent horizontal scrolling */
-    
-    box-sizing: border-box; /* Include padding in height calculation */
-
+    justify-content: flex-start;
+    height: 100vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    box-sizing: border-box;
 }
+
 h1 {
     text-align: center;
 }
@@ -24,33 +23,32 @@ h1 {
 }
 
 .gradient-background {
-    background: linear-gradient(300deg,deepskyblue,darkviolet,blue);
+    background: linear-gradient(300deg, deepskyblue, darkviolet, blue);
     background-size: 180% 180%;
     animation: gradient-animation 18s ease infinite;
-  }
-  
-  @keyframes gradient-animation {
+}
+
+@keyframes gradient-animation {
     0% {
-      background-position: 0% 50%;
+        background-position: 0% 50%;
     }
+
     50% {
-      background-position: 100% 50%;
+        background-position: 100% 50%;
     }
+
     100% {
-      background-position: 0% 50%;
+        background-position: 0% 50%;
     }
-  }
+}
 
 .element-view {
-    background-color: rgb(253, 255, 232); /* Semi-transparent white background */
-
+    background-color: rgb(253, 255, 232);
     border-radius: 1rem;
     padding: 1rem;
     margin: 1rem;
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5); /* Subtle shadow for depth */
-    /* backdrop-filter: blur(10px); Glass blur effect */
-    /* -webkit-backdrop-filter: blur(10px); Safari support */
-    color: #3d3d3d; /* Text color for contrast */
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+    color: #3d3d3d;
 }
 
 .element-view h2 {
@@ -60,22 +58,18 @@ h1 {
 }
 
 li {
-    /* background-color: rgb(255, 140, 0); */
     height: 1rem;
     width: 100%;
-    /* border-radius: 1rem; */
-    /* padding: 1rem; */
     margin: 0.5rem;
-    /* background-color: rgb(0, 0, 0); */
 }
 
 .icon-thing {
-    width: 2rem; /* Width of the icon */
-    height: 2rem; /* Height of the icon */
-    margin-right: 0.5rem; /* Space between icon and text */
-    vertical-align: middle; /* Align icon vertically with text */
+    width: 2rem;
+    height: 2rem;
+    margin-right: 0.5rem;
+    vertical-align: middle;
     background-color: red;
-    text-align: center; /* Center text inside the icon */
+    text-align: center;
 }
 
 .radio-input {
@@ -83,43 +77,58 @@ li {
     opacity: 0;
     pointer-events: none;
     background-color: red;
-    
-    width: 2rem; /* Width of the radio button */
-    height: 2rem; /* Height of the radio button */
+    width: 2rem;
+    height: 2rem;
 }
 
 .radio-input:checked {
-    background-color: #3d3d3d; /* Background color when checked */
-    border-color: #00ff00; /* Border color when checked */
-    box-shadow: 0 0 0.5rem rgba(0, 255, 0, 0.5); /* Glow effect when checked */
+    background-color: #3d3d3d;
+    border-color: #00ff00;
+    box-shadow: 0 0 0.5rem rgba(0, 255, 0, 0.5);
 }
 
 .radio-input:hover {
-    border-color: #00ff00; /* Border color on hover */
-    box-shadow: 0 0 0.3rem rgba(0, 255, 0, 0.3); /* Subtle glow on hover */
+    border-color: #00ff00;
+    box-shadow: 0 0 0.3rem rgba(0, 255, 0, 0.3);
+    /* Subtle glow on hover */
 }
 
 .radio-input:focus {
-    outline: none; /* Remove default focus outline */
-    box-shadow: 0 0 0.5rem rgba(0, 255, 0, 0.5); /* Add a focus glow */
+    outline: none;
+    /* Remove default focus outline */
+    box-shadow: 0 0 0.5rem rgba(0, 255, 0, 0.5);
+    /* Add a focus glow */
 }
 
 .flex-column {
     display: flex;
-    flex-direction: column; /* Arrange items vertically */
-    align-items: flex-start; /* Align items to the start of the container */
-    gap: 0.5rem; /* Add spacing between items */
-    padding: 0; /* Remove default padding */
-    margin: 0; /* Remove default margin */
-    list-style: none; /* Remove bullet points */
-    width: 100%; /* Make the container take full width */
+    flex-direction: column;
+    /* Arrange items vertically */
+    align-items: flex-start;
+    /* Align items to the start of the container */
+    gap: 0.5rem;
+    /* Add spacing between items */
+    padding: 0;
+    /* Remove default padding */
+    margin: 0;
+    /* Remove default margin */
+    list-style: none;
+    /* Remove bullet points */
+    width: 100%;
+    /* Make the container take full width */
 }
 
 .flex-column li {
-    width: 100%; /* Make each item take full width */
-    padding: 0.5rem; /* Add padding for better spacing */
-    background-color: rgba(0, 0, 0, 0.05); /* Light background for items */
-    border-radius: 0.5rem; /* Add rounded corners */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
-    text-align: left; /* Align text to the left */
+    width: 100%;
+    /* Make each item take full width */
+    padding: 0.5rem;
+    /* Add padding for better spacing */
+    background-color: rgba(0, 0, 0, 0.05);
+    /* Light background for items */
+    border-radius: 0.5rem;
+    /* Add rounded corners */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    /* Add a subtle shadow */
+    text-align: left;
+    /* Align text to the left */
 }
