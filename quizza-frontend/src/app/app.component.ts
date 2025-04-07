@@ -9,13 +9,11 @@ import { RouterOutlet } from '@angular/router';
   standalone: true,
   template: `
     <main class="main gradient-background">
-      <div  class="content">
-        <router-outlet/>
+      <div class="content">
+        <router-outlet />
       </div>
     </main>
   `,
   styleUrl: './app.component.css',
 })
-export class AppComponent {
-
-}
+export class AppComponent {}
