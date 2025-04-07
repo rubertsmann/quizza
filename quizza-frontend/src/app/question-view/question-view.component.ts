@@ -5,7 +5,7 @@ import { ActivatedRoute, RouterOutlet } from '@angular/router';
 import { AnswerId, GameState, Login } from '../models/backendmodels-copy';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { catchError, defer, interval, Observable, switchMap, throwError } from 'rxjs';
-import { animate, style, transition, trigger } from '@angular/animations';
+import { animate, keyframes, style, transition, trigger } from '@angular/animations';
 
 @Component({
   selector: 'app-question-view',
@@ -20,6 +20,18 @@ import { animate, style, transition, trigger } from '@angular/animations';
       transition(':decrement', [
         style({ transform: 'translateY(-100%)', opacity: 0 }),
         animate('300ms ease-out', style({ transform: 'translateY(0)', opacity: 1 })),
+      ]),
+    ]),
+    trigger('questionChange', [
+      transition('* => *', [
+        animate(
+          '500ms ease-out',
+          keyframes([
+            style({ transform: 'scale(0.5) rotate(-90deg)', opacity: 0, offset: 0 }), 
+            style({ transform: 'scale(1.1) rotate(10deg)', opacity: 0.8, offset: 0.7 }),
+            style({ transform: 'scale(1) rotate(0deg)', opacity: 1, offset: 1 }),
+          ])
+        ),
       ]),
     ]),
   ],
@@ -62,32 +74,28 @@ import { animate, style, transition, trigger } from '@angular/animations';
           </div>
 
           <div class="element-view">
-
-
-              <!-- //TODO - Get all Players with "answeredId !== 0 => hasAnswered" and diplay little checkmark-->
-              <div *ngIf="this.isDev">
-                <!-- @TODO Replace PlayerName with room name -->
-                <h2>
-                Active Room -
-                <div *ngIf="responseMessage">
-                  {{ responseMessage.playerName }}
-                </div>
-              </h2>
-                <div>Player List</div>
-                <ul>
-                  <li>SomeNameFromBackend1</li>
-                  <li>SomeNameFromBackend2</li>
-                  <li>SomeNameFromBackend3</li>
-                  <li>SomeNameFromBackend4</li>
-                </ul>    
+            <!-- //TODO - Get all Players with "answeredId !== 0 => hasAnswered" and diplay little checkmark-->
+            <div *ngIf="this.isDev">
+              <!-- @TODO Replace PlayerName with room name -->
+              <h2>
+              Active Room -
+              <div *ngIf="responseMessage">
+                {{ responseMessage.playerName }}
               </div>
-            
-
-            <h2>Active Question</h2>
+            </h2>
+              <div>Player List</div>
+              <ul>
+                <li>SomeNameFromBackend1</li>
+                <li>SomeNameFromBackend2</li>
+                <li>SomeNameFromBackend3</li>
+                <li>SomeNameFromBackend4</li>
+              </ul>    
+            </div>
+          
             <ng-container *ngIf="getGameState$ | async as gamestate">
               <div *ngIf="gamestate.currentQuestion.question; else notActive">
+                <div [@questionChange]="gamestate.currentQuestion.question" class="question-container">
                 <h3>{{ gamestate.currentQuestion.question }}</h3>
-              
                 <div class="center">
                   <div class="counter gradient-background">
                   <div  [@numberChange]="gamestate?.currentQuestionTimer">
@@ -120,6 +128,7 @@ import { animate, style, transition, trigger } from '@angular/animations';
                       {{ answer.answerText }}
                     </label>
                   </div>
+                </div>
                 </div>
               </div>
 
