@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterOutlet } from '@angular/router';
-import { AnswerId, GameState, Login } from '../models/backendmodels-copy';
+import { Answer, AnswerId, GameState, Player } from '../models/backendmodels-copy';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { catchError, defer, interval, Observable, switchMap, throwError } from 'rxjs';
 import { animate, keyframes, style, transition, trigger } from '@angular/animations';
@@ -40,7 +40,13 @@ import { animate, keyframes, style, transition, trigger } from '@angular/animati
 
       <ng-container *ngIf="intialConnection$ | async as result; else loading">
         <div>
-          <div class="element-header"><h1>Header</h1></div>
+          <div class="element-header">
+            <h1>Quizza</h1>
+            <div *ngIf="this.player">
+              PlayerName: {{this.player.name}} 
+              <button (click)="logOut()">Logout</button>
+            </div>
+          </div>
 
           <div *ngIf="this.isDev" class="element-view">
             <h2>Server Connection Status</h2>
@@ -48,7 +54,7 @@ import { animate, keyframes, style, transition, trigger } from '@angular/animati
             <p>ServerTime: {{ result.serverTime }}</p>
           </div>
 
-          <div class="element-view">
+          <div *ngIf="!this.player" class="element-view">
             <h2>Player Login</h2>
             <input type="text" placeholder="Enter your name" #playerNameInput />
             <button (click)="sendLoginRequest(playerNameInput.value)">
@@ -65,23 +71,23 @@ import { animate, keyframes, style, transition, trigger } from '@angular/animati
                 <li>SomeNameFromBackend4</li>
               </ul>
               <hr />
-              <h3>Room Information</h3>
-              <p *ngIf="responseMessage">{{ responseMessage | json }}</p>
+              <!-- <h3>Room Information</h3>
+              <p *ngIf="responseMessage">{{ responseMessage | json }}</p> -->
             </div>
             
 
 
           </div>
 
-          <div class="element-view">
+          <div *ngIf="this.player" class="element-view">
             <!-- //TODO - Get all Players with "answeredId !== 0 => hasAnswered" and diplay little checkmark-->
             <div *ngIf="this.isDev">
               <!-- @TODO Replace PlayerName with room name -->
               <h2>
-              Active Room -
+              <!-- Active Room -
               <div *ngIf="responseMessage">
                 {{ responseMessage.playerName }}
-              </div>
+              </div> -->
             </h2>
               <div>Player List</div>
               <ul>
@@ -95,16 +101,17 @@ import { animate, keyframes, style, transition, trigger } from '@angular/animati
             <ng-container *ngIf="getGameState$ | async as gamestate">
               <div *ngIf="gamestate.currentQuestion.question; else notActive">
                 <div [@questionChange]="gamestate.currentQuestion.question" class="question-container">
-                <h3>{{ gamestate.currentQuestion.question }}</h3>
-                <div class="center">
-                  <div class="counter gradient-background">
-                  <div  [@numberChange]="gamestate?.currentQuestionTimer">
-                    {{ gamestate?.currentQuestionTimer }}
+                  <div class="center">
+                    <div class="counter gradient-background">
+                    <div  [@numberChange]="gamestate?.currentQuestionTimer">
+                      {{ gamestate?.currentQuestionTimer }}
+                    </div>
+                    </div>
                   </div>
-                  </div>
-                </div>
+                  <h3 class="center">{{ gamestate.currentQuestion.question }}</h3>
 
-                <div class="flex-column">
+
+                  <div class="flex-column">
                   <div
                     class="icon-thing"
                     style="width: 100%"
@@ -151,11 +158,12 @@ import { animate, keyframes, style, transition, trigger } from '@angular/animati
   styleUrl: './question-view.component.css'
 })
 export class QuestionViewComponent implements OnInit, OnDestroy {
-  responseMessage: Login = { playerName: '', playerToken: '' };
 
-  playerName: string | null = null;
+  player: Player | null = null;
+
   isDev: boolean = false;
-  room: string | null = null;
+  gameId: string | null = null;
+
   title = 'quizza-frontend';
   apiUrl = 'http://localhost:3000';
 
@@ -163,12 +171,13 @@ export class QuestionViewComponent implements OnInit, OnDestroy {
     this.route.queryParams.subscribe(params => {
       console.log(params['isDev']);
       this.isDev = params['isDev'] === 'true';
-      this.room = params['room'];
+      this.gameId = params['gameId'];
     });
   }
 
   ngOnInit(): void {
-    this.playerName = this.getPlayerNameFromLocalStorage();
+    this.player = this.getPlayerFromLocalStorage();
+    console.log("PlayerLog: ",this.player);
   }
 
   intialConnection$ = defer(() =>
@@ -179,8 +188,6 @@ export class QuestionViewComponent implements OnInit, OnDestroy {
     interval(1000).pipe(switchMap(() => this.getGameState())),
   );
 
-
-
   getIsAlivePing(): Observable<{ message: string; serverTime: string }> {
     return this.http.get<{
       message: string;
@@ -188,24 +195,45 @@ export class QuestionViewComponent implements OnInit, OnDestroy {
     }>(this.apiUrl);
   }
 
+  savePlayerToLocalStorage(value: Player): void {
+    localStorage.setItem('player', JSON.stringify(value));
+  }
+
+  getPlayerFromLocalStorage(): Player | null {
+    const value = localStorage.getItem('player')
+    if(!value) {
+      return null;
+    }
+    return JSON.parse(value) as Player;
+  }
+
+  deletePlayerFromLocalStorage(){
+    const value = localStorage.removeItem('player')
+  }
+
+  ngOnDestroy(): void {
+  }
+
+  trackById(index: number, item: Answer) {
+    return item.answerId; // assuming each question has a unique id
+  }
+
   getGameState(): Observable<GameState> {
-    return this.http.get<GameState>(`${this.apiUrl}/gamestate/${this.playerName}`);
+    if (!this.player || !this.gameId) {
+      return new Observable<GameState>();
+    }
+
+    const url = `${this.apiUrl}/gameState/${this.player?.id}/${this.gameId}`;
+    return this.http.get<GameState>(url);
   }
 
   sendLoginRequest(playerName: string): void {
-    const loginUrl = `${this.apiUrl} / login`;
-    const payload = { playerName, gameId: 'GET THIS FROM URL' };
+    const url = `${this.apiUrl}/login/${playerName}/${this.gameId}`;
 
-    // Put this into the backend
-    this.playerName = playerName;
-    this.saveToLocalStorage('playerName', playerName);
-
-    console.log('Sending login request to:', loginUrl, payload);
-    this.http.post<Login>(loginUrl, payload).subscribe({
+    this.http.get<Player>(url).subscribe({
       next: (response) => {
-        this.responseMessage = response;
-        this.playerName = response.playerName;
-        this.saveToLocalStorage('playerName', response.playerName);
+        this.player = response;
+        this.savePlayerToLocalStorage(response);
       },
       error: (error) => {
         console.error('Error from backend:', error);
@@ -214,22 +242,16 @@ export class QuestionViewComponent implements OnInit, OnDestroy {
     });
   }
 
-  saveToLocalStorage(key: string, value: string): void {
-    localStorage.setItem(key, value);
-  }
-
-  getPlayerNameFromLocalStorage(): string | null {
-    return localStorage.getItem('playerName');
+  logOut() {
+    this.deletePlayerFromLocalStorage();
+    this.player = null;
   }
 
   onAnswerChange(answerId: number) {
     console.log(answerId);
-    const playerName = this.playerName;
-    const url = `${this.apiUrl}/answer`
-      ;
-    const body = { playerName, answerId };
+    const url = `${this.apiUrl}/answer/${this.player?.id}/${this.gameId}/${answerId}`;
 
-    this.http.post(url, body).pipe(
+    this.http.get(url).pipe(
       catchError((error: HttpErrorResponse) => {
         console.log(error);
         return throwError(() => error);
@@ -237,12 +259,4 @@ export class QuestionViewComponent implements OnInit, OnDestroy {
     ).subscribe();
   }
 
-  ngOnDestroy(): void {
-    // Remove the listener to avoid memory leaks
-    // window.removeEventListener('storage', this.storageListener);
-  }
-
-  trackById(index: number, item: Omit<AnswerId, 'questionId'>) {
-    return item.answerId; // assuming each question has a unique id
-  }
 }

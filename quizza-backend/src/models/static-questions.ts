@@ -1,3 +1,5 @@
+import { Question } from "./backendmodels";
+
 export const questions: Question[] = [
     {
         id: 1,
@@ -8,7 +10,6 @@ export const questions: Question[] = [
             { answerId: 3, answerText: "Madrid" },
             { answerId: 4, answerText: "Rome" },
         ],
-        selectedAnswerId: 0,
         correctAnswerId: 1,
     },
     {
@@ -20,7 +21,6 @@ export const questions: Question[] = [
             { answerId: 7, answerText: "Mars" },
             { answerId: 8, answerText: "Jupiter" },
         ],
-        selectedAnswerId: 0,
         correctAnswerId: 7,
     },
     {
@@ -32,7 +32,6 @@ export const questions: Question[] = [
             { answerId: 11, answerText: "Jane Austen" },
             { answerId: 12, answerText: "Mark Twain" },
         ],
-        selectedAnswerId: 0,
         correctAnswerId: 9,
     },
     {
@@ -44,7 +43,6 @@ export const questions: Question[] = [
             { answerId: 15, answerText: "Arctic Ocean" },
             { answerId: 16, answerText: "Pacific Ocean" },
         ],
-        selectedAnswerId: 0,
         correctAnswerId: 16,
     },
     {
@@ -56,7 +54,7 @@ export const questions: Question[] = [
             { answerId: 19, answerText: "JavaScript" },
             { answerId: 20, answerText: "Ruby" },
         ],
-        selectedAnswerId: 0,
+
         correctAnswerId: 18,
     },
     {
@@ -68,7 +66,7 @@ export const questions: Question[] = [
             { answerId: 23, answerText: "7" },
             { answerId: 24, answerText: "8" },
         ],
-        selectedAnswerId: 0,
+
         correctAnswerId: 23,
     },
     {
@@ -80,7 +78,7 @@ export const questions: Question[] = [
             { answerId: 27, answerText: "8" },
             { answerId: 28, answerText: "9" },
         ],
-        selectedAnswerId: 0,
+
         correctAnswerId: 27,
     },
     {
@@ -92,7 +90,7 @@ export const questions: Question[] = [
             { answerId: 31, answerText: "Hydrogen" },
             { answerId: 32, answerText: "Nitrogen" },
         ],
-        selectedAnswerId: 0,
+
         correctAnswerId: 30,
     },
     {
@@ -104,7 +102,7 @@ export const questions: Question[] = [
             { answerId: 35, answerText: "1972" },
             { answerId: 36, answerText: "1959" },
         ],
-        selectedAnswerId: 0,
+
         correctAnswerId: 34,
     },
     {
@@ -116,7 +114,7 @@ export const questions: Question[] = [
             { answerId: 39, answerText: "Object" },
             { answerId: 40, answerText: "Boolean" },
         ],
-        selectedAnswerId: 0,
+
         correctAnswerId: 39,
     },
 ];

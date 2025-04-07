@@ -1,5 +1,6 @@
 import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { AppService } from './app.service';
+import { GeneralGameState } from './models/backendmodels';
 
 @Controller()
 export class AppController {
@@ -10,20 +11,20 @@ export class AppController {
     return this.appService.getHello();
   }
 
-  @Get('/gamestate/:playerName')
-  getGameState(@Param('playerName') playerName: string): GameState {
-    return this.appService.getGameState(playerName);
+  @Get('/gamestate/:playerName/:gameId')
+  getGameState(@Param('playerName') playerName: string, @Param('gameId') gameId: string): GeneralGameState {
+    return this.appService.getGeneralGameState(playerName, gameId);
   }
 
-  @Post("/login")
-  postLogin(@Body() body: { playerName: string, gameId: string }) {
-    console.log("POST /login", body.playerName, body.gameId);
-    return this.appService.login(body.playerName, body.gameId);
+  @Get("/login/:playerName/:gameId")
+  postLogin(@Param('playerName') playerName: string, @Param('gameId') gameId: string) {
+    return this.appService.login(playerName, gameId);
   }
 
-  @Post("/answer")
-  postAnswer(@Body() body: { playerName: string, answerId: string }) {
-    console.log("POST /answer", body.playerName, body.answerId);
-    return this.appService.answerQuestionForPlayer(body.playerName, body.answerId);
+  @Get("/answer/:playerId/:gameId/:answerId")
+  postAnswer(@Param('playerId') playerId: string, @Param('gameId') gameId: string, @Param('answerId') answerId: number) {
+    {
+      return this.appService.answerQuestionForPlayer(gameId, playerId, answerId);
+    }
   }
 }

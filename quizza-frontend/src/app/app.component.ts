@@ -1,14 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, RouterOutlet } from '@angular/router';
-import { catchError, defer, interval, Observable, switchMap, throwError } from 'rxjs';
-import {
-  AnswerId,
-  GameState,
-  Login
-} from './models/backendmodels-copy';
+import { RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-root',
