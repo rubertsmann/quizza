@@ -4,15 +4,9 @@ main {
     align-items: center;
     justify-content: flex-start;
     height: 100vh;
-    width: 100vw;
     overflow-y: auto;
-    /* overflow-x: hidden; */
+    overflow-x: hidden;
     box-sizing: border-box;
-}
-
-.content {
-    width: 24rem;
-    max-width: 24rem;
 }
 
 h1 {

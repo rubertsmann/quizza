@@ -2,6 +2,7 @@
     "name": "project-root",
     "private": true,
     "scripts": {
+        "install-all": "concurrently \"npm --prefix quizza-frontend run start\" \"npm --prefix quizza-backend run start:dev\"",
         "dev": "concurrently \"npm --prefix quizza-frontend run start\" \"npm --prefix quizza-backend run start:dev\""
     },
     "devDependencies": {

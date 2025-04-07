@@ -3,6 +3,7 @@ interface GameState {
   playerId: number,
   playerName: string,
   currentQuestion: Omit<Question, "correctAnswer">,
+  currentQuestionTimer: number,
   currentAnswer: string
 }
 
@@ -11,6 +12,7 @@ interface Question {
   question: string,
   answers: Omit<AnswerId, "questionId">[],
   selectedAnswerId: number,
+  correctAnswerId: number
 }
 
 interface AnswerId {
@@ -20,5 +22,5 @@ interface AnswerId {
 }
 
 interface Login {
-   playerName: string, playerToken: string 
-  }
+  playerName: string, playerToken: string
+}
