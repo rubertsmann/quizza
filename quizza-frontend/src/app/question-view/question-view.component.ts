@@ -5,11 +5,24 @@ import { ActivatedRoute, RouterOutlet } from '@angular/router';
 import { AnswerId, GameState, Login } from '../models/backendmodels-copy';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { catchError, defer, interval, Observable, switchMap, throwError } from 'rxjs';
+import { animate, style, transition, trigger } from '@angular/animations';
 
 @Component({
   selector: 'app-question-view',
   imports: [RouterOutlet, CommonModule, FormsModule],
   standalone: true,
+  animations: [
+    trigger('numberChange', [
+      transition(':increment', [
+        style({ transform: 'translateY(100%)', opacity: 0 }),
+        animate('300ms ease-out', style({ transform: 'translateY(0)', opacity: 1 })),
+      ]),
+      transition(':decrement', [
+        style({ transform: 'translateY(-100%)', opacity: 0 }),
+        animate('300ms ease-out', style({ transform: 'translateY(0)', opacity: 1 })),
+      ]),
+    ]),
+  ],
   template: `
       <router-outlet />
 
@@ -76,7 +89,11 @@ import { catchError, defer, interval, Observable, switchMap, throwError } from '
                 <h3>{{ gamestate.currentQuestion.question }}</h3>
               
                 <div class="center">
-                  <div class="counter gradient-background">{{ gamestate.currentQuestionTimer }}</div>
+                  <div class="counter gradient-background">
+                  <div  [@numberChange]="gamestate?.currentQuestionTimer">
+                    {{ gamestate?.currentQuestionTimer }}
+                  </div>
+                  </div>
                 </div>
 
                 <div class="flex-column">
