@@ -1,6 +1,6 @@
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseBoolPipe, Post, Query } from '@nestjs/common';
 import { AppService } from './app.service';
-import { GeneralGameState } from './models/backendmodels';
+import { Answer, AnswerId, GameId, GeneralGameState, PlayerId } from './models/backendmodels';
 
 @Controller()
 export class AppController {
@@ -11,9 +11,9 @@ export class AppController {
     return this.appService.getHello();
   }
 
-  @Get('/gamestate/:playerName/:gameId')
-  getGameState(@Param('playerName') playerName: string, @Param('gameId') gameId: string): GeneralGameState {
-    return this.appService.getGeneralGameState(playerName, gameId);
+  @Get('/gamestate/:playerId/:gameId')
+  getGameState(@Param('playerId') playerId: PlayerId, @Param('gameId') gameId: string): GeneralGameState {
+    return this.appService.getGeneralGameState(playerId, gameId);
   }
 
   @Get("/login/:playerName/:gameId")
@@ -22,9 +22,12 @@ export class AppController {
   }
 
   @Get("/answer/:playerId/:gameId/:answerId")
-  postAnswer(@Param('playerId') playerId: string, @Param('gameId') gameId: string, @Param('answerId') answerId: number) {
-    {
-      return this.appService.answerQuestionForPlayer(gameId, playerId, answerId);
-    }
+  postAnswer(@Param('playerId') playerId: PlayerId, @Param('gameId') gameId: GameId, @Param('answerId') answerId: string) {
+    return this.appService.answerQuestionForPlayer(gameId, playerId, parseInt(answerId));
+  }
+
+  @Get("/vote/:playerId/:gameId/:vote")
+  postVote(@Param('playerId') playerId: PlayerId, @Param('gameId') gameId: GameId, @Param('vote') vote: string) {
+    return this.appService.voteStartPlayer(gameId, playerId, vote === "true" ? true : false);
   }
 }

@@ -13,6 +13,7 @@ import { ActivatedRoute, RouterOutlet } from '@angular/router';
 import {
   catchError,
   defer,
+  first,
   interval,
   Observable,
   switchMap,
@@ -21,6 +22,8 @@ import {
 import {
   Answer,
   GameState,
+  GameStatus,
+  GeneralGameState,
   Player
 } from '../models/backendmodels-copy';
 
@@ -113,25 +116,38 @@ import {
 
         <div *ngIf="this.player" class="element-view">
           <!-- //TODO - Get all Players with "answeredId !== 0 => hasAnswered" and diplay little checkmark-->
-          <div *ngIf="this.isDev">
-            <!-- @TODO Replace PlayerName with room name -->
-            <h2>
-              <!-- Active Room -
-              <div *ngIf="responseMessage">
-                {{ responseMessage.playerName }}
-              </div> -->
-            </h2>
-            <div>Player List</div>
-            <ul>
-              <li>SomeNameFromBackend1</li>
-              <li>SomeNameFromBackend2</li>
-              <li>SomeNameFromBackend3</li>
-              <li>SomeNameFromBackend4</li>
-            </ul>
-          </div>
-
           <ng-container *ngIf="getGameState$ | async as gamestate">
-            <div *ngIf="gamestate.currentQuestion.question; else notActive">
+          <div *ngIf="gamestate.gameStatus === GameStatus.PRE_GAME">
+            <h2>Pre Game</h2>
+            <button (click)="vote(true)">Yes</button>
+            <button (click)="vote(false)">No</button>
+
+            <ng-container>How many have voted: {{gamestate.preGameState.howManyHaveVoted}}</ng-container>
+            <ng-container
+                    class="icon-thing"
+                    style="width: 100%"
+                    *ngFor="
+                      let playerName of gamestate.preGameState.playerNames;
+                    "
+                  >
+                <div class="endgame-container">
+                  Players: {{playerName}}
+                </div>
+                </ng-container>
+            <ng-container
+              class="icon-thing"
+              style="width: 100%"
+              *ngFor="let preGame of gamestate.preGameState.playerVotes | keyvalue"
+            >
+              <div class="pregame-container">
+                <p>Player Name: {{ preGame.value.playerName }}</p>
+                <p>Vote Start: {{ preGame.value.voteStart ? 'Yes' : 'No' }}</p>
+              </div>
+            </ng-container>
+            
+            </div>
+
+            <div *ngIf="gamestate.currentQuestion.question && gamestate.gameStatus === GameStatus.IN_PROGRESS">
               <div
                 [@questionChange]="gamestate.currentQuestion.question"
                 class="question-container"
@@ -142,6 +158,7 @@ import {
                       {{ gamestate?.currentQuestionTimer }}
                     </div>
                   </div>
+                  <div> <ng-container [@numberChange]="gamestate?.currentRound">{{ gamestate?.currentRound }}</ng-container > / {{gamestate?.maxRounds}}</div>
                 </div>
                 <h3 class="center">{{ gamestate.currentQuestion.question }}</h3>
 
@@ -173,9 +190,22 @@ import {
               </div>
             </div>
 
-            <ng-template #notActive>
-              <p>No Active Question</p>
-            </ng-template>
+            <div *ngIf="gamestate.gameStatus === GameStatus.FINISHED">
+              <h2>Game Over</h2>
+              <ng-container
+                    class="icon-thing"
+                    style="width: 100%"
+                    *ngFor="
+                      let endgame of gamestate.endGameState;
+                    "
+                  >
+                <div class="endgame-container">
+                  {{endgame?.player?.name}} - {{endgame?.points}}
+                </div>
+                </ng-container>
+            
+            </div>
+
           </ng-container>
         </div>
       </div>
@@ -192,6 +222,9 @@ import {
   styleUrl: './question-view.component.css',
 })
 export class QuestionViewComponent implements OnInit, OnDestroy {
+
+  GameStatus = GameStatus;
+
   player: Player | null = null;
 
   isDev = false;
@@ -253,13 +286,13 @@ export class QuestionViewComponent implements OnInit, OnDestroy {
     return item.answerId; // assuming each question has a unique id
   }
 
-  getGameState(): Observable<GameState> {
+  getGameState(): Observable<GeneralGameState> {
     if (!this.player || !this.gameId) {
-      return new Observable<GameState>();
+      return new Observable<GeneralGameState>();
     }
 
     const url = `${this.apiUrl}/gameState/${this.player?.id}/${this.gameId}`;
-    return this.http.get<GameState>(url);
+    return this.http.get<GeneralGameState>(url);
   }
 
   sendLoginRequest(playerName: string): void {
@@ -275,6 +308,12 @@ export class QuestionViewComponent implements OnInit, OnDestroy {
         alert('An error occurred while sending the login request.');
       },
     });
+  }
+
+  vote(vote: boolean) {
+    const url = `${this.apiUrl}/vote/${this.player?.id}/${this.gameId}/${vote}`;
+
+    this.http.get(url).pipe(first()).subscribe();
   }
 
   logOut() {

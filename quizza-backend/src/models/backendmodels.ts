@@ -8,7 +8,7 @@ export interface GameState {
 }
 
 export interface Question {
-  id: number,
+  id: QuestionId,
   question: string,
   answers: Answer[],
   correctAnswerId: number
@@ -26,12 +26,13 @@ export interface Player {
 
 export type GameId = string;
 export type AnswerId = number;
-export type QuestionId = string;
+export type QuestionId = number;
 export type PlayerId = string;
 
 export interface QuestionWithAnswer {
   id: QuestionId,
-  answerId: AnswerId
+  answerId: AnswerId,
+  isCorrectAnswer: boolean
 }
 
 export interface PlayerGameState {
@@ -40,10 +41,44 @@ export interface PlayerGameState {
   allAnswers: Map<QuestionId, QuestionWithAnswer>
 }
 
+export interface EndGame {
+  player: Player,
+  currentAnswerId: AnswerId,
+  allAnswers: Map<QuestionId, QuestionWithAnswer>
+}
+
+export enum GameStatus { 
+  WAITING_FOR_PLAYERS = "WAITING_FOR_PLAYERS",
+  IN_PROGRESS = "IN_PROGRESS",
+  FINISHED = "FINISHED",
+  PRE_GAME = "PRE_GAME"
+}
+
+export interface EndGameState {
+  points: number,
+  player: Player,
+}
+
+export interface PreGameState {
+  howManyHaveVoted: number,
+  playerNames: string[];
+  playerVotes: Map<PlayerId, PlayerVote>
+}
+
+export interface PlayerVote {
+  voteStart: boolean
+  playerName: string
+}
+
 export interface GeneralGameState {
   gameId: GameId,
+  gameStatus: GameStatus, 
+  currentRound: number,
+  maxRounds: number,
   roundTime: number,
   currentQuestionTimer: number,
   currentQuestion: Question,
-  playerSpecificGameState: Map<PlayerId, PlayerGameState>
+  playerSpecificGameState: Map<PlayerId, PlayerGameState>,
+  endGameState: EndGameState[],
+  preGameState?: PreGameState
 }
