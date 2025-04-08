@@ -231,7 +231,7 @@ export class QuestionViewComponent implements OnInit, OnDestroy {
   gameId: string | null = null;
 
   title = 'quizza-frontend';
-  apiUrl = 'http://localhost:3000';
+  apiUrl = 'http://localhost:3000/api';
 
   constructor(
     private http: HttpClient,

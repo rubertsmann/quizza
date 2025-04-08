@@ -30,9 +30,10 @@ export class AppService {
   voteStartPlayer(gameId: GameId, playerName: PlayerId, voteStart: boolean) {
     const gameState = this.globalGameState.get(gameId);
     const playerGameState = gameState?.playerSpecificGameState.get(playerName);
+    const pregameState = gameState?.preGameState;
 
-    if (gameState && playerGameState) {
-      gameState.preGameState.playerVotes.set(playerGameState.player.id, {playerName: playerName, voteStart})
+    if (gameState && playerGameState && pregameState) {
+      pregameState.playerVotes.set(playerGameState.player.id, {playerName: playerName, voteStart})
       this.globalGameState.set(gameId, gameState);
     }
 
@@ -76,7 +77,9 @@ export class AppService {
         playerNames.push(playerGameState.player.name);
       });
   
-      gameState.preGameState.playerNames = playerNames;
+      if(gameState.preGameState) {
+        gameState.preGameState.playerNames = playerNames
+      }
     }
     
   }
@@ -153,16 +156,21 @@ export class AppService {
   }
 
   updatePreGame(gameState: GeneralGameState, gameId: GameId) {
-    let howManyVotedYes = 0;
-    gameState.preGameState.playerVotes.forEach((playerGameState) => {  
-      playerGameState.voteStart ? howManyVotedYes++ : howManyVotedYes--;
-    });
-
-    gameState.preGameState.howManyHaveVoted = howManyVotedYes;
-
-    if(gameState.playerSpecificGameState.size === howManyVotedYes) {
-      gameState.gameStatus = GameStatus.IN_PROGRESS;
+    if(!gameState.preGameState) {
+      console.error("Game is not initialized")
+    } else {
+      let howManyVotedYes = 0;
+      gameState.preGameState.playerVotes.forEach((playerGameState) => {  
+        playerGameState.voteStart ? howManyVotedYes++ : howManyVotedYes--;
+      });
+  
+      gameState.preGameState.howManyHaveVoted = howManyVotedYes;
+  
+      if(gameState.playerSpecificGameState.size === howManyVotedYes) {
+        gameState.gameStatus = GameStatus.IN_PROGRESS;
+      }
     }
+    
   }
 
   updateGameInProgress(gameState: GeneralGameState, gameId: GameId) {

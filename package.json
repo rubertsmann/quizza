@@ -3,7 +3,8 @@
     "private": true,
     "scripts": {
         "install-all": "concurrently \"npm --prefix quizza-frontend run start\" \"npm --prefix quizza-backend run start:dev\"",
-        "dev": "concurrently \"npm --prefix quizza-frontend run start\" \"npm --prefix quizza-backend run start:dev\""
+        "dev": "concurrently \"npm --prefix quizza-frontend run start\" \"npm --prefix quizza-backend run start:dev\"",
+        "package": "npm --prefix quizza-frontend run build && npm --prefix quizza-backend run build && npx pkg quizza-backend/dist/main.js"
     },
     "devDependencies": {
         "concurrently": "^8.0.0"
