@@ -9,7 +9,7 @@ import { CommonModule } from '@angular/common';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, RouterOutlet } from '@angular/router';
+import { ActivatedRoute, Router, RouterOutlet } from '@angular/router';
 import {
   catchError,
   defer,
@@ -92,27 +92,25 @@ import {
           <p>ServerTime: {{ result.serverTime }}</p>
         </div>
 
-        <div *ngIf="!this.player" class="element-view">
-          <h2>Player Login</h2>
-          <input type="text" placeholder="Enter your name" #playerNameInput />
-          <button (click)="sendLoginRequest(playerNameInput.value)">
-            Send Request
-          </button>
-
-          <!-- //TODO - Get all Players from backend and when click set it to current user -->
-          <div *ngIf="this.isDev">
-            <div>Select Player - Click here instead of entering a player</div>
-            <ul>
-              <li>SomeNameFromBackend1</li>
-              <li>SomeNameFromBackend2</li>
-              <li>SomeNameFromBackend3</li>
-              <li>SomeNameFromBackend4</li>
-            </ul>
-            <hr />
-            <!-- <h3>Room Information</h3>
-              <p *ngIf="responseMessage">{{ responseMessage | json }}</p> -->
+        <ng-container *ngIf="this.gameId && !this.player; else preGameLobby">
+          <div class="element-view">
+            <h2>Player Login</h2>
+            <input type="text" placeholder="Enter your name" #playerNameInput />
+            <button (click)="sendLoginRequest(playerNameInput.value)">
+              Send Request
+            </button>
           </div>
-        </div>
+        </ng-container>
+
+        <ng-template #preGameLobby>
+          <div *ngIf="!this.gameId" class="element-view">
+            <h2>Create new Lobby</h2>
+            <input type="text" placeholder="Enter some GameId" #roomNameInput />
+            <button (click)="openNewLobby(roomNameInput.value)">
+              Create new Lobby
+            </button>
+          </div>
+        </ng-template>
 
         <div *ngIf="this.player" class="element-view">
           <!-- //TODO - Get all Players with "answeredId !== 0 => hasAnswered" and diplay little checkmark-->
@@ -222,7 +220,6 @@ import {
   styleUrl: './question-view.component.css',
 })
 export class QuestionViewComponent implements OnInit, OnDestroy {
-
   GameStatus = GameStatus;
 
   player: Player | null = null;
@@ -236,7 +233,8 @@ export class QuestionViewComponent implements OnInit, OnDestroy {
   constructor(
     private http: HttpClient,
     private route: ActivatedRoute,
-  ) {
+    private router: Router
+    ) {
     this.route.queryParams.subscribe((params) => {
       console.log(params['isDev']);
       this.isDev = params['isDev'] === 'true';
@@ -257,6 +255,17 @@ export class QuestionViewComponent implements OnInit, OnDestroy {
     interval(1000).pipe(switchMap(() => this.getGameState())),
   );
 
+  openNewLobby(gameId: string) {
+    const isValid = /^[a-z]{1,10}$/.test(gameId);
+    if(!isValid) {
+      //Replace with a better indicator
+      alert("GameId is invalid a-z, 1-10, single word")
+    } else {
+      this.router.navigate([], {queryParams: {gameId: gameId}})
+    }
+  }
+    
+
   getIsAlivePing(): Observable<{ message: string; serverTime: string }> {
     return this.http.get<{
       message: string;
@@ -265,11 +274,11 @@ export class QuestionViewComponent implements OnInit, OnDestroy {
   }
 
   savePlayerToLocalStorage(value: Player): void {
-    localStorage.setItem('player', JSON.stringify(value));
+    localStorage.setItem('player' + this.gameId, JSON.stringify(value));
   }
 
   getPlayerFromLocalStorage(): Player | null {
-    const value = localStorage.getItem('player');
+    const value = localStorage.getItem('player' + this.gameId);
     if (!value) {
       return null;
     }
@@ -277,7 +286,7 @@ export class QuestionViewComponent implements OnInit, OnDestroy {
   }
 
   deletePlayerFromLocalStorage() {
-    const value = localStorage.removeItem('player');
+    const value = localStorage.removeItem('player' + this.gameId);
   }
 
   ngOnDestroy(): void { }
