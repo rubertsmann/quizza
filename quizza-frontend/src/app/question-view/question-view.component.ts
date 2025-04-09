@@ -21,9 +21,10 @@ import {
 } from 'rxjs';
 import {
   Answer,
-  GameState,
+  Category,
   GameStatus,
   GeneralGameState,
+  NewGame,
   Player
 } from '../models/backendmodels-copy';
 
@@ -105,10 +106,12 @@ import {
         <ng-template #preGameLobby>
           <div *ngIf="!this.gameId" class="element-view">
             <h2>Create new Lobby</h2>
-            <input type="text" placeholder="Enter some GameId" #roomNameInput />
-            <button (click)="openNewLobby(roomNameInput.value)">
+            <p>GameId: <input type="text" placeholder="Enter some GameId" #roomNameInput /></p>
+            <p>Max Rounds: <input type="text" placeholder="Enter Round Count" value="3" #maxRoundCountInput /></p>
+            <p>Round Time: <input type="text" placeholder="Enter Round Time" value="20" #maxRoundTimeInput /></p>
+            <p><button (click)="openNewLobby(roomNameInput.value, maxRoundCountInput.value, maxRoundTimeInput.value)">
               Create new Lobby
-            </button>
+            </button></p>
           </div>
         </ng-template>
 
@@ -120,12 +123,12 @@ import {
             <button (click)="vote(true)">Yes</button>
             <button (click)="vote(false)">No</button>
 
-            <ng-container>How many have voted: {{gamestate.preGameState.howManyHaveVoted}}</ng-container>
+            <ng-container>How many have voted: {{gamestate.preGameState?.howManyHaveVoted}}</ng-container>
             <ng-container
                     class="icon-thing"
                     style="width: 100%"
                     *ngFor="
-                      let playerName of gamestate.preGameState.playerNames;
+                      let playerName of gamestate.preGameState?.playerNames;
                     "
                   >
                 <div class="endgame-container">
@@ -135,7 +138,7 @@ import {
             <ng-container
               class="icon-thing"
               style="width: 100%"
-              *ngFor="let preGame of gamestate.preGameState.playerVotes | keyvalue"
+              *ngFor="let preGame of gamestate.preGameState?.playerVotes | keyvalue"
             >
               <div class="pregame-container">
                 <p>Player Name: {{ preGame.value.playerName }}</p>
@@ -221,6 +224,8 @@ import {
 })
 export class QuestionViewComponent implements OnInit, OnDestroy {
   GameStatus = GameStatus;
+  Category = Category;
+  allCategories = Object.keys(Category);
 
   player: Player | null = null;
 
@@ -234,7 +239,7 @@ export class QuestionViewComponent implements OnInit, OnDestroy {
     private http: HttpClient,
     private route: ActivatedRoute,
     private router: Router
-    ) {
+  ) {
     this.route.queryParams.subscribe((params) => {
       console.log(params['isDev']);
       this.isDev = params['isDev'] === 'true';
@@ -255,16 +260,34 @@ export class QuestionViewComponent implements OnInit, OnDestroy {
     interval(1000).pipe(switchMap(() => this.getGameState())),
   );
 
-  openNewLobby(gameId: string) {
+  openNewLobby(gameId: string, maxRounds: string, maxRoundTime: string) {
     const isValid = /^[a-z]{1,10}$/.test(gameId);
-    if(!isValid) {
+    if (!isValid) {
       //Replace with a better indicator
       alert("GameId is invalid a-z, 1-10, single word")
     } else {
-      this.router.navigate([], {queryParams: {gameId: gameId}})
+      //Add more input validation
+      this.sendNewGame(gameId, parseInt(maxRounds), parseInt(maxRoundTime));
     }
   }
-    
+
+  sendNewGame(gameId: string, maxRounds: number, maxRoundTime: number): void {
+    const url = `${this.apiUrl}/createGame`;
+
+    this.http.post<NewGame>(url, {
+      gameId,
+      maxRounds,
+      maxRoundTime
+    }).subscribe({
+      next: (response) => {
+        this.router.navigate([], { queryParams: { gameId: response.gameId } })
+      },
+      error: (error) => {
+        console.error('Error from backend:', error);
+        alert('An error occurred while sending the new game request.');
+      },
+    });
+  }
 
   getIsAlivePing(): Observable<{ message: string; serverTime: string }> {
     return this.http.get<{

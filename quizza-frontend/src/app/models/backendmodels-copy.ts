@@ -19,6 +19,12 @@ export enum Category {
     COMPUTER
 }
 
+export interface NewGame {
+    gameId: GameId,
+    maxRounds: number,
+    maxRoundTime: number
+}
+
 export interface Question {
     id: QuestionId,
     category: Category
@@ -90,8 +96,9 @@ export interface GeneralGameState {
     maxRounds: number,
     roundTime: number,
     currentQuestionTimer: number,
+    maxRoundTime: number,
     currentQuestion: Question,
     playerSpecificGameState: Map<PlayerId, PlayerGameState>,
     endGameState: EndGameState[],
-    preGameState: PreGameState
+    preGameState?: PreGameState
 }

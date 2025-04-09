@@ -1,11 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import * as crypto from 'crypto';
-import { AnswerId, EndGameState, GameId, GameState, GameStatus, GeneralGameState, Player, PlayerGameState, PlayerId, PlayerVote, PreGameState, Question, QuestionId, QuestionWithAnswer } from './models/backendmodels';
+import { AnswerId, GameId, GameStatus, GeneralGameState, NewGame, Player, PlayerGameState, PlayerId, PlayerVote, Question, QuestionId, QuestionWithAnswer } from './models/backendmodels';
 import { questions } from './models/static-questions';
 
 @Injectable()
 export class AppService {
-
   onModuleInit() {
     this.startGameStateUpdateLoop();
   }
@@ -23,7 +22,7 @@ export class AppService {
       gameState?.playerSpecificGameState.set(playerName, playerGameState);
       this.globalGameState.set(gameId, gameState);
     }
-    
+
     this.debugGameState(gameId);
   }
 
@@ -33,12 +32,10 @@ export class AppService {
     const pregameState = gameState?.preGameState;
 
     if (gameState && playerGameState && pregameState) {
-      pregameState.playerVotes.set(playerGameState.player.id, {playerName: playerName, voteStart})
+      pregameState.playerVotes.set(playerGameState.player.id, { playerName: playerName, voteStart })
       this.globalGameState.set(gameId, gameState);
     }
 
-    
-    
     this.debugGameState(gameId);
   }
 
@@ -59,10 +56,14 @@ export class AppService {
     const player = { name: playerName, id: uuid };
 
     if (!this.globalGameState.has(gameId)) {
-      this.initializeGeneralGameState(player, gameId);
-    } else {
-      this.initializePlayerGameState(player, gameId);
+      this.initializeGeneralGameState({
+        gameId,
+        maxRounds: 3,
+        maxRoundTime: 20
+      });
     }
+
+    this.initializePlayerGameState(player, gameId);
 
     this.updatePreGamePlayerList(player, gameId)
     return player;
@@ -71,17 +72,17 @@ export class AppService {
   updatePreGamePlayerList(player: Player, gameId: GameId) {
     const gameState = this.globalGameState.get(gameId);
 
-    if(gameState) {
+    if (gameState) {
       const playerNames: string[] = [];
       gameState?.playerSpecificGameState.forEach((playerGameState) => {
         playerNames.push(playerGameState.player.name);
       });
-  
-      if(gameState.preGameState) {
+
+      if (gameState.preGameState) {
         gameState.preGameState.playerNames = playerNames
       }
     }
-    
+
   }
 
   initializePlayerGameState(player: Player, gameId: GameId) {
@@ -97,32 +98,28 @@ export class AppService {
     }
   }
 
-  initializeGeneralGameState(player: Player, gameId: GameId) {
-    const newGame = new Map<PlayerId, PlayerGameState>();
-    newGame.set(player.id, {
-      player: player,
-      currentAnswerId: -1,
-      allAnswers: new Map<QuestionId, QuestionWithAnswer>()
-    });
+  initializeGeneralGameState(newGame: NewGame) {
+    const playerGameState = new Map<PlayerId, PlayerGameState>();
 
     const gameState: GeneralGameState = {
-      gameId: gameId,
+      gameId: newGame.gameId,
       gameStatus: GameStatus.PRE_GAME,
       roundTime: 20,
       currentRound: 1,
-      maxRounds: 3,
+      maxRounds: newGame.maxRounds,
       currentQuestionTimer: 20,
       currentQuestion: this.getRandomQuestion(),
-      playerSpecificGameState: newGame,
+      playerSpecificGameState: playerGameState,
       endGameState: [],
       preGameState: {
         playerNames: [],
         howManyHaveVoted: 0,
         playerVotes: new Map<PlayerId, PlayerVote>()
-      }
+      },
+      maxRoundTime: newGame.maxRoundTime
     };
 
-    this.globalGameState.set(gameId, gameState);
+    this.globalGameState.set(newGame.gameId, gameState);
   }
 
   getGeneralGameState(playerId: PlayerId, gameId: GameId): GeneralGameState {
@@ -145,32 +142,32 @@ export class AppService {
 
   updateGame() {
     this.globalGameState.forEach((gameState, gameId) => {
-      if(gameState.gameStatus === GameStatus.PRE_GAME) {
+      if (gameState.gameStatus === GameStatus.PRE_GAME) {
         this.updatePreGame(gameState, gameId);
       }
 
-      if(gameState.gameStatus === GameStatus.IN_PROGRESS) {
+      if (gameState.gameStatus === GameStatus.IN_PROGRESS) {
         this.updateGameInProgress(gameState, gameId);
       }
     });
   }
 
   updatePreGame(gameState: GeneralGameState, gameId: GameId) {
-    if(!gameState.preGameState) {
+    if (!gameState.preGameState) {
       console.error("Game is not initialized")
     } else {
       let howManyVotedYes = 0;
-      gameState.preGameState.playerVotes.forEach((playerGameState) => {  
+      gameState.preGameState.playerVotes.forEach((playerGameState) => {
         playerGameState.voteStart ? howManyVotedYes++ : howManyVotedYes--;
       });
-  
+
       gameState.preGameState.howManyHaveVoted = howManyVotedYes;
-  
-      if(gameState.playerSpecificGameState.size === howManyVotedYes) {
+
+      if (howManyVotedYes >= 1 && gameState.playerSpecificGameState.size === howManyVotedYes) {
         gameState.gameStatus = GameStatus.IN_PROGRESS;
       }
     }
-    
+
   }
 
   updateGameInProgress(gameState: GeneralGameState, gameId: GameId) {
@@ -178,19 +175,19 @@ export class AppService {
 
     //TODO Probably change this logic according to the game mode.
     if (gameState.currentQuestionTimer <= 0) {
-      
+
       this.persistCurrentRound(gameState, gameId);
-    
-      if(gameState.currentRound == gameState.maxRounds) { 
+
+      if (gameState.currentRound == gameState.maxRounds) {
         this.endGame(gameState);
       } else {
         this.startNewRound(gameState);
       }
-      
+
       this.debugGameState(gameId);
     }
   }
-  
+
   persistCurrentRound(gameState: GeneralGameState, gameId: GameId) {
     this.globalGameState.get(gameId)?.playerSpecificGameState.forEach((playerGameState) => {
       const answeredQuestion: QuestionWithAnswer = {
@@ -203,7 +200,7 @@ export class AppService {
     });
   }
 
-  endGame(gameState: GeneralGameState) { 
+  endGame(gameState: GeneralGameState) {
     console.log("Game finished!");
     gameState.gameStatus = GameStatus.FINISHED;
 
@@ -222,12 +219,22 @@ export class AppService {
   }
 
   startNewRound(gameState: GeneralGameState) {
-    gameState.currentRound++;  
-    gameState.currentQuestionTimer = 20;
+    gameState.currentRound++;
+    gameState.currentQuestionTimer = gameState.maxRoundTime;
     gameState.currentQuestion = this.getRandomQuestion();
   }
 
   getHello(): { message: string, serverTime: string } {
     return { message: 'Hello World! ', serverTime: new Date().toISOString() };
+  }
+
+  createNewGame(newGame: NewGame): NewGame {
+    if (!this.globalGameState.has(newGame.gameId)) {
+      this.initializeGeneralGameState(newGame);
+
+      return newGame
+    } else {
+      throw new Error('Game already exist.');
+    }
   }
 }
