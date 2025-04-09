@@ -7,8 +7,21 @@ export interface GameState {
   currentAnswer: string
 }
 
+export enum Category {
+  HUMAN,
+  SPORT,
+  GROCERIES,
+  SOCIALMEDIA,
+  STARS,
+  HISTORY,
+  STORIES,
+  SCHOOL,
+  COMPUTER
+}
+
 export interface Question {
   id: QuestionId,
+  category: Category
   question: string,
   answers: Answer[],
   correctAnswerId: number
@@ -47,7 +60,7 @@ export interface EndGame {
   allAnswers: Map<QuestionId, QuestionWithAnswer>
 }
 
-export enum GameStatus { 
+export enum GameStatus {
   WAITING_FOR_PLAYERS = "WAITING_FOR_PLAYERS",
   IN_PROGRESS = "IN_PROGRESS",
   FINISHED = "FINISHED",
@@ -72,7 +85,7 @@ export interface PlayerVote {
 
 export interface GeneralGameState {
   gameId: GameId,
-  gameStatus: GameStatus, 
+  gameStatus: GameStatus,
   currentRound: number,
   maxRounds: number,
   roundTime: number,
