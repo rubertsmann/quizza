@@ -104,10 +104,10 @@ export class AppService {
     const gameState: GeneralGameState = {
       gameId: newGame.gameId,
       gameStatus: GameStatus.PRE_GAME,
-      roundTime: 20,
+      roundTime: newGame.maxRoundTime,
       currentRound: 1,
       maxRounds: newGame.maxRounds,
-      currentQuestionTimer: 20,
+      currentQuestionTimer: newGame.maxRoundTime,
       currentQuestion: this.getRandomQuestion(),
       playerSpecificGameState: playerGameState,
       endGameState: [],
