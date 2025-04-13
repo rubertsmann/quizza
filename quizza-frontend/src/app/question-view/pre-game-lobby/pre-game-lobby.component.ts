@@ -12,12 +12,9 @@ import { CommonModule } from '@angular/common';
   styleUrl: './pre-game-lobby.component.css'
 })
 export class PreGameLobbyComponent {
-  gameState$: Observable<GeneralGameState | null>;
-
   constructor(
-   private gameStateService: GameStateService
+   protected gameStateService: GameStateService
   ) {
-    this.gameState$ = gameStateService.gameState$;
   }
 
   vote(vote: boolean) {

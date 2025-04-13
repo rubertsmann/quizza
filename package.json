@@ -2,7 +2,7 @@
     "name": "project-root",
     "private": true,
     "scripts": {
-        "dev": "concurrently \"npm --prefix quizza-frontend run start\" \"npm --prefix quizza-backend run start:dev\"",
+        "dev": "concurrently \"npm --prefix quizza-frontend run watch\" \"npm --prefix quizza-backend run start:dev\"",
         "package": "npm --prefix quizza-frontend run build && npm --prefix quizza-backend run build && npx pkg quizza-backend/dist/main.js"
     },
     "devDependencies": {
