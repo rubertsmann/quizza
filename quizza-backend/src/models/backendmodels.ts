@@ -51,7 +51,12 @@ export type PlayerId = string;
 export interface QuestionWithAnswer {
   id: QuestionId,
   answerId: AnswerId,
+  originalQuestion: {
+    text: string,
+    answerText: Answer | undefined
+  }
   isCorrectAnswer: boolean
+  calculatedPoints: number
 }
 
 export interface PlayerGameState {

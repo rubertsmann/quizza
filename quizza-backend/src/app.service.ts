@@ -9,6 +9,12 @@ export class AppService {
     this.startGameStateUpdateLoop();
   }
 
+  startGameStateUpdateLoop() {
+    setInterval(() => {
+      this.updateGame();
+    }, 1000); // Runs every 1000ms (1 second)
+  }
+
   globalGameState = new Map<GameId, GeneralGameState>();
 
   answerQuestionForPlayer(gameId: GameId, playerName: PlayerId, answerId: AnswerId) {
@@ -134,12 +140,6 @@ export class AppService {
     return questions[randomIndex];
   }
 
-  startGameStateUpdateLoop() {
-    setInterval(() => {
-      this.updateGame();
-    }, 1000); // Runs every 1000ms (1 second)
-  }
-
   updateGame() {
     this.globalGameState.forEach((gameState, gameId) => {
       if (gameState.gameStatus === GameStatus.PRE_GAME) {
@@ -193,27 +193,42 @@ export class AppService {
       const answeredQuestion: QuestionWithAnswer = {
         id: gameState.currentQuestion.id,
         answerId: playerGameState.currentAnswerId,
-        isCorrectAnswer: playerGameState.currentAnswerId === gameState.currentQuestion.correctAnswerId
+        originalQuestion: {
+          text: gameState.currentQuestion.question,
+          answerText: gameState.currentQuestion.answers.find(a => a.answerId === gameState.currentQuestion.correctAnswerId)
+        },
+        isCorrectAnswer: playerGameState.currentAnswerId === gameState.currentQuestion.correctAnswerId,
+        calculatedPoints: this.calculatePoints(gameState.currentRound, gameState.maxRounds, 10)
       }
 
       playerGameState.allAnswers.set(gameState.currentQuestion.id, answeredQuestion);
     });
   }
 
+  calculatePoints(currentRound: number, maxRounds: number, basePoints: number): number {
+    const roundRatio = currentRound / maxRounds;
+    const logScale = Math.log2(1 + roundRatio);
+    return Math.round(basePoints * logScale);
+  }
+
   endGame(gameState: GeneralGameState) {
     console.log("Game finished!");
     gameState.gameStatus = GameStatus.FINISHED;
 
+    this.evaluateCorrectPlayerAnswers(gameState);
+  }
+
+  private evaluateCorrectPlayerAnswers(gameState: GeneralGameState) {
     gameState.playerSpecificGameState.forEach((playerGameState) => {
       let correctAnswerCount = 0;
-      //TODO fix this count
       playerGameState.allAnswers.forEach((questionWithAnswer) => {
-        questionWithAnswer.isCorrectAnswer ? correctAnswerCount++ : null;
+        correctAnswerCount += questionWithAnswer.calculatedPoints;
       });
 
       gameState.endGameState.push({
         player: playerGameState.player,
         points: correctAnswerCount,
+        allAnswers: playerGameState.allAnswers
       });
     });
   }
