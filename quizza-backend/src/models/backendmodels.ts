@@ -80,6 +80,7 @@ export enum GameStatus {
 
 export interface EndGameState {
   points: number,
+  allAnswers: Map<QuestionId, QuestionWithAnswer>,
   player: Player,
 }
 

@@ -225,11 +225,14 @@ export class AppService {
         correctAnswerCount += questionWithAnswer.calculatedPoints;
       });
 
+      console.log("---------- Again ------------");
+      console.log(playerGameState.allAnswers);
       gameState.endGameState.push({
         player: playerGameState.player,
         points: correctAnswerCount,
         allAnswers: playerGameState.allAnswers
       });
+      console.log("---------- Again ------------");
     });
   }
 
