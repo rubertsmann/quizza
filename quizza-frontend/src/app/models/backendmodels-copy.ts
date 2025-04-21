@@ -80,6 +80,7 @@ export interface GameState {
   
   export interface EndGameState {
     points: number,
+    allAnswers: Map<QuestionId, QuestionWithAnswer>,
     player: Player,
   }
   

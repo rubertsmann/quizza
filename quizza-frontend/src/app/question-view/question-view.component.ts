@@ -29,10 +29,11 @@ import {
 } from '../models/backendmodels-copy';
 import { PreGameLobbyComponent } from "./pre-game-lobby/pre-game-lobby.component";
 import { GameStateService } from './game-state.service';
+import { GeneralGameStateComponent } from "./app-general-game-state/app-general-game-state.component";
 
 @Component({
   selector: 'app-question-view',
-  imports: [CommonModule, FormsModule, PreGameLobbyComponent],
+  imports: [CommonModule, FormsModule, PreGameLobbyComponent, GeneralGameStateComponent],
   standalone: true,
   animations: [
     trigger('numberChange', [
