@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { GameId, GeneralGameState, Player } from '../models/backendmodels-copy';
+import { GameId, GameStatus, GeneralGameState, Player } from '../models/backendmodels-copy';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, defer, first, interval, Observable, switchMap } from 'rxjs';
+import { BehaviorSubject, defer, first, interval, Observable, switchMap, takeWhile } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -13,9 +13,12 @@ export class GameStateService {
   private _gameId: GameId | null = null;
 
   private _gameState$ = defer(() =>
-    interval(1000).pipe(switchMap(() => this.requestGameState())),
+    interval(1000).pipe(
+      switchMap(() => this.requestGameState()),
+      takeWhile((gameState) => gameState?.gameStatus !== GameStatus.FINISHED, true) // Stop when status is 'finished'
+    )
   );
-
+  
   constructor(private http: HttpClient) { }
 
   get gameState$(): Observable<GeneralGameState> {

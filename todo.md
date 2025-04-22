@@ -18,3 +18,6 @@
 15. User Lobby Spezfisch ein und ausloggen.
 16. PlayerSelector
 17. HeartBeat für den User, entfernen wenn heartbeat x sekunden weg war in pregame lobby.
+
+18. In endgame Lobby display answers by all users. And perhaps add auto scroll.
+19. Finally add a celebration animation

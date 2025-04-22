@@ -2,4 +2,119 @@
 body {
   font-family: "Roboto", sans-serif;
   margin: 0;
+  font-weight: bold;
+  /* background: var(--color-primary); */
+  color: rgb(251, 255, 213);
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+}
+
+:root {
+  --color-primary: #0d1117;
+  --color-accent: rgb(253, 255, 232);
+  --color-text: rgb(251, 255, 213);
+  --color-muted: #161b22;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+.content {
+  width: 24rem;
+  max-width: 24rem;
+}
+
+h1 {
+  font-size: 2rem;
+  border-radius: 1rem;
+  text-align: center;
+  background-color: var(--color-primary);
+  color: var(--color-text);
+}
+
+.element-header {
+  text-align: center;
+  color: var(--color-muted);
+  background-color: rgb(253, 255, 232);
+  margin-bottom: 1rem;
+  width: 100%;
+  padding: 0rem;
+  border-radius: 1rem;
+}
+
+.gradient-background {
+  background: linear-gradient(300deg, deepskyblue, darkviolet, blue);
+  background-size: 180% 180%;
+  animation: gradient-animation 18s ease infinite;
+}
+
+@keyframes gradient-animation {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.element-view {
+  background-color: rgb(253, 255, 232);
+  border-radius: 1rem;
+  padding: 1rem;
+  /* margin: 1rem; */
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+  color: #3d3d3d;
+}
+
+.element-view h2 {
+  font-size: 2rem;
+  border-radius: 1rem;
+  text-align: center;
+  color: #000000;
+}
+
+li {
+  height: 1rem;
+  width: 100%;
+  margin: 0.5rem;
+}
+
+.icon-thing {
+  width: 2rem;
+  height: 2rem;
+  margin-right: 0.5rem;
+  vertical-align: middle;
+  text-align: center;
+}
+
+.center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.counter {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.5rem;
+  width: 3rem;
+  height: 3rem;
+  margin: 0.5rem;
+  color: rgb(253, 255, 232);
+  text-align: center;
+  margin-bottom: 1rem;
+  border-radius: 1rem;
+  background-color: rgba(0, 0, 0, 0.5);
 }

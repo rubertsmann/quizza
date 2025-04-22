@@ -1,8 +1,6 @@
-import { Component } from '@angular/core';
-import { GameStateService } from '../game-state.service';
-import { GeneralGameState } from '../../models/backendmodels-copy';
-import { Observable } from 'rxjs';
 import { CommonModule } from '@angular/common';
+import { Component } from '@angular/core';
+import { GameStateService } from '../../game-state.service';
 
 @Component({
   selector: 'pre-game-lobby',
@@ -13,7 +11,7 @@ import { CommonModule } from '@angular/common';
 })
 export class PreGameLobbyComponent {
   constructor(
-   protected gameStateService: GameStateService
+    protected gameStateService: GameStateService
   ) {
   }
 

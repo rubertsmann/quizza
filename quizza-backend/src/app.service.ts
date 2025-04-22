@@ -46,15 +46,15 @@ export class AppService {
   }
 
   debugGameState(gameId: GameId) {
-    const test = this.globalGameState.get(gameId)
+    // const test = this.globalGameState.get(gameId)
 
-    console.log("---START---");
-    console.log("SpielerCount" + test?.playerSpecificGameState.size);
-    test?.playerSpecificGameState.forEach(element => {
-      console.log(element.player.name);
-      console.log(element);
-    });
-    console.log("---END---");
+    // console.log("---START---");
+    // console.log("SpielerCount" + test?.playerSpecificGameState.size);
+    // test?.playerSpecificGameState.forEach(element => {
+    //   console.log(element.player.name);
+    //   console.log(element);
+    // });
+    // console.log("---END---");
   }
 
   login(playerName: string, gameId: GameId): Player {
@@ -190,6 +190,7 @@ export class AppService {
 
   persistCurrentRound(gameState: GeneralGameState, gameId: GameId) {
     this.globalGameState.get(gameId)?.playerSpecificGameState.forEach((playerGameState) => {
+      const isCorrect = playerGameState.currentAnswerId === gameState.currentQuestion.correctAnswerId;
       const answeredQuestion: QuestionWithAnswer = {
         id: gameState.currentQuestion.id,
         answerId: playerGameState.currentAnswerId,
@@ -197,8 +198,8 @@ export class AppService {
           text: gameState.currentQuestion.question,
           answerText: gameState.currentQuestion.answers.find(a => a.answerId === gameState.currentQuestion.correctAnswerId)
         },
-        isCorrectAnswer: playerGameState.currentAnswerId === gameState.currentQuestion.correctAnswerId,
-        calculatedPoints: this.calculatePoints(gameState.currentRound, gameState.maxRounds, 10)
+        isCorrectAnswer: isCorrect,
+        calculatedPoints: isCorrect ? this.calculatePoints(gameState.currentRound, gameState.maxRounds, 10) : 0
       }
 
       playerGameState.allAnswers.set(gameState.currentQuestion.id, answeredQuestion);
@@ -225,14 +226,11 @@ export class AppService {
         correctAnswerCount += questionWithAnswer.calculatedPoints;
       });
 
-      console.log("---------- Again ------------");
-      console.log(playerGameState.allAnswers);
       gameState.endGameState.push({
         player: playerGameState.player,
         points: correctAnswerCount,
-        allAnswers: playerGameState.allAnswers
+        allAnswers: [...playerGameState.allAnswers.values()]
       });
-      console.log("---------- Again ------------");
     });
   }
 

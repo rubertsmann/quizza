@@ -8,10 +8,8 @@ import { RouterOutlet } from '@angular/router';
   imports: [RouterOutlet, CommonModule, FormsModule],
   standalone: true,
   template: `
-    <main class="main gradient-background">
-      <div class="content">        
+    <main>
         <router-outlet />
-      </div>
     </main>
   `,
   styleUrl: './app.component.css',

@@ -1,0 +1,83 @@
+<div class="game-view">
+    <div class="element-header">
+      <h1>Quizza</h1>
+      <div *ngIf="this.gameStateService.player">
+        PlayerName: {{ this.gameStateService.player.name }}
+        <button (click)="logOut()">Logout</button>
+      </div>
+    </div>
+
+    <ng-container *ngIf="this.gameStateService.gameId && !this.gameStateService.player; else preGameLobby">
+      <div class="element-view">
+        <h2>Player Login</h2>
+        <input type="text" placeholder="Enter your name" #playerNameInput />
+        <button (click)="sendLoginRequest(playerNameInput.value)">
+          Send Request
+        </button>
+      </div>
+    </ng-container>
+
+    <ng-template #preGameLobby>
+      <div *ngIf="!this.gameStateService.gameId" class="element-view">
+        <h2>Create new Lobby</h2>
+        <p>GameId: <input type="text" placeholder="Enter some GameId" #roomNameInput /></p>
+        <p>Max Rounds: <input type="text" placeholder="Enter Round Count" value="3" #maxRoundCountInput /></p>
+        <p>Round Time: <input type="text" placeholder="Enter Round Time" value="20" #maxRoundTimeInput /></p>
+        <p><button (click)="openNewLobby(roomNameInput.value, maxRoundCountInput.value, maxRoundTimeInput.value)">
+            Create new Lobby
+          </button></p>
+      </div>
+    </ng-template>
+
+    <div *ngIf="this.gameStateService.player" class="element-view">
+      <!-- //TODO - Get all Players with "answeredId !== 0 => hasAnswered" and diplay little checkmark-->
+      <ng-container *ngIf="getGameState$ | async as gamestate">
+        <div *ngIf="gamestate.gameStatus === GameStatus.PRE_GAME">
+          <pre-game-lobby/>
+        </div>
+
+        <div *ngIf="gamestate.currentQuestion.question && gamestate.gameStatus === GameStatus.IN_PROGRESS">
+          <div [@questionChange]="gamestate.currentQuestion.question" class="question-container">
+            <div class="center">
+              <div class="counter gradient-background">
+                <div [@numberChange]="gamestate?.currentQuestionTimer">
+                  {{ gamestate?.currentQuestionTimer }}
+                </div>
+              </div>
+              <div> <ng-container [@numberChange]="gamestate?.currentRound">{{ gamestate?.currentRound }}</ng-container>
+                / {{gamestate?.maxRounds}}</div>
+            </div>
+            <h3 class="center">{{ gamestate.currentQuestion.question }}</h3>
+
+            <div class="flex-column">
+              <div class="icon-thing" style="width: 100%" *ngFor="
+                  let answer of gamestate.currentQuestion.answers;
+                  trackBy: trackById
+                ">
+                <label>
+                  <!-- //TODO - Replace it to make it actually be hilighted when selected -->
+                  <!-- <input type="radio" class="radio-input" [value]="answer.answerId" name="answers" (change)="onAnswerChange($event)"> -->
+                  <input type="radio" name="radioGroup" [value]="answer.answerId" #radioGroup="ngModel" ngModel required
+                    (change)="onAnswerChange(radioGroup.value)" />
+                  {{ answer.answerText }}
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="gamestate.gameStatus === GameStatus.FINISHED">
+          <h2>Game Over</h2>
+          <ng-container class="icon-thing" style="width: 100%" *ngFor="
+                  let endgame of gamestate.endGameState;
+                ">
+            <div class="endgame-container">
+              {{endgame?.player?.name}} - {{endgame?.points}}
+            </div>
+          </ng-container>
+
+        </div>
+
+      </ng-container>
+    </div>
+  </div>
