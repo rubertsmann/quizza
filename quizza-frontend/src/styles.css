@@ -17,6 +17,7 @@ body {
   --color-accent: rgb(253, 255, 232);
   --color-text: rgb(251, 255, 213);
   --color-muted: #161b22;
+  --color-muted-faded: #4b4c4c;
 }
 
 * {

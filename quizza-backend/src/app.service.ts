@@ -231,6 +231,8 @@ export class AppService {
         points: correctAnswerCount,
         allAnswers: [...playerGameState.allAnswers.values()]
       });
+
+      gameState.endGameState.sort((a, b) => a.points + b.points);
     });
   }
 

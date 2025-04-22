@@ -1,17 +1,18 @@
-import { animate, keyframes, style, transition, trigger } from '@angular/animations';
+import { animate, keyframes, query, stagger, style, transition, trigger } from '@angular/animations';
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { catchError, defer, interval, Observable, switchMap, throwError } from 'rxjs';
-import { Answer, Category, GameStatus, GeneralGameState, NewGame, Player } from '../../models/backendmodels-copy';
+import { catchError, concatMap, defer, from, interval, Observable, switchMap, throwError, timer } from 'rxjs';
+import { Answer, Category, EndGameState, GameStatus, GeneralGameState, NewGame, Player } from '../../models/backendmodels-copy';
 import { GameStateService } from '../game-state.service';
+import { PointsBarComponent } from "./points-bar/points-bar.component";
 import { PreGameLobbyComponent } from "./pre-game-lobby/pre-game-lobby.component";
 
 @Component({
   selector: 'app-game-view',
-  imports: [CommonModule, FormsModule, PreGameLobbyComponent],
+  imports: [CommonModule, FormsModule, PreGameLobbyComponent, PointsBarComponent],
   animations: [
     trigger('numberChange', [
       transition(':increment', [
@@ -50,6 +51,18 @@ import { PreGameLobbyComponent } from "./pre-game-lobby/pre-game-lobby.component
               offset: 1,
             }),
           ]),
+        ),
+      ]),
+    ]),
+    trigger('staggeredFadeIn', [
+      transition(':enter', [
+        query(
+          '.endgame-container', // Target child elements
+          [
+            style({ opacity: 0, transform: 'translateY(20px)' }), // Initial state
+            stagger(1000, [animate('500ms ease-out', style({ opacity: 1, transform: 'translateY(0)' }))]), // Staggered animation
+          ],
+          { optional: true } // Avoid errors if no elements are present
         ),
       ]),
     ]),
@@ -184,5 +197,16 @@ export class GameViewComponent implements OnInit, OnDestroy {
         }),
       )
       .subscribe();
+  }
+
+  getMaxPoints(endGameState: EndGameState[]): number {
+    if (!endGameState || endGameState.length === 0) {
+      return 0; // Return 0 if the array is empty or undefined
+    }
+    return Math.max(...endGameState.map((endgame) => endgame.points || 0));
+  }
+
+  trackByEndGame(index: number, endgame: EndGameState): string {
+    return endgame.player.id;
   }
 }
