@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { GameId, GameStatus, GeneralGameState, Player } from '../models/backendmodels-copy';
+import { EndGameAnswers, GameId, GameStatus, GeneralGameState, Player } from '../models/backendmodels-copy';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, defer, first, interval, Observable, switchMap, takeWhile } from 'rxjs';
 
@@ -15,7 +15,14 @@ export class GameStateService {
   private _gameState$ = defer(() =>
     interval(1000).pipe(
       switchMap(() => this.requestGameState()),
-      takeWhile((gameState) => gameState?.gameStatus !== GameStatus.FINISHED, true) // Stop when status is 'finished'
+      takeWhile((gameState) => gameState?.gameStatus !== GameStatus.FINISHED, true)
+    )
+  );
+
+  private _allAnswers$ = defer(() =>
+    interval(1000).pipe(
+      switchMap(() => this.requestAllAnswers()),
+      takeWhile((answers) => !answers || answers.length === 0, true)
     )
   );
   
@@ -28,6 +35,15 @@ export class GameStateService {
   private set gameState$(gameState$: Observable<GeneralGameState>) {
     this._gameState$ = gameState$;
   }
+
+  get allAnswers$(): Observable<EndGameAnswers[]> {
+    return this._allAnswers$
+  }
+
+  private set allAnswers$(allAnswers$: Observable<EndGameAnswers[]>) {
+    this._allAnswers$ = allAnswers$;
+  }
+
 
   get apiUrl(): string{
     return this._apiUrl;
@@ -67,6 +83,15 @@ export class GameStateService {
 
     const url = `${this.apiUrl}/gameState/${this.player?.id}/${this.gameId}`;
     return this.http.get<GeneralGameState>(url);
+  }
+
+  requestAllAnswers(): Observable<EndGameAnswers[]> {
+    if (!this.player || !this.gameId) {
+      return new Observable<EndGameAnswers[]>();
+    }
+
+    const url = `${this.apiUrl}/gamestate/${this.player?.id}/${this.gameId}/allanswers`;
+    return this.http.get<EndGameAnswers[]>(url);
   }
 
 }

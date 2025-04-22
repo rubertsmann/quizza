@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Param, ParseBoolPipe, Post, Query } from '@nestjs/common';
 import { AppService } from './app.service';
-import { Answer, AnswerId, GameId, GeneralGameState, NewGame, PlayerId } from './models/backendmodels';
+import { Answer, AnswerId, EndGameAnswers, GameId, GeneralGameState, NewGame, PlayerId } from './models/backendmodels';
 
 @Controller()
 export class AppController {
@@ -15,6 +15,12 @@ export class AppController {
   getGameState(@Param('playerId') playerId: PlayerId, @Param('gameId') gameId: string): GeneralGameState {
     //TODO add input validation
     return this.appService.getGeneralGameState(playerId, gameId);
+  }
+
+  @Get('/gamestate/:playerId/:gameId/allanswers')
+  getGameStateAllAnswers(@Param('playerId') playerId: PlayerId, @Param('gameId') gameId: string): EndGameAnswers[] {
+    console.log("Hello");
+    return this.appService.getGeneralGameStateAllAnswers(playerId, gameId);
   }
 
   @Get("/login/:playerName/:gameId")

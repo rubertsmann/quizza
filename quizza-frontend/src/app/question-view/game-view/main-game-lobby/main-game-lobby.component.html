@@ -1,0 +1,29 @@
+<ng-container *ngIf="this.gameStateService.gameState$ | async as gamestate">
+    <div [@questionChange]="gamestate.currentQuestion.question" class="question-container">
+        <div class="center">
+          <div class="counter gradient-background">
+            <div [@numberChange]="gamestate?.currentQuestionTimer">
+              {{ gamestate?.currentQuestionTimer }}
+            </div>
+          </div>
+          <div> <p [@numberChange]="gamestate?.currentRound">{{ gamestate?.currentRound }}</p>
+            / {{gamestate?.maxRounds}}</div>
+        </div>
+        <h3 class="center">{{ gamestate?.currentQuestion?.question }}</h3>
+    
+        <div class="flex-column">
+          <div class="icon-thing" style="width: 100%" *ngFor="
+                  let answer of gamestate.currentQuestion.answers;
+                  trackBy: trackById
+                ">
+            <label>
+              <!-- //TODO - Replace it to make it actually be hilighted when selected -->
+              <!-- <input type="radio" class="radio-input" [value]="answer.answerId" name="answers" (change)="onAnswerChange($event)"> -->
+              <input type="radio" name="radioGroup" [value]="answer.answerId" #radioGroup="ngModel" ngModel required
+                (change)="onAnswerChange(radioGroup.value)" />
+              {{ answer.answerText }}
+            </label>
+          </div>
+        </div>
+      </div>
+</ng-container>

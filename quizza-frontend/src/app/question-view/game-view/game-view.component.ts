@@ -7,12 +7,14 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { catchError, concatMap, defer, from, interval, Observable, switchMap, throwError, timer } from 'rxjs';
 import { Answer, Category, EndGameState, GameStatus, GeneralGameState, NewGame, Player } from '../../models/backendmodels-copy';
 import { GameStateService } from '../game-state.service';
-import { PointsBarComponent } from "./points-bar/points-bar.component";
+import { PointsBarComponent } from "./after-game-lobby/points-bar/points-bar.component";
 import { PreGameLobbyComponent } from "./pre-game-lobby/pre-game-lobby.component";
+import { AfterGameLobbyComponent } from "./after-game-lobby/after-game-lobby.component";
+import { MainGameLobbyComponent } from "./main-game-lobby/main-game-lobby.component";
 
 @Component({
   selector: 'app-game-view',
-  imports: [CommonModule, FormsModule, PreGameLobbyComponent, PointsBarComponent],
+  imports: [CommonModule, FormsModule, PreGameLobbyComponent, PointsBarComponent, AfterGameLobbyComponent, MainGameLobbyComponent],
   animations: [
     trigger('numberChange', [
       transition(':increment', [
@@ -51,18 +53,6 @@ import { PreGameLobbyComponent } from "./pre-game-lobby/pre-game-lobby.component
               offset: 1,
             }),
           ]),
-        ),
-      ]),
-    ]),
-    trigger('staggeredFadeIn', [
-      transition(':enter', [
-        query(
-          '.endgame-container', // Target child elements
-          [
-            style({ opacity: 0, transform: 'translateY(20px)' }), // Initial state
-            stagger(1000, [animate('500ms ease-out', style({ opacity: 1, transform: 'translateY(0)' }))]), // Staggered animation
-          ],
-          { optional: true } // Avoid errors if no elements are present
         ),
       ]),
     ]),
@@ -148,9 +138,6 @@ export class GameViewComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void { }
 
-  trackById(index: number, item: Answer) {
-    return item.answerId; // assuming each question has a unique id
-  }
 
   getGameState(): Observable<GeneralGameState> {
     if (!this.gameStateService.player || !this.gameStateService.gameId) {
@@ -184,29 +171,6 @@ export class GameViewComponent implements OnInit, OnDestroy {
     this.gameStateService.unsetGameState();
   }
 
-  protected onAnswerChange(answerId: number) {
-    console.log(answerId);
-    const url = `${this.gameStateService.apiUrl}/answer/${this.gameStateService.player?.id}/${this.gameStateService.gameId}/${answerId}`;
 
-    this.http
-      .get(url)
-      .pipe(
-        catchError((error: HttpErrorResponse) => {
-          console.log(error);
-          return throwError(() => error);
-        }),
-      )
-      .subscribe();
-  }
 
-  getMaxPoints(endGameState: EndGameState[]): number {
-    if (!endGameState || endGameState.length === 0) {
-      return 0; // Return 0 if the array is empty or undefined
-    }
-    return Math.max(...endGameState.map((endgame) => endgame.points || 0));
-  }
-
-  trackByEndGame(index: number, endgame: EndGameState): string {
-    return endgame.player.id;
-  }
 }

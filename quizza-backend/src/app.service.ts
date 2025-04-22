@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import * as crypto from 'crypto';
-import { AnswerId, GameId, GameStatus, GeneralGameState, NewGame, Player, PlayerGameState, PlayerId, PlayerVote, Question, QuestionId, QuestionWithAnswer } from './models/backendmodels';
+import { AnswerId, EndGameAnswers, GameId, GameStatus, GeneralGameState, NewGame, Player, PlayerGameState, PlayerId, PlayerVote, Question, QuestionId, QuestionWithAnswer } from './models/backendmodels';
 import { questions } from './models/static-questions';
 
 @Injectable()
@@ -254,5 +254,42 @@ export class AppService {
     } else {
       throw new Error('Game already exist.');
     }
+  }
+
+  getGeneralGameStateAllAnswers(playerId: string, gameId: string): EndGameAnswers[] {
+    const gameState = this.globalGameState.get(gameId);
+  
+    if (!gameState) {
+      throw new Error(`Game with ID ${gameId} does not exist.`);
+    }
+  
+    // Create a map to group answers by question
+    const questionMap = new Map<string, { playerName: string; answerText: string; points: number }[]>();
+  
+    // Iterate through all players and their answers
+    gameState.playerSpecificGameState.forEach((playerGameState) => {
+      playerGameState.allAnswers.forEach((answer) => {
+        const questionText = answer.originalQuestion.text;
+  
+        // Add the player's answer to the corresponding question in the map
+        if (!questionMap.has(questionText)) {
+          questionMap.set(questionText, []);
+        }
+  
+        questionMap.get(questionText)?.push({
+          playerName: playerGameState.player.name,
+          answerText: answer.originalQuestion.answerText?.answerText || 'No answer provided',
+          points: answer.calculatedPoints,
+        });
+      });
+    });
+  
+    // Convert the map into an array of EndGameAnswers
+    const result: EndGameAnswers[] = Array.from(questionMap.entries()).map(([questionText, questionAnswers]) => ({
+      questionText,
+      questionAnswers,
+    }));
+  
+    return result;
   }
 }

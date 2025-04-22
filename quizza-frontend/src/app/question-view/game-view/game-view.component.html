@@ -36,47 +36,11 @@
     </div>
 
     <div *ngIf="gamestate.currentQuestion.question && gamestate.gameStatus === GameStatus.IN_PROGRESS">
-      <div [@questionChange]="gamestate.currentQuestion.question" class="question-container">
-        <div class="center">
-          <div class="counter gradient-background">
-            <div [@numberChange]="gamestate?.currentQuestionTimer">
-              {{ gamestate?.currentQuestionTimer }}
-            </div>
-          </div>
-          <div> <p [@numberChange]="gamestate?.currentRound">{{ gamestate?.currentRound }}</p>
-            / {{gamestate?.maxRounds}}</div>
-        </div>
-        <h3 class="center">{{ gamestate.currentQuestion.question }}</h3>
-
-        <div class="flex-column">
-          <div class="icon-thing" style="width: 100%" *ngFor="
-                  let answer of gamestate.currentQuestion.answers;
-                  trackBy: trackById
-                ">
-            <label>
-              <!-- //TODO - Replace it to make it actually be hilighted when selected -->
-              <!-- <input type="radio" class="radio-input" [value]="answer.answerId" name="answers" (change)="onAnswerChange($event)"> -->
-              <input type="radio" name="radioGroup" [value]="answer.answerId" #radioGroup="ngModel" ngModel required
-                (change)="onAnswerChange(radioGroup.value)" />
-              {{ answer.answerText }}
-            </label>
-          </div>
-        </div>
-      </div>
+      <app-main-game-lobby></app-main-game-lobby>
     </div>
 
     <div *ngIf="gamestate.gameStatus === GameStatus.FINISHED">
-      <h2>Game Over</h2>
-      <div>
-        <ng-container
-          *ngFor="let endgame of gamestate.endGameState; let i = index; trackBy: trackByEndGame; sortBy: sortByPoints">
-          <div class="endgame-container">
-            <app-points-bar [maxPoints]="getMaxPoints(gamestate.endGameState)" [points]="endgame.points"
-              [playerName]="endgame.player.name" [place]="i + 1">
-            </app-points-bar>
-          </div>
-        </ng-container>
-      </div>
+      <app-after-game-lobby></app-after-game-lobby>
     </div>
   </ng-container>
 

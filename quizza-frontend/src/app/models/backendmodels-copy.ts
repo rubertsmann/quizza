@@ -108,3 +108,12 @@ export interface GeneralGameState {
   endGameState: EndGameState[],
   preGameState?: PreGameState
 }
+
+export interface EndGameAnswers {
+  questionText: string,
+  questionAnswers: {
+    playerName: string,
+    answerText: string,
+    points: number
+  }[]
+}
