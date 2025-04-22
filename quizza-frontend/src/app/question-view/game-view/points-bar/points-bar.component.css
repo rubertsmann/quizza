@@ -3,29 +3,41 @@
     margin: 10px 0;
   }
   
+  @keyframes slideInFromRight {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+  
   .points-bar {
     width: 100%;
-    height: 3rem; /* Adjust height as needed */
+    height: 3rem;
     background-color: var(--color-muted-faded);
     border-radius: 1rem;
-    position: relative; /* Set relative positioning for the label */
+    position: relative;
     overflow: hidden;
+    animation: slideInFromRight 1s ease-out;
   }
   
   .points-bar-label {
-    position: absolute; /* Position the label inside the bar */
+    position: absolute;
     top: 50%;
-    left: 5rem;
+    left: 6rem;
     align-items: left;
-    transform: translate(-50%, -50%); /* Center the label */
+    transform: translate(-50%, -50%);
     color: var(--color-text);
     font-weight: bold;
-    z-index: 1; /* Ensure the label is above the fill */
+    z-index: 1;
   }
   
   .points-bar-fill {
     height: 100%;
     border-radius: 1rem;
     transition: width 0.5s ease-out;
-    z-index: 0; /* Ensure the fill is below the label */
+    z-index: 0;
   }

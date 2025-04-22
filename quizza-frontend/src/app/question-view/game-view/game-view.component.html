@@ -43,7 +43,7 @@
               {{ gamestate?.currentQuestionTimer }}
             </div>
           </div>
-          <div> <ng-container [@numberChange]="gamestate?.currentRound">{{ gamestate?.currentRound }}</ng-container>
+          <div> <p [@numberChange]="gamestate?.currentRound">{{ gamestate?.currentRound }}</p>
             / {{gamestate?.maxRounds}}</div>
         </div>
         <h3 class="center">{{ gamestate.currentQuestion.question }}</h3>

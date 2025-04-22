@@ -9,17 +9,19 @@ import { Component, Input } from '@angular/core';
     trigger('numberChange', [
       transition('* => *', [
         animate(
-          '500ms ease-out',
+          '3500ms ease-out',
           keyframes([
             style({
               width: '0%',
               opacity: 0,
-              offset: 0,
+            }),
+            style({
+              width: '0%',
+              opacity: 0.8,
             }),
             style({
               width: '{{width}}%',
               opacity: 1,
-              offset: 1,
             }),
           ])
         ),
