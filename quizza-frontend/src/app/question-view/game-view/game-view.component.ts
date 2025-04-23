@@ -1,20 +1,19 @@
-import { animate, keyframes, query, stagger, style, transition, trigger } from '@angular/animations';
+import { animate, keyframes, style, transition, trigger } from '@angular/animations';
 import { CommonModule } from '@angular/common';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { catchError, concatMap, defer, from, interval, Observable, switchMap, throwError, timer } from 'rxjs';
-import { Answer, Category, EndGameState, GameStatus, GeneralGameState, NewGame, Player } from '../../models/backendmodels-copy';
+import { defer, interval, Observable, switchMap } from 'rxjs';
+import { Category, GameStatus, GeneralGameState, NewGame, Player } from '../../models/backendmodels-copy';
 import { GameStateService } from '../game-state.service';
-import { PointsBarComponent } from "./after-game-lobby/points-bar/points-bar.component";
-import { PreGameLobbyComponent } from "./pre-game-lobby/pre-game-lobby.component";
 import { AfterGameLobbyComponent } from "./after-game-lobby/after-game-lobby.component";
 import { MainGameLobbyComponent } from "./main-game-lobby/main-game-lobby.component";
+import { PreGameLobbyComponent } from "./pre-game-lobby/pre-game-lobby.component";
 
 @Component({
   selector: 'app-game-view',
-  imports: [CommonModule, FormsModule, PreGameLobbyComponent, PointsBarComponent, AfterGameLobbyComponent, MainGameLobbyComponent],
+  imports: [CommonModule, FormsModule, PreGameLobbyComponent, AfterGameLobbyComponent, MainGameLobbyComponent],
   animations: [
     trigger('numberChange', [
       transition(':increment', [

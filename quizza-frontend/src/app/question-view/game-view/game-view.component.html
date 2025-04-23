@@ -39,9 +39,9 @@
       <app-main-game-lobby></app-main-game-lobby>
     </div>
 
-    <div *ngIf="gamestate.gameStatus === GameStatus.FINISHED">
+    <ng-container *ngIf="gamestate.gameStatus === GameStatus.FINISHED">
       <app-after-game-lobby></app-after-game-lobby>
-    </div>
+    </ng-container>
   </ng-container>
 
 </div>

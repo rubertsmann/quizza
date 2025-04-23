@@ -96,7 +96,7 @@ h1 {
 }
 
 .element-view {
-  background-color: rgb(253, 255, 232);
+  background-color: var(--color-accent);
   padding: 1rem;
   flex-grow: 1; /* Allow elements to stretch vertically */
   /* margin: 1rem; */

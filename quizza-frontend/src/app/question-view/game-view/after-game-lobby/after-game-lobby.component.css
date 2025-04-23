@@ -1,3 +1,113 @@
-.single-answer {
-    background-color: white;
+.hidden {
+    position: absolute;
+    display: none;
+    padding: -1rem;
+    top: 5rem;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+    animation: slideDown 0.5s ease-out;
+}
+/* Overlay container */
+.overlay {
+    position: absolute;
+
+    padding: -1rem;
+    top: 5rem;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+    animation: slideUp 0.5s ease-out;
+}
+
+/* Overlay content */
+.overlay-content {
+    background-color: var(--color-accent);
+    border-radius: 1rem;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+}
+@keyframes slideDown {
+    from {
+        transform: translateY(0);
+        /* Start from the bottom */
+        opacity: 1;
+        /* Fully transparent */
+    }
+
+    to {
+        transform: translateY(100%);
+        /* End at the original position */
+        opacity: 0;
+        /* Fully visible */
+    }
+}
+
+/* Slide-up animation */
+@keyframes slideUp {
+    from {
+        transform: translateY(100%);
+        /* Start from the bottom */
+        opacity: 0;
+        /* Fully transparent */
+    }
+
+    to {
+        transform: translateY(0);
+        /* End at the original position */
+        opacity: 1;
+        /* Fully visible */
+    }
+}
+
+
+/* Parent container for the component */
+.component-container {
+    position: relative;
+    background-color: pink;
+    /* Ensure child elements are positioned relative to this container */
+    width: 100%;
+    height: 100%;
+}
+
+/* Button positioned at the bottom center */
+.bottom-center-button {
+    position: absolute;
+    /* Position relative to the parent container */
+    bottom: 1rem;
+    /* Distance from the bottom */
+    left: 50%;
+    /* Center horizontally */
+    transform: translateX(-50%);
+    /* Adjust for horizontal centering */
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    font-weight: bold;
+    background-color: var(--color-primary);
+    color: var(--color-accent);
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.bottom-center-button:hover {
+    background-color: var(--color-muted);
+    color: var(--color-text);
+    transform: translateX(-50%) scale(1.05);
+    /* Slightly enlarge on hover */
+}
+
+.bottom-center-button:active {
+    background-color: var(--color-muted-faded);
+    transform: translateX(-50%) scale(0.95);
+    /* Slightly shrink on click */
 }

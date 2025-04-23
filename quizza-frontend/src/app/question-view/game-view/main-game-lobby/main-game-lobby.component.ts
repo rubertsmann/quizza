@@ -7,13 +7,10 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
 import { Answer } from '../../../models/backendmodels-copy';
 import { GameStateService } from '../../game-state.service';
-import { AfterGameLobbyComponent } from '../after-game-lobby/after-game-lobby.component';
-import { PointsBarComponent } from '../after-game-lobby/points-bar/points-bar.component';
-import { PreGameLobbyComponent } from '../pre-game-lobby/pre-game-lobby.component';
 
 @Component({
   selector: 'app-main-game-lobby',
-  imports: [CommonModule, FormsModule, PreGameLobbyComponent, PointsBarComponent, AfterGameLobbyComponent, MainGameLobbyComponent],
+  imports: [CommonModule, FormsModule],
   animations: [
     trigger('numberChange', [
       transition(':increment', [
