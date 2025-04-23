@@ -7,8 +7,17 @@ import { join } from 'path';
 @Module({
   imports: [
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', '..', 'quizza-frontend', 'dist', 'quizza-frontend', 'browser'),
-  })],
+      rootPath: join(
+        __dirname,
+        '..',
+        '..',
+        'quizza-frontend',
+        'dist',
+        'quizza-frontend',
+        'browser',
+      ),
+    }),
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

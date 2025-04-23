@@ -1,6 +1,20 @@
 import { Injectable } from '@nestjs/common';
 import * as crypto from 'crypto';
-import { AnswerId, EndGameAnswers, GameId, GameStatus, GeneralGameState, NewGame, Player, PlayerGameState, PlayerId, PlayerVote, Question, QuestionId, QuestionWithAnswer } from './models/backendmodels';
+import {
+  AnswerId,
+  EndGameAnswers,
+  GameId,
+  GameStatus,
+  GeneralGameState,
+  NewGame,
+  Player,
+  PlayerGameState,
+  PlayerId,
+  PlayerVote,
+  Question,
+  QuestionId,
+  QuestionWithAnswer,
+} from './models/backendmodels';
 import { questions } from './models/static-questions';
 
 @Injectable()
@@ -17,14 +31,20 @@ export class AppService {
 
   globalGameState = new Map<GameId, GeneralGameState>();
 
-  answerQuestionForPlayer(gameId: GameId, playerName: PlayerId, answerId: AnswerId) {
+  answerQuestionForPlayer(
+    gameId: GameId,
+    playerName: PlayerId,
+    answerId: AnswerId,
+  ) {
     const gameState = this.globalGameState.get(gameId);
     const playerGameState = gameState?.playerSpecificGameState.get(playerName);
 
     if (gameState && playerGameState && gameState.currentQuestion) {
       // TODO check if the answerId is valid for the current question
       playerGameState.currentAnswerId = answerId;
-      playerGameState.answerText = gameState.currentQuestion.answers.find(a => a.answerId === answerId)?.answerText || 'Answer Unknown';
+      playerGameState.answerText =
+        gameState.currentQuestion.answers.find((a) => a.answerId === answerId)
+          ?.answerText || 'Answer Unknown';
 
       gameState?.playerSpecificGameState.set(playerName, playerGameState);
       this.globalGameState.set(gameId, gameState);
@@ -39,7 +59,10 @@ export class AppService {
     const pregameState = gameState?.preGameState;
 
     if (gameState && playerGameState && pregameState) {
-      pregameState.playerVotes.set(playerGameState.player.id, { playerName: playerName, voteStart })
+      pregameState.playerVotes.set(playerGameState.player.id, {
+        playerName: playerName,
+        voteStart,
+      });
       this.globalGameState.set(gameId, gameState);
     }
 
@@ -47,15 +70,14 @@ export class AppService {
   }
 
   debugGameState(gameId: GameId) {
-    // const test = this.globalGameState.get(gameId)
-
-    // console.log("---START---");
-    // console.log("SpielerCount" + test?.playerSpecificGameState.size);
-    // test?.playerSpecificGameState.forEach(element => {
-    //   console.log(element.player.name);
-    //   console.log(element);
-    // });
-    // console.log("---END---");
+    const test = this.globalGameState.get(gameId);
+    console.log('---START---');
+    console.log('SpielerCount' + test?.playerSpecificGameState.size);
+    test?.playerSpecificGameState.forEach((element) => {
+      console.log(element.player.name);
+      console.log(element);
+    });
+    console.log('---END---');
   }
 
   login(playerName: string, gameId: GameId): Player {
@@ -66,13 +88,13 @@ export class AppService {
       this.initializeGeneralGameState({
         gameId,
         maxRounds: 3,
-        maxRoundTime: 20
+        maxRoundTime: 20,
       });
     }
 
     this.initializePlayerGameState(player, gameId);
 
-    this.updatePreGamePlayerList(player, gameId)
+    this.updatePreGamePlayerList(player, gameId);
     return player;
   }
 
@@ -86,22 +108,21 @@ export class AppService {
       });
 
       if (gameState.preGameState) {
-        gameState.preGameState.playerNames = playerNames
+        gameState.preGameState.playerNames = playerNames;
       }
     }
-
   }
 
   initializePlayerGameState(player: Player, gameId: GameId) {
-    console.log("initializePlayerGameState", player, gameId);
+    console.log('initializePlayerGameState', player, gameId);
     const gameState = this.globalGameState.get(gameId);
 
     if (!gameState?.playerSpecificGameState.has(player.id)) {
       gameState?.playerSpecificGameState.set(player.id, {
         player: player,
         currentAnswerId: -1,
-        answerText: "",
-        allAnswers: new Map<QuestionId, QuestionWithAnswer>()
+        answerText: '',
+        allAnswers: new Map<QuestionId, QuestionWithAnswer>(),
       });
     }
   }
@@ -116,15 +137,15 @@ export class AppService {
       currentRound: 1,
       maxRounds: newGame.maxRounds,
       currentQuestionTimer: newGame.maxRoundTime,
-      allQuestionIds: [], 
+      allQuestionIds: [],
       playerSpecificGameState: playerGameState,
       endGameState: [],
       preGameState: {
         playerNames: [],
         howManyHaveVoted: 0,
-        playerVotes: new Map<PlayerId, PlayerVote>()
+        playerVotes: new Map<PlayerId, PlayerVote>(),
       },
-      maxRoundTime: newGame.maxRoundTime
+      maxRoundTime: newGame.maxRoundTime,
     };
 
     gameState.currentQuestion = this.getRandomQuestion(gameState);
@@ -143,7 +164,7 @@ export class AppService {
     const availableQuestionIds = questions.map((q) => q.id);
 
     const remainingQuestionIds = availableQuestionIds.filter(
-      (id) => !gameState.allQuestionIds.includes(id)
+      (id) => !gameState.allQuestionIds.includes(id),
     );
 
     if (remainingQuestionIds.length === 0) {
@@ -170,7 +191,7 @@ export class AppService {
 
   updatePreGame(gameState: GeneralGameState, gameId: GameId) {
     if (!gameState.preGameState) {
-      console.error("Game is not initialized")
+      console.error('Game is not initialized');
     } else {
       let howManyVotedYes = 0;
       gameState.preGameState.playerVotes.forEach((playerGameState) => {
@@ -179,11 +200,13 @@ export class AppService {
 
       gameState.preGameState.howManyHaveVoted = howManyVotedYes;
 
-      if (howManyVotedYes >= 1 && gameState.playerSpecificGameState.size === howManyVotedYes) {
+      if (
+        howManyVotedYes >= 1 &&
+        gameState.playerSpecificGameState.size === howManyVotedYes
+      ) {
         gameState.gameStatus = GameStatus.IN_PROGRESS;
       }
     }
-
   }
 
   updateGameInProgress(gameState: GeneralGameState, gameId: GameId) {
@@ -191,7 +214,6 @@ export class AppService {
 
     //TODO Probably change this logic according to the game mode.
     if (gameState.currentQuestionTimer <= 0) {
-
       this.persistCurrentRound(gameState, gameId);
 
       if (gameState.currentRound == gameState.maxRounds) {
@@ -205,36 +227,55 @@ export class AppService {
   }
 
   persistCurrentRound(gameState: GeneralGameState, gameId: GameId) {
-    if(gameState.currentQuestion === null) {
-      throw Error("Game is not active");
+    if (gameState.currentQuestion === null) {
+      throw Error('Game is not active');
     }
 
-    this.globalGameState.get(gameId)?.playerSpecificGameState.forEach((playerGameState) => {
-      const isCorrect = playerGameState.currentAnswerId === gameState.currentQuestion!.correctAnswerId;
-      const answeredQuestion: QuestionWithAnswer = {
-        id: gameState.currentQuestion!.id,
-        answerId: playerGameState.currentAnswerId,
-        answerText: playerGameState.answerText,
-        originalQuestion: {
-          text: gameState.currentQuestion!.question,
-          answerText: gameState.currentQuestion!.answers.find(a => a.answerId === gameState.currentQuestion!.correctAnswerId)
-        },
-        isCorrectAnswer: isCorrect,
-        calculatedPoints: isCorrect ? this.calculatePoints(gameState.currentRound, gameState.maxRounds, 10) : 0
-      }
+    this.globalGameState
+      .get(gameId)
+      ?.playerSpecificGameState.forEach((playerGameState) => {
+        const isCorrect =
+          playerGameState.currentAnswerId ===
+          gameState.currentQuestion!.correctAnswerId;
+        const answeredQuestion: QuestionWithAnswer = {
+          id: gameState.currentQuestion!.id,
+          answerId: playerGameState.currentAnswerId,
+          answerText: playerGameState.answerText,
+          originalQuestion: {
+            text: gameState.currentQuestion!.question,
+            answerText: gameState.currentQuestion!.answers.find(
+              (a) => a.answerId === gameState.currentQuestion!.correctAnswerId,
+            ),
+          },
+          isCorrectAnswer: isCorrect,
+          calculatedPoints: isCorrect
+            ? this.calculatePoints(
+                gameState.currentRound,
+                gameState.maxRounds,
+                10,
+              )
+            : 0,
+        };
 
-      playerGameState.allAnswers.set(gameState.currentQuestion!.id, answeredQuestion);
-    });
+        playerGameState.allAnswers.set(
+          gameState.currentQuestion!.id,
+          answeredQuestion,
+        );
+      });
   }
 
-  calculatePoints(currentRound: number, maxRounds: number, basePoints: number): number {
+  calculatePoints(
+    currentRound: number,
+    maxRounds: number,
+    basePoints: number,
+  ): number {
     const roundRatio = currentRound / maxRounds;
     const logScale = Math.log2(1 + roundRatio);
     return Math.round(basePoints * logScale);
   }
 
   endGame(gameState: GeneralGameState) {
-    console.log("Game finished!");
+    console.log('Game finished!');
     gameState.gameStatus = GameStatus.FINISHED;
 
     this.evaluateCorrectPlayerAnswers(gameState);
@@ -250,7 +291,7 @@ export class AppService {
       gameState.endGameState.push({
         player: playerGameState.player,
         points: correctAnswerCount,
-        allAnswers: [...playerGameState.allAnswers.values()]
+        allAnswers: [...playerGameState.allAnswers.values()],
       });
 
       gameState.endGameState.sort((a, b) => a.points + b.points);
@@ -261,13 +302,13 @@ export class AppService {
     gameState.currentRound++;
     gameState.currentQuestionTimer = gameState.maxRoundTime;
     gameState.currentQuestion = this.getRandomQuestion(gameState);
-    gameState.playerSpecificGameState.forEach(it => {
+    gameState.playerSpecificGameState.forEach((it) => {
       it.answerText = '';
       it.currentAnswerId = -1;
-    })
+    });
   }
 
-  getHello(): { message: string, serverTime: string } {
+  getHello(): { message: string; serverTime: string } {
     return { message: 'Hello World! ', serverTime: new Date().toISOString() };
   }
 
@@ -275,32 +316,38 @@ export class AppService {
     if (!this.globalGameState.has(newGame.gameId)) {
       this.initializeGeneralGameState(newGame);
 
-      return newGame
+      return newGame;
     } else {
       throw new Error('Game already exist.');
     }
   }
 
-  getGeneralGameStateAllAnswers(playerId: string, gameId: string): EndGameAnswers[] {
+  getGeneralGameStateAllAnswers(
+    playerId: string,
+    gameId: string,
+  ): EndGameAnswers[] {
     const gameState = this.globalGameState.get(gameId);
-  
+
     if (!gameState) {
       throw new Error(`Game with ID ${gameId} does not exist.`);
     }
-  
+
     // Create a map to group answers by question
-    const questionMap = new Map<string, { playerName: string; answerText: string; points: number }[]>();
-  
+    const questionMap = new Map<
+      string,
+      { playerName: string; answerText: string; points: number }[]
+    >();
+
     // Iterate through all players and their answers
     gameState.playerSpecificGameState.forEach((playerGameState) => {
       playerGameState.allAnswers.forEach((answer) => {
         const questionText = answer.originalQuestion.text;
-  
+
         // Add the player's answer to the corresponding question in the map
         if (!questionMap.has(questionText)) {
           questionMap.set(questionText, []);
         }
-  
+
         questionMap.get(questionText)?.push({
           playerName: playerGameState.player.name,
           answerText: answer.answerText || 'No answer provided',
@@ -308,13 +355,15 @@ export class AppService {
         });
       });
     });
-  
+
     // Convert the map into an array of EndGameAnswers
-    const result: EndGameAnswers[] = Array.from(questionMap.entries()).map(([questionText, questionAnswers]) => ({
-      questionText,
-      questionAnswers,
-    }));
-  
+    const result: EndGameAnswers[] = Array.from(questionMap.entries()).map(
+      ([questionText, questionAnswers]) => ({
+        questionText,
+        questionAnswers,
+      }),
+    );
+
     return result;
   }
 }

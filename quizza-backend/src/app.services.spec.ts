@@ -1,6 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppService } from './app.service';
-import { GameStatus, GeneralGameState, PlayerGameState, PlayerId, QuestionId, QuestionWithAnswer } from './models/backendmodels';
+import {
+  GameStatus,
+  GeneralGameState,
+  PlayerGameState,
+  PlayerId,
+  QuestionId,
+  QuestionWithAnswer,
+} from './models/backendmodels';
 
 describe('AppServices', () => {
   let appService: AppService;
@@ -25,10 +32,10 @@ describe('AppServices', () => {
 
       const player = { name: 'TestPlayer', id: 'someid' };
       const playerSpecificGameState = new Map<PlayerId, PlayerGameState>();
-      playerSpecificGameState.set("someid", {
+      playerSpecificGameState.set('someid', {
         player: player,
         currentAnswerId: -1,
-        allAnswers: answers
+        allAnswers: answers,
       });
 
       const gameState: GeneralGameState = {
@@ -51,13 +58,13 @@ describe('AppServices', () => {
         roundTime: 0,
         currentQuestionTimer: 0,
         endGameState: [],
-      }
+      };
 
       appService.endGame(gameState);
 
       const endpoints = gameState.endGameState[0].points;
-      
+
       expect(endpoints).toEqual(4);
-    })
-  })
+    });
+  });
 });

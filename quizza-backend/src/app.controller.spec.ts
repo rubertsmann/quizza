@@ -39,6 +39,8 @@ describe('AppController', () => {
       endGameState: [],
     };
 
-    expect(() => appService.getRandomQuestion(gameState)).toThrowError('No more questions available.');
+    expect(() => appService.getRandomQuestion(gameState)).toThrowError(
+      'No more questions available.',
+    );
   });
 });
