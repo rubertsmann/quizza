@@ -8,9 +8,7 @@ import { join } from 'path';
   imports: [
     ServeStaticModule.forRoot({
       rootPath: join(
-        __dirname,
-        '..',
-        '..',
+        process.cwd(),
         'quizza-frontend',
         'dist',
         'quizza-frontend',
