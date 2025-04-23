@@ -11,9 +11,16 @@ import { EndGameState } from '../../../models/backendmodels-copy';
   styleUrl: './after-game-lobby.component.css'
 })
 export class AfterGameLobbyComponent {
+  public displayAllAnswers = false;
+
   constructor(
     public gameStateService: GameStateService,
   ) {}
+
+  toggleQuestions(): void {
+    this.displayAllAnswers = !this.displayAllAnswers;
+    console.log(this.displayAllAnswers);
+  };
 
   getMaxPoints(endGameState: EndGameState[]): number {
     if (!endGameState || endGameState.length === 0) {

@@ -9,16 +9,17 @@
 
   </ng-container>
 
+  <button (click)="toggleQuestions()">Test</button>
   <ng-container *ngIf="this.gameStateService.allAnswers$ | async as answers">
-    <ng-container *ngFor="let allAnswers of answers; let i = index;">
-      <p class="center">{{allAnswers.questionText}}</p>
-      <ng-container *ngFor="let answerByPlayer of allAnswers.questionAnswers">
-        <div class="single-answer add-border">
-          {{answerByPlayer.playerName}} - {{answerByPlayer.answerText}} - {{answerByPlayer.points}}
-        </div>
-
+    <ng-container *ngIf="displayAllAnswers">
+      <ng-container *ngFor="let allAnswers of answers; let i = index;">
+        <p class="center">{{allAnswers.questionText}}</p>
+        <ng-container *ngFor="let answerByPlayer of allAnswers.questionAnswers">
+          <div class="single-answer add-border">
+            {{answerByPlayer.playerName}} - {{answerByPlayer.answerText}} - {{answerByPlayer.points}}
+          </div>
+        </ng-container>
       </ng-container>
-      <!-- {{allAnswers | json}} -->
     </ng-container>
   </ng-container>
 </ng-container>
