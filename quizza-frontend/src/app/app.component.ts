@@ -9,9 +9,9 @@ import { RouterOutlet } from '@angular/router';
   standalone: true,
   template: `
     <main>
-        <router-outlet />
+      <router-outlet />
     </main>
   `,
   styleUrl: './app.component.css',
 })
-export class AppComponent { }
+export class AppComponent {}

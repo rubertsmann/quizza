@@ -1,12 +1,20 @@
 <div class="element-header add-border">
   <h1>Quizza</h1>
-  <div class="element-view add-border-bottom" *ngIf="this.gameStateService.player">
+  <div
+    class="element-view add-border-bottom"
+    *ngIf="this.gameStateService.player"
+  >
     PlayerName: {{ this.gameStateService.player.name }}
     <button (click)="logOut()">Logout</button>
   </div>
 </div>
 
-<ng-container *ngIf="this.gameStateService.gameId && !this.gameStateService.player; else preGameLobby">
+<ng-container
+  *ngIf="
+    this.gameStateService.gameId && !this.gameStateService.player;
+    else preGameLobby
+  "
+>
   <div class="element-view add-border">
     <h2>Player Login</h2>
     <input type="text" placeholder="Enter your name" #playerNameInput />
@@ -19,12 +27,41 @@
 <ng-template #preGameLobby>
   <div *ngIf="!this.gameStateService.gameId" class="element-view add-border">
     <h2>Create new Lobby</h2>
-    <p>GameId: <input type="text" placeholder="Enter some GameId" #roomNameInput /></p>
-    <p>Max Rounds: <input type="text" placeholder="Enter Round Count" value="3" #maxRoundCountInput /></p>
-    <p>Round Time: <input type="text" placeholder="Enter Round Time" value="20" #maxRoundTimeInput /></p>
-    <p><button (click)="openNewLobby(roomNameInput.value, maxRoundCountInput.value, maxRoundTimeInput.value)">
+    <p>
+      GameId:
+      <input type="text" placeholder="Enter some GameId" #roomNameInput />
+    </p>
+    <p>
+      Max Rounds:
+      <input
+        type="text"
+        placeholder="Enter Round Count"
+        value="3"
+        #maxRoundCountInput
+      />
+    </p>
+    <p>
+      Round Time:
+      <input
+        type="text"
+        placeholder="Enter Round Time"
+        value="20"
+        #maxRoundTimeInput
+      />
+    </p>
+    <p>
+      <button
+        (click)="
+          openNewLobby(
+            roomNameInput.value,
+            maxRoundCountInput.value,
+            maxRoundTimeInput.value
+          )
+        "
+      >
         Create new Lobby
-      </button></p>
+      </button>
+    </p>
   </div>
 </ng-template>
 
@@ -32,10 +69,15 @@
   <!-- //TODO - Get all Players with "answeredId !== 0 => hasAnswered" and diplay little checkmark-->
   <ng-container *ngIf="getGameState$ | async as gamestate">
     <div *ngIf="gamestate.gameStatus === GameStatus.PRE_GAME">
-      <pre-game-lobby />
+      <app-pre-game-lobby />
     </div>
 
-    <div *ngIf="gamestate.currentQuestion.question && gamestate.gameStatus === GameStatus.IN_PROGRESS">
+    <div
+      *ngIf="
+        gamestate.currentQuestion.question &&
+        gamestate.gameStatus === GameStatus.IN_PROGRESS
+      "
+    >
       <app-main-game-lobby></app-main-game-lobby>
     </div>
 
@@ -43,5 +85,4 @@
       <app-after-game-lobby></app-after-game-lobby>
     </ng-container>
   </ng-container>
-
 </div>

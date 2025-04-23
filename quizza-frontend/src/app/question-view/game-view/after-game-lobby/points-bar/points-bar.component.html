@@ -1,12 +1,15 @@
 <div class="points-bar-container">
-    <div class="points-bar">
-        <div class="points-bar-label">
-            #{{place}} - {{ playerName }} - Points: {{ points }}
-        </div>
-        <div class="points-bar-fill gradient-background" [style.width.%]="((points / maxPoints) * 100) + 10"
-            [@numberChange]="{
-            value: points, 
-            params: { width: ((points / maxPoints) * 100) + 10 }
-          }"></div>
+  <div class="points-bar">
+    <div class="points-bar-label">
+      #{{ place }} - {{ playerName }} - Points: {{ points }}
     </div>
+    <div
+      class="points-bar-fill gradient-background"
+      [style.width.%]="(points / maxPoints) * 100 + 10"
+      [@numberChange]="{
+        value: points,
+        params: { width: (points / maxPoints) * 100 + 10 },
+      }"
+    ></div>
+  </div>
 </div>

@@ -1,4 +1,10 @@
-import { animate, keyframes, style, transition, trigger } from '@angular/animations';
+import {
+  animate,
+  keyframes,
+  style,
+  transition,
+  trigger,
+} from '@angular/animations';
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Component } from '@angular/core';
@@ -55,7 +61,7 @@ import { GameStateService } from '../../game-state.service';
   ],
   standalone: true,
   templateUrl: './main-game-lobby.component.html',
-  styleUrl: './main-game-lobby.component.css'
+  styleUrl: './main-game-lobby.component.css',
 })
 export class MainGameLobbyComponent {
   constructor(
@@ -64,14 +70,12 @@ export class MainGameLobbyComponent {
     private router: Router,
     public gameStateService: GameStateService,
   ) {
-
     this.route.queryParams.subscribe((params) => {
       console.log(params['isDev']);
       // this.isDev = params['isDev'] === 'true';
       this.gameStateService.gameId = params['gameId'];
     });
   }
-
 
   protected onAnswerChange(answerId: number) {
     console.log(answerId);
@@ -87,7 +91,6 @@ export class MainGameLobbyComponent {
       )
       .subscribe();
   }
-
 
   trackById(index: number, item: Answer) {
     return item.answerId;

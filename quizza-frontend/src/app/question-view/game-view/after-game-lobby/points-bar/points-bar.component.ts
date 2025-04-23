@@ -1,4 +1,10 @@
-import { animate, keyframes, state, style, transition, trigger } from '@angular/animations';
+import {
+  animate,
+  keyframes,
+  style,
+  transition,
+  trigger,
+} from '@angular/animations';
 import { Component, Input } from '@angular/core';
 
 @Component({
@@ -23,16 +29,16 @@ import { Component, Input } from '@angular/core';
               width: '{{width}}%',
               opacity: 1,
             }),
-          ])
+          ]),
         ),
       ]),
     ]),
   ],
-  styleUrl: './points-bar.component.css'
+  styleUrl: './points-bar.component.css',
 })
 export class PointsBarComponent {
   @Input() maxPoints!: number;
-  @Input() points: number = 0;
+  @Input() points = 0;
   @Input() playerName!: string;
   @Input() place!: number;
 }

@@ -2,13 +2,17 @@
   <div class="overlay" *ngIf="showOverlay">
     <div class="overlay-content">
       <h2>Overlay Content</h2>
-      <ng-container *ngIf="this.gameStateService.allAnswers$ | async as answers">
-
-        <ng-container *ngFor="let allAnswers of answers; let i = index;">
+      <ng-container
+        *ngIf="this.gameStateService.allAnswers$ | async as answers"
+      >
+        <ng-container *ngFor="let allAnswers of answers; let i = index">
           <p class="center">{{ allAnswers.questionText }}</p>
-          <ng-container *ngFor="let answerByPlayer of allAnswers.questionAnswers">
+          <ng-container
+            *ngFor="let answerByPlayer of allAnswers.questionAnswers"
+          >
             <div class="single-answer add-border">
-              {{ answerByPlayer.playerName }} - {{ answerByPlayer.answerText }} - {{ answerByPlayer.points }}
+              {{ answerByPlayer.playerName }} -
+              {{ answerByPlayer.answerText }} - {{ answerByPlayer.points }}
             </div>
           </ng-container>
         </ng-container>
@@ -20,10 +24,20 @@
   <ng-container *ngIf="this.gameStateService.gameState$ | async as gamestate">
     <div>
       <h2>Game Over</h2>
-      <ng-container *ngFor="let endgame of gamestate.endGameState; let i = index; trackBy: trackByEndGame;">
+      <ng-container
+        *ngFor="
+          let endgame of gamestate.endGameState;
+          let i = index;
+          trackBy: trackByEndGame
+        "
+      >
         <div class="endgame-container">
-          <app-points-bar [maxPoints]="getMaxPoints(gamestate.endGameState)" [points]="endgame.points"
-            [playerName]="endgame.player.name" [place]="i + 1">
+          <app-points-bar
+            [maxPoints]="getMaxPoints(gamestate.endGameState)"
+            [points]="endgame.points"
+            [playerName]="endgame.player.name"
+            [place]="i + 1"
+          >
           </app-points-bar>
         </div>
       </ng-container>

@@ -4,8 +4,6 @@ import { Component } from '@angular/core';
   selector: 'app-create-game-lobby',
   imports: [],
   templateUrl: './create-game-lobby.component.html',
-  styleUrl: './create-game-lobby.component.css'
+  styleUrl: './create-game-lobby.component.css',
 })
-export class CreateGameLobbyComponent {
-
-}
+export class CreateGameLobbyComponent {}

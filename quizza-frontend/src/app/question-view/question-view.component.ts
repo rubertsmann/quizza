@@ -2,25 +2,22 @@ import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import {
-  defer,
-  interval,
-  Observable,
-  startWith,
-  switchMap
-} from 'rxjs';
-import {
-  Category,
-  GameStatus
-} from '../models/backendmodels-copy';
-import { GeneralGameStateComponent } from "./app-general-game-state/app-general-game-state.component";
+import { defer, interval, Observable, startWith, switchMap } from 'rxjs';
+import { Category, GameStatus } from '../models/backendmodels-copy';
+import { GeneralGameStateComponent } from './app-general-game-state/app-general-game-state.component';
 import { GameStateService } from './game-state.service';
-import { GameViewComponent } from "./game-view/game-view.component";
-import { StatViewComponent } from "./stat-view/stat-view.component";
+import { GameViewComponent } from './game-view/game-view.component';
+import { StatViewComponent } from './stat-view/stat-view.component';
 
 @Component({
   selector: 'app-question-view',
-  imports: [CommonModule, FormsModule, GeneralGameStateComponent, GameViewComponent, StatViewComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    GeneralGameStateComponent,
+    GameViewComponent,
+    StatViewComponent,
+  ],
   standalone: true,
 
   styleUrl: './question-view.component.css',
@@ -37,14 +34,13 @@ export class QuestionViewComponent {
   constructor(
     private http: HttpClient,
     public gameStateService: GameStateService,
-  ) {
-  }
+  ) {}
 
   intialConnection$ = defer(() =>
     interval(15000).pipe(
       startWith(0),
-      switchMap(() => this.getIsAlivePing())
-    )
+      switchMap(() => this.getIsAlivePing()),
+    ),
   );
 
   getIsAlivePing(): Observable<{ message: string; serverTime: string }> {

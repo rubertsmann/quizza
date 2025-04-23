@@ -4,14 +4,14 @@
     <div class="game">
       <app-game-view class="game-box"></app-game-view>
     </div>
-    
+
     <app-stat-view class="panel stats debug"></app-stat-view>
   </ng-container>
-  
+
   <ng-template #loading>
     <p>Loading...</p>
   </ng-template>
-  
+
   <ng-template #error let-error>
     <p>Error: {{ error }}</p>
   </ng-template>

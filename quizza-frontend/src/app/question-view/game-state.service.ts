@@ -1,10 +1,16 @@
 import { Injectable } from '@angular/core';
-import { EndGameAnswers, GameId, GameStatus, GeneralGameState, Player } from '../models/backendmodels-copy';
+import {
+  EndGameAnswers,
+  GameId,
+  GameStatus,
+  GeneralGameState,
+  Player,
+} from '../models/backendmodels-copy';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, defer, first, interval, Observable, switchMap, takeWhile } from 'rxjs';
+import { defer, first, interval, Observable, switchMap, takeWhile } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class GameStateService {
   private _apiUrl = 'http://localhost:3000/api';
@@ -15,21 +21,24 @@ export class GameStateService {
   private _gameState$ = defer(() =>
     interval(1000).pipe(
       switchMap(() => this.requestGameState()),
-      takeWhile((gameState) => gameState?.gameStatus !== GameStatus.FINISHED, true)
-    )
+      takeWhile(
+        (gameState) => gameState?.gameStatus !== GameStatus.FINISHED,
+        true,
+      ),
+    ),
   );
 
   private _allAnswers$ = defer(() =>
     interval(1000).pipe(
       switchMap(() => this.requestAllAnswers()),
-      takeWhile((answers) => !answers || answers.length === 0, true)
-    )
+      takeWhile((answers) => !answers || answers.length === 0, true),
+    ),
   );
-  
-  constructor(private http: HttpClient) { }
+
+  constructor(private http: HttpClient) {}
 
   get gameState$(): Observable<GeneralGameState> {
-    return this._gameState$
+    return this._gameState$;
   }
 
   private set gameState$(gameState$: Observable<GeneralGameState>) {
@@ -37,19 +46,18 @@ export class GameStateService {
   }
 
   get allAnswers$(): Observable<EndGameAnswers[]> {
-    return this._allAnswers$
+    return this._allAnswers$;
   }
 
   private set allAnswers$(allAnswers$: Observable<EndGameAnswers[]>) {
     this._allAnswers$ = allAnswers$;
   }
 
-
-  get apiUrl(): string{
+  get apiUrl(): string {
     return this._apiUrl;
   }
 
-  get player(): Player | null{
+  get player(): Player | null {
     return this._player;
   }
 
@@ -57,7 +65,7 @@ export class GameStateService {
     this._player = player;
   }
 
-  get gameId(): GameId | null{
+  get gameId(): GameId | null {
     return this._gameId;
   }
 
@@ -93,5 +101,4 @@ export class GameStateService {
     const url = `${this.apiUrl}/gamestate/${this.player?.id}/${this.gameId}/allanswers`;
     return this.http.get<EndGameAnswers[]>(url);
   }
-
 }

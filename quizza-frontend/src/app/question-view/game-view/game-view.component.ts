@@ -1,19 +1,37 @@
-import { animate, keyframes, style, transition, trigger } from '@angular/animations';
+import {
+  animate,
+  keyframes,
+  style,
+  transition,
+  trigger,
+} from '@angular/animations';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { defer, interval, Observable, switchMap } from 'rxjs';
-import { Category, GameStatus, GeneralGameState, NewGame, Player } from '../../models/backendmodels-copy';
+import {
+  Category,
+  GameStatus,
+  GeneralGameState,
+  NewGame,
+  Player,
+} from '../../models/backendmodels-copy';
 import { GameStateService } from '../game-state.service';
-import { AfterGameLobbyComponent } from "./after-game-lobby/after-game-lobby.component";
-import { MainGameLobbyComponent } from "./main-game-lobby/main-game-lobby.component";
-import { PreGameLobbyComponent } from "./pre-game-lobby/pre-game-lobby.component";
+import { AfterGameLobbyComponent } from './after-game-lobby/after-game-lobby.component';
+import { MainGameLobbyComponent } from './main-game-lobby/main-game-lobby.component';
+import { PreGameLobbyComponent } from './pre-game-lobby/pre-game-lobby.component';
 
 @Component({
   selector: 'app-game-view',
-  imports: [CommonModule, FormsModule, PreGameLobbyComponent, AfterGameLobbyComponent, MainGameLobbyComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    PreGameLobbyComponent,
+    AfterGameLobbyComponent,
+    MainGameLobbyComponent,
+  ],
   animations: [
     trigger('numberChange', [
       transition(':increment', [
@@ -57,9 +75,9 @@ import { PreGameLobbyComponent } from "./pre-game-lobby/pre-game-lobby.component
     ]),
   ],
   templateUrl: './game-view.component.html',
-  styleUrl: './game-view.component.css'
+  styleUrl: './game-view.component.css',
 })
-export class GameViewComponent implements OnInit, OnDestroy {
+export class GameViewComponent implements OnInit {
   GameStatus = GameStatus;
   Category = Category;
   allCategories = Object.keys(Category);
@@ -73,7 +91,6 @@ export class GameViewComponent implements OnInit, OnDestroy {
     private router: Router,
     public gameStateService: GameStateService,
   ) {
-
     this.route.queryParams.subscribe((params) => {
       console.log(params['isDev']);
       this.isDev = params['isDev'] === 'true';
@@ -94,7 +111,7 @@ export class GameViewComponent implements OnInit, OnDestroy {
     const isValid = /^[a-z]{1,10}$/.test(gameId);
     if (!isValid) {
       //Replace with a better indicator
-      alert("GameId is invalid a-z, 1-10, single word")
+      alert('GameId is invalid a-z, 1-10, single word');
     } else {
       //Add more input validation
       this.sendNewGame(gameId, parseInt(maxRounds), parseInt(maxRoundTime));
@@ -104,23 +121,30 @@ export class GameViewComponent implements OnInit, OnDestroy {
   sendNewGame(gameId: string, maxRounds: number, maxRoundTime: number): void {
     const url = `${this.gameStateService.apiUrl}/createGame`;
 
-    this.http.post<NewGame>(url, {
-      gameId,
-      maxRounds,
-      maxRoundTime
-    }).subscribe({
-      next: (response) => {
-        this.router.navigate([], { queryParams: { gameId: response.gameId } })
-      },
-      error: (error) => {
-        console.error('Error from backend:', error);
-        alert('An error occurred while sending the new game request.');
-      },
-    });
+    this.http
+      .post<NewGame>(url, {
+        gameId,
+        maxRounds,
+        maxRoundTime,
+      })
+      .subscribe({
+        next: (response) => {
+          this.router.navigate([], {
+            queryParams: { gameId: response.gameId },
+          });
+        },
+        error: (error) => {
+          console.error('Error from backend:', error);
+          alert('An error occurred while sending the new game request.');
+        },
+      });
   }
 
   savePlayerToLocalStorage(value: Player): void {
-    localStorage.setItem('player' + this.gameStateService.gameId, JSON.stringify(value));
+    localStorage.setItem(
+      'player' + this.gameStateService.gameId,
+      JSON.stringify(value),
+    );
   }
 
   getPlayerFromLocalStorage(): Player | null {
@@ -132,11 +156,8 @@ export class GameViewComponent implements OnInit, OnDestroy {
   }
 
   private deletePlayerFromLocalStorage() {
-    const value = localStorage.removeItem('player' + this.gameStateService.gameId);
+    localStorage.removeItem('player' + this.gameStateService.gameId);
   }
-
-  ngOnDestroy(): void { }
-
 
   getGameState(): Observable<GeneralGameState> {
     if (!this.gameStateService.player || !this.gameStateService.gameId) {
@@ -164,12 +185,9 @@ export class GameViewComponent implements OnInit, OnDestroy {
 
   logOut() {
     this.deletePlayerFromLocalStorage();
-    this.router.navigate([], {})
+    this.router.navigate([], {});
     this.gameStateService.gameId = null;
     this.gameStateService.player = null;
     this.gameStateService.unsetGameState();
   }
-
-
-
 }

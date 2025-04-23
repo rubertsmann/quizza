@@ -1,26 +1,24 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { GameStateService } from '../../game-state.service';
-import { PointsBarComponent } from "./points-bar/points-bar.component";
+import { PointsBarComponent } from './points-bar/points-bar.component';
 import { EndGameState } from '../../../models/backendmodels-copy';
 
 @Component({
   selector: 'app-after-game-lobby',
   imports: [PointsBarComponent, CommonModule],
   templateUrl: './after-game-lobby.component.html',
-  styleUrl: './after-game-lobby.component.css'
+  styleUrl: './after-game-lobby.component.css',
 })
 export class AfterGameLobbyComponent {
   public displayAllAnswers = false;
 
-  constructor(
-    public gameStateService: GameStateService,
-  ) {}
+  constructor(public gameStateService: GameStateService) {}
 
   toggleQuestions(): void {
     this.displayAllAnswers = !this.displayAllAnswers;
     console.log(this.displayAllAnswers);
-  };
+  }
 
   getMaxPoints(endGameState: EndGameState[]): number {
     if (!endGameState || endGameState.length === 0) {

@@ -2,20 +2,26 @@
 <button (click)="vote(true)">Yes</button>
 <button (click)="vote(false)">No</button>
 <!-- TODO FIX GAMESTATE NOT BEEING DISPLAYED CORRECTLY. -->
-<ng-container *ngIf="this.gameStateService.gameState$| async as gameState">
-    <ng-container>How many have voted: {{gameState.preGameState?.howManyHaveVoted}}</ng-container>
-    <ng-container class="icon-thing" style="width: 100%" *ngFor="
-            let playerName of gameState?.preGameState?.playerNames;
-          ">
-        <div class="endgame-container">
-            Players: {{playerName}}
-        </div>
-    </ng-container>
-    <ng-container class="icon-thing" style="width: 100%"
-        *ngFor="let preGame of gameState.preGameState?.playerVotes | keyvalue">
-        <div class="pregame-container">
-            <p>Player Name: {{ preGame.value.playerName }}</p>
-            <p>Vote Start: {{ preGame.value.voteStart ? 'Yes' : 'No' }}</p>
-        </div>
-    </ng-container>
+<ng-container *ngIf="this.gameStateService.gameState$ | async as gameState">
+  <ng-container
+    >How many have voted:
+    {{ gameState.preGameState?.howManyHaveVoted }}</ng-container
+  >
+  <ng-container
+    class="icon-thing"
+    style="width: 100%"
+    *ngFor="let playerName of gameState?.preGameState?.playerNames"
+  >
+    <div class="endgame-container">Players: {{ playerName }}</div>
+  </ng-container>
+  <ng-container
+    class="icon-thing"
+    style="width: 100%"
+    *ngFor="let preGame of gameState.preGameState?.playerVotes | keyvalue"
+  >
+    <div class="pregame-container">
+      <p>Player Name: {{ preGame.value.playerName }}</p>
+      <p>Vote Start: {{ preGame.value.voteStart ? "Yes" : "No" }}</p>
+    </div>
+  </ng-container>
 </ng-container>
