@@ -21,9 +21,10 @@ export class AppService {
     const gameState = this.globalGameState.get(gameId);
     const playerGameState = gameState?.playerSpecificGameState.get(playerName);
 
-    if (gameState && playerGameState) {
+    if (gameState && playerGameState && gameState.currentQuestion) {
       // TODO check if the answerId is valid for the current question
       playerGameState.currentAnswerId = answerId;
+      playerGameState.answerText = gameState.currentQuestion.answers.find(a => a.answerId === answerId)?.answerText || 'Answer Unknown';
 
       gameState?.playerSpecificGameState.set(playerName, playerGameState);
       this.globalGameState.set(gameId, gameState);
@@ -99,6 +100,7 @@ export class AppService {
       gameState?.playerSpecificGameState.set(player.id, {
         player: player,
         currentAnswerId: -1,
+        answerText: "",
         allAnswers: new Map<QuestionId, QuestionWithAnswer>()
       });
     }
@@ -114,7 +116,7 @@ export class AppService {
       currentRound: 1,
       maxRounds: newGame.maxRounds,
       currentQuestionTimer: newGame.maxRoundTime,
-      currentQuestion: this.getRandomQuestion(),
+      allQuestionIds: [], 
       playerSpecificGameState: playerGameState,
       endGameState: [],
       preGameState: {
@@ -124,6 +126,8 @@ export class AppService {
       },
       maxRoundTime: newGame.maxRoundTime
     };
+
+    gameState.currentQuestion = this.getRandomQuestion(gameState);
 
     this.globalGameState.set(newGame.gameId, gameState);
   }
@@ -135,9 +139,21 @@ export class AppService {
     return this.globalGameState.get(gameId)!;
   }
 
-  getRandomQuestion(): Question {
-    const randomIndex = Math.floor(Math.random() * questions.length);
-    return questions[randomIndex];
+  getRandomQuestion(gameState: GeneralGameState): Question {
+    const availableQuestionIds = questions.map((q) => q.id);
+
+    const remainingQuestionIds = availableQuestionIds.filter(
+      (id) => !gameState.allQuestionIds.includes(id)
+    );
+
+    if (remainingQuestionIds.length === 0) {
+      throw new Error('No more questions available.');
+    }
+
+    const randomIndex = Math.floor(Math.random() * remainingQuestionIds.length);
+    const randomQuestionId = remainingQuestionIds[randomIndex];
+
+    return questions.find((q) => q.id === randomQuestionId)!;
   }
 
   updateGame() {
@@ -189,20 +205,25 @@ export class AppService {
   }
 
   persistCurrentRound(gameState: GeneralGameState, gameId: GameId) {
+    if(gameState.currentQuestion === null) {
+      throw Error("Game is not active");
+    }
+
     this.globalGameState.get(gameId)?.playerSpecificGameState.forEach((playerGameState) => {
-      const isCorrect = playerGameState.currentAnswerId === gameState.currentQuestion.correctAnswerId;
+      const isCorrect = playerGameState.currentAnswerId === gameState.currentQuestion!.correctAnswerId;
       const answeredQuestion: QuestionWithAnswer = {
-        id: gameState.currentQuestion.id,
+        id: gameState.currentQuestion!.id,
         answerId: playerGameState.currentAnswerId,
+        answerText: playerGameState.answerText,
         originalQuestion: {
-          text: gameState.currentQuestion.question,
-          answerText: gameState.currentQuestion.answers.find(a => a.answerId === gameState.currentQuestion.correctAnswerId)
+          text: gameState.currentQuestion!.question,
+          answerText: gameState.currentQuestion!.answers.find(a => a.answerId === gameState.currentQuestion!.correctAnswerId)
         },
         isCorrectAnswer: isCorrect,
         calculatedPoints: isCorrect ? this.calculatePoints(gameState.currentRound, gameState.maxRounds, 10) : 0
       }
 
-      playerGameState.allAnswers.set(gameState.currentQuestion.id, answeredQuestion);
+      playerGameState.allAnswers.set(gameState.currentQuestion!.id, answeredQuestion);
     });
   }
 
@@ -239,7 +260,11 @@ export class AppService {
   startNewRound(gameState: GeneralGameState) {
     gameState.currentRound++;
     gameState.currentQuestionTimer = gameState.maxRoundTime;
-    gameState.currentQuestion = this.getRandomQuestion();
+    gameState.currentQuestion = this.getRandomQuestion(gameState);
+    gameState.playerSpecificGameState.forEach(it => {
+      it.answerText = '';
+      it.currentAnswerId = -1;
+    })
   }
 
   getHello(): { message: string, serverTime: string } {
@@ -278,7 +303,7 @@ export class AppService {
   
         questionMap.get(questionText)?.push({
           playerName: playerGameState.player.name,
-          answerText: answer.originalQuestion.answerText?.answerText || 'No answer provided',
+          answerText: answer.answerText || 'No answer provided',
           points: answer.calculatedPoints,
         });
       });

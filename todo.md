@@ -21,3 +21,8 @@
 
 18. In endgame Lobby display answers by all users. And perhaps add auto scroll.
 19. Finally add a celebration animation
+
+20. fix answer not correctly mapped on endgame lobby
+21. fix order is not correct highest point is displayed at the lowest
+22. make beatiful
+23. add sound

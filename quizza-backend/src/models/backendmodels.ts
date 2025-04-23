@@ -51,6 +51,7 @@ export type PlayerId = string;
 export interface QuestionWithAnswer {
   id: QuestionId,
   answerId: AnswerId,
+  answerText: string,
   originalQuestion: {
     text: string,
     answerText: Answer | undefined
@@ -62,6 +63,7 @@ export interface QuestionWithAnswer {
 export interface PlayerGameState {
   player: Player,
   currentAnswerId: AnswerId,
+  answerText: string,
   allAnswers: Map<QuestionId, QuestionWithAnswer>
 }
 
@@ -103,7 +105,8 @@ export interface GeneralGameState {
   roundTime: number,
   currentQuestionTimer: number,
   maxRoundTime: number,
-  currentQuestion: Question,
+  allQuestionIds: QuestionId[],
+  currentQuestion?: Question,
   playerSpecificGameState: Map<PlayerId, PlayerGameState>,
   endGameState: EndGameState[],
   preGameState?: PreGameState
