@@ -7,7 +7,7 @@ import {
   Player,
 } from '../models/backendmodels-copy';
 import { HttpClient } from '@angular/common/http';
-import { defer, first, interval, Observable, switchMap, takeWhile } from 'rxjs';
+import { defer, first, Observable, switchMap, takeWhile, timer } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -18,8 +18,8 @@ export class GameStateService {
   private _player: Player | null = null;
   private _gameId: GameId | null = null;
 
-  private _gameState$ = defer(() =>
-    interval(1000).pipe(
+  private _gameState$: Observable<GeneralGameState> = defer(() =>
+    timer(0, 1000).pipe(
       switchMap(() => this.requestGameState()),
       takeWhile(
         (gameState) => gameState?.gameStatus !== GameStatus.FINISHED,
@@ -29,7 +29,7 @@ export class GameStateService {
   );
 
   private _allAnswers$ = defer(() =>
-    interval(1000).pipe(
+    timer(0, 1000).pipe(
       switchMap(() => this.requestAllAnswers()),
       takeWhile((answers) => !answers || answers.length === 0, true),
     ),

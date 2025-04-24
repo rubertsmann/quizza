@@ -12,7 +12,6 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { defer, interval, Observable, switchMap } from 'rxjs';
 import {
-  Category,
   GameStatus,
   GeneralGameState,
   NewGame,
@@ -79,11 +78,8 @@ import { PreGameLobbyComponent } from './pre-game-lobby/pre-game-lobby.component
 })
 export class GameViewComponent implements OnInit {
   GameStatus = GameStatus;
-  Category = Category;
-  allCategories = Object.keys(Category);
   isDev = false;
-
-  title = 'quizza-frontend';
+  randomGameId = this.getRandomString();
 
   constructor(
     private http: HttpClient,
@@ -108,7 +104,8 @@ export class GameViewComponent implements OnInit {
   );
 
   openNewLobby(gameId: string, maxRounds: string, maxRoundTime: string) {
-    const isValid = /^[a-z]{1,10}$/.test(gameId);
+    const isValid = /^[a-z,A-Z]{1,10}$/.test(gameId);
+    console.log(gameId);
     if (!isValid) {
       //Replace with a better indicator
       alert('GameId is invalid a-z, 1-10, single word');
@@ -189,5 +186,15 @@ export class GameViewComponent implements OnInit {
     this.gameStateService.gameId = null;
     this.gameStateService.player = null;
     this.gameStateService.unsetGameState();
+  }
+
+  getRandomString() {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    let result = '';
+    const charactersLength = characters.length;
+    for (let i = 0; i < 10; i++) {
+      result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
   }
 }

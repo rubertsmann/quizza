@@ -3,7 +3,6 @@ import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { defer, interval, Observable, startWith, switchMap } from 'rxjs';
-import { Category, GameStatus } from '../models/backendmodels-copy';
 import { GeneralGameStateComponent } from './app-general-game-state/app-general-game-state.component';
 import { GameStateService } from './game-state.service';
 import { GameViewComponent } from './game-view/game-view.component';
@@ -24,19 +23,12 @@ import { StatViewComponent } from './stat-view/stat-view.component';
   templateUrl: './question-view.component.html',
 })
 export class QuestionViewComponent {
-  GameStatus = GameStatus;
-  Category = Category;
-  allCategories = Object.keys(Category);
-  isDev = false;
-
-  title = 'quizza-frontend';
-
   constructor(
     private http: HttpClient,
     public gameStateService: GameStateService,
   ) {}
 
-  intialConnection$ = defer(() =>
+  initialConnection$ = defer(() =>
     interval(15000).pipe(
       startWith(0),
       switchMap(() => this.getIsAlivePing()),

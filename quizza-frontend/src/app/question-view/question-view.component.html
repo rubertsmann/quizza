@@ -1,5 +1,5 @@
 <div class="container">
-  <ng-container *ngIf="intialConnection$ | async as result; else loading">
+  <ng-container *ngIf="initialConnection$ | async; else loading">
     <app-general-game-state class="panel debug"></app-general-game-state>
     <div class="game">
       <app-game-view class="game-box"></app-game-view>

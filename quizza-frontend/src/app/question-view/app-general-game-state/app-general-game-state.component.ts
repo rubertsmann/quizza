@@ -276,7 +276,5 @@ import { GameStateService } from '../game-state.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GeneralGameStateComponent {
-  GameStatus = GameStatus;
-
   constructor(public gameStateService: GameStateService) {}
 }

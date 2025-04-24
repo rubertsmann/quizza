@@ -12,7 +12,10 @@ import { GameStateService } from '../../game-state.service';
 export class PreGameLobbyComponent {
   constructor(protected gameStateService: GameStateService) {}
 
+  voteStart: null|boolean = null;
+
   vote(vote: boolean) {
+    this.voteStart = vote;
     this.gameStateService.sendVote(vote);
   }
 }

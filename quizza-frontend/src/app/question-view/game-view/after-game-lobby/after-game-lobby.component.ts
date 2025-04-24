@@ -11,18 +11,11 @@ import { EndGameState } from '../../../models/backendmodels-copy';
   styleUrl: './after-game-lobby.component.css',
 })
 export class AfterGameLobbyComponent {
-  public displayAllAnswers = false;
-
   constructor(public gameStateService: GameStateService) {}
-
-  toggleQuestions(): void {
-    this.displayAllAnswers = !this.displayAllAnswers;
-    console.log(this.displayAllAnswers);
-  }
 
   getMaxPoints(endGameState: EndGameState[]): number {
     if (!endGameState || endGameState.length === 0) {
-      return 0; // Return 0 if the array is empty or undefined
+      return 0;
     }
     return Math.max(...endGameState.map((endgame) => endgame.points || 0));
   }

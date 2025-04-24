@@ -1,23 +1,26 @@
-<div class="component-container">
+<div class="component-container column-layout">
   <div class="overlay" *ngIf="showOverlay">
     <div class="overlay-content">
-      <h2>Overlay Content</h2>
-      <ng-container
-        *ngIf="this.gameStateService.allAnswers$ | async as answers"
-      >
-        <ng-container *ngFor="let allAnswers of answers; let i = index">
-          <p class="center">{{ allAnswers.questionText }}</p>
-          <ng-container
-            *ngFor="let answerByPlayer of allAnswers.questionAnswers"
-          >
-            <div class="single-answer add-border">
-              {{ answerByPlayer.playerName }} -
-              {{ answerByPlayer.answerText }} - {{ answerByPlayer.points }}
+      <button style="height: 3rem; width: 3rem; border-radius: 3rem" (click)="closeOverlay()">V</button>
+      <div style="max-height: 80%; overflow-y: auto">
+
+        <ng-container
+          *ngIf="this.gameStateService.allAnswers$ | async as answers"
+        >
+          <ng-container *ngFor="let allAnswers of answers">
+            <h3 style="padding-top: 1rem" class="question-title">Question: {{ allAnswers.questionText }}</h3>
+            <div class="grid-table player-answers">
+              <ng-container *ngFor="let answerByPlayer of allAnswers.questionAnswers">
+                <div class="grid-cell header-cell">{{ answerByPlayer.playerName }}</div>
+                <div class="grid-cell header-cell">{{ answerByPlayer.answerText }}</div>
+                <div class="grid-cell header-cell">{{ answerByPlayer.points }}</div>
+              </ng-container>
             </div>
+
           </ng-container>
         </ng-container>
-      </ng-container>
-      <button (click)="closeOverlay()">Close</button>
+
+      </div>
     </div>
   </div>
 
@@ -42,6 +45,6 @@
         </div>
       </ng-container>
     </div>
-    <button (click)="openOverlay()">Test</button>
+    <button class="add-border" (click)="openOverlay()">Show all answers.</button>
   </ng-container>
 </div>
