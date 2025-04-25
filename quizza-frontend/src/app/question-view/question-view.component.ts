@@ -4,7 +4,7 @@ import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { defer, interval, Observable, startWith, switchMap } from 'rxjs';
 import { GeneralGameStateComponent } from './app-general-game-state/app-general-game-state.component';
-import { GameStateService } from './game-state.service';
+import { GameStateService } from '../services/game-state.service';
 import { GameViewComponent } from './game-view/game-view.component';
 import { StatViewComponent } from './stat-view/stat-view.component';
 

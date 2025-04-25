@@ -8,12 +8,13 @@ import {
 } from '../models/backendmodels-copy';
 import { HttpClient } from '@angular/common/http';
 import { defer, first, Observable, switchMap, takeWhile, timer } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class GameStateService {
-  private _apiUrl = 'http://localhost:3000/api';
+  private _apiUrl = environment.apiUrl || `${window.location.origin}/api`;
 
   private _player: Player | null = null;
   private _gameId: GameId | null = null;

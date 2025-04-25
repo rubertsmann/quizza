@@ -1,3 +1,9 @@
 .active-button {
   background-color: darkviolet;
 }
+
+.vote-button {
+  width: 7rem;
+  height: 7rem;
+  border-radius: 7rem
+}

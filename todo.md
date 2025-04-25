@@ -24,7 +24,7 @@
 - [ ] Make answer selection actually satisfiying
 - [ ] Add three js bouncy face icons
 - [ ] Fix Round Votestart that every user can vote properly.
-- [ ] Make sound adjustable
-- [ ] Add more different sounds
-- [ ] Add music and toggleable music
+- [x] Add more different sounds - can be more
+- [x] Add music and toggleable music
+- [x] Make adjustable sounds
   

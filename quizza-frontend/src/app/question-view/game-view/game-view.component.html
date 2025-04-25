@@ -1,13 +1,11 @@
 <div class="element-header add-border">
   <h1>Quizza</h1>
-  <div
-    class="element-view add-border-bottom"
-    *ngIf="this.gameStateService.player"
-  >
-    {{ this.gameStateService.player.name }}
-    <button class="add-border" (click)="logOut()">LEAVE</button>
-    <button class="add-border" (click)="this.soundManagerService.toggleSound()">Sound
-    {{this.soundManagerService.soundActive ? 'ON' : 'OFF'}}
+  <div style="display: flex; width: 100%" class="element-view add-border-bottom">
+    <div style="float: left" *ngIf="this.gameStateService.player">{{ this.gameStateService.player.name }}
+      <button class="add-border" (click)="logOut()">LEAVE</button>
+    </div>
+    <button style="margin-left: auto;float: right;" class="add-border" (click)="this.soundManagerService.toggleSound()">
+      Sound {{ this.soundManagerService.soundActive ? 'ON' : 'OFF' }}
     </button>
   </div>
 </div>

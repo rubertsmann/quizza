@@ -12,8 +12,8 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
 import { Answer } from '../../../models/backendmodels-copy';
-import { GameStateService } from '../../game-state.service';
-import { SoundManagerService } from '../../sound-manager.service';
+import { GameStateService } from '../../../services/game-state.service';
+import { SoundManagerService } from '../../../services/sound-manager.service';
 
 const numberChangeIncrementAnimation: AnimationMetadata[] = [
   style({ transform: 'translateY(100%)', opacity: 0 }),
@@ -68,7 +68,10 @@ export class MainGameLobbyComponent {
     private http: HttpClient,
     private route: ActivatedRoute,
     public gameStateService: GameStateService,
+    public soundManagerService: SoundManagerService,
   ) {
+    this.soundManagerService.playMusic('middle');
+
     this.route.queryParams.subscribe((params) => {
       this.gameStateService.gameId = params['gameId'];
     });

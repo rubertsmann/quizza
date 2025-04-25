@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { GameStateService } from '../../game-state.service';
+import { GameStateService } from '../../../services/game-state.service';
+import { SoundManagerService } from '../../../services/sound-manager.service';
 
 @Component({
   selector: 'app-pre-game-lobby',
@@ -10,7 +11,9 @@ import { GameStateService } from '../../game-state.service';
   styleUrl: './pre-game-lobby.component.css',
 })
 export class PreGameLobbyComponent {
-  constructor(protected gameStateService: GameStateService) {}
+  constructor(protected gameStateService: GameStateService, private soundManger: SoundManagerService) {
+    this.soundManger.playMusic('start');
+  }
 
   voteStart: null|boolean = null;
 

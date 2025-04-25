@@ -17,11 +17,11 @@ import {
   NewGame,
   Player,
 } from '../../models/backendmodels-copy';
-import { GameStateService } from '../game-state.service';
+import { GameStateService } from '../../services/game-state.service';
 import { AfterGameLobbyComponent } from './after-game-lobby/after-game-lobby.component';
 import { MainGameLobbyComponent } from './main-game-lobby/main-game-lobby.component';
 import { PreGameLobbyComponent } from './pre-game-lobby/pre-game-lobby.component';
-import { SoundManagerService } from '../sound-manager.service';
+import { SoundManagerService } from '../../services/sound-manager.service';
 
 @Component({
   selector: 'app-game-view',

@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { GameStatus } from '../../models/backendmodels-copy';
-import { GameStateService } from '../game-state.service';
+import { GameStateService } from '../../services/game-state.service';
 
 @Component({
   selector: 'app-general-game-state',

@@ -1,8 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { GameStateService } from '../../game-state.service';
+import { GameStateService } from '../../../services/game-state.service';
 import { PointsBarComponent } from './points-bar/points-bar.component';
 import { EndGameState } from '../../../models/backendmodels-copy';
+import { SoundManagerService } from '../../../services/sound-manager.service';
 
 @Component({
   selector: 'app-after-game-lobby',
@@ -11,7 +12,12 @@ import { EndGameState } from '../../../models/backendmodels-copy';
   styleUrl: './after-game-lobby.component.css',
 })
 export class AfterGameLobbyComponent {
-  constructor(public gameStateService: GameStateService) {}
+  constructor(
+    public gameStateService: GameStateService,
+    public soundManagerService: SoundManagerService,
+  ) {
+    this.soundManagerService.playMusic('end');
+  }
 
   getMaxPoints(endGameState: EndGameState[]): number {
     if (!endGameState || endGameState.length === 0) {
