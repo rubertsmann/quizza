@@ -69,7 +69,7 @@
 
     <div
       *ngIf="
-        gamestate.currentQuestion.question &&
+        gamestate.currentQuestion?.question &&
         gamestate.gameStatus === GameStatus.IN_PROGRESS
       "
     >

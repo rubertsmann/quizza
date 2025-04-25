@@ -6,6 +6,7 @@ import {
   GameId,
   GameStatus,
   GeneralGameState,
+  GeneralGameStateReduced,
   NewGame,
   Player,
   PlayerGameState,
@@ -148,16 +149,30 @@ export class AppService {
       maxRoundTime: newGame.maxRoundTime,
     };
 
-    gameState.currentQuestion = this.getRandomQuestion(gameState);
-
     this.globalGameState.set(newGame.gameId, gameState);
   }
 
-  getGeneralGameState(playerId: PlayerId, gameId: GameId): GeneralGameState {
+  getGeneralGameState(
+    playerId: PlayerId,
+    gameId: GameId,
+  ): GeneralGameStateReduced {
     const gameState = this.globalGameState.get(gameId);
 
-    // TODO Sanitize this output to never show the answers of the other teams, besides the request is Admin
-    return this.globalGameState.get(gameId)!;
+    if (!gameState!.playerSpecificGameState.has(playerId)) {
+      throw new Error('Player not part of the game.');
+    }
+
+    const { currentQuestion, ...rest } = gameState!;
+
+    const reducedQuestion = currentQuestion
+      ? // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        (({ correctAnswerId, ...q }) => q)(currentQuestion)
+      : undefined;
+
+    return {
+      ...rest,
+      currentQuestion: reducedQuestion,
+    };
   }
 
   getRandomQuestion(gameState: GeneralGameState): Question {
@@ -180,7 +195,7 @@ export class AppService {
   updateGame() {
     this.globalGameState.forEach((gameState, gameId) => {
       if (gameState.gameStatus === GameStatus.PRE_GAME) {
-        this.updatePreGame(gameState, gameId);
+        this.updatePreGame(gameState);
       }
 
       if (gameState.gameStatus === GameStatus.IN_PROGRESS) {
@@ -189,13 +204,17 @@ export class AppService {
     });
   }
 
-  updatePreGame(gameState: GeneralGameState, gameId: GameId) {
+  updatePreGame(gameState: GeneralGameState) {
     if (!gameState.preGameState) {
       console.error('Game is not initialized');
     } else {
       let howManyVotedYes = 0;
       gameState.preGameState.playerVotes.forEach((playerGameState) => {
-        playerGameState.voteStart ? howManyVotedYes++ : howManyVotedYes--;
+        if (playerGameState.voteStart) {
+          howManyVotedYes++;
+        } else {
+          howManyVotedYes--;
+        }
       });
 
       gameState.preGameState.howManyHaveVoted = howManyVotedYes;
@@ -204,9 +223,14 @@ export class AppService {
         howManyVotedYes >= 1 &&
         gameState.playerSpecificGameState.size === howManyVotedYes
       ) {
-        gameState.gameStatus = GameStatus.IN_PROGRESS;
+        this.endPreGame(gameState);
       }
     }
+  }
+
+  private endPreGame(gameState: GeneralGameState) {
+    gameState.gameStatus = GameStatus.IN_PROGRESS;
+    gameState.currentQuestion = this.getRandomQuestion(gameState);
   }
 
   updateGameInProgress(gameState: GeneralGameState, gameId: GameId) {
@@ -217,7 +241,7 @@ export class AppService {
       this.persistCurrentRound(gameState, gameId);
 
       if (gameState.currentRound == gameState.maxRounds) {
-        this.endGame(gameState);
+        this.endGameInProgress(gameState);
       } else {
         this.startNewRound(gameState);
       }
@@ -274,7 +298,7 @@ export class AppService {
     return Math.round(basePoints * logScale);
   }
 
-  endGame(gameState: GeneralGameState) {
+  endGameInProgress(gameState: GeneralGameState) {
     console.log('Game finished!');
     gameState.gameStatus = GameStatus.FINISHED;
 
@@ -289,7 +313,7 @@ export class AppService {
       });
 
       gameState.endGameState.push({
-        player: playerGameState.player,
+        player: playerGameState.player.name,
         points: correctAnswerCount,
         allAnswers: [...playerGameState.allAnswers.values()],
       });
@@ -332,18 +356,15 @@ export class AppService {
       throw new Error(`Game with ID ${gameId} does not exist.`);
     }
 
-    // Create a map to group answers by question
     const questionMap = new Map<
       string,
       { playerName: string; answerText: string; points: number }[]
     >();
 
-    // Iterate through all players and their answers
     gameState.playerSpecificGameState.forEach((playerGameState) => {
       playerGameState.allAnswers.forEach((answer) => {
         const questionText = answer.originalQuestion.text;
 
-        // Add the player's answer to the corresponding question in the map
         if (!questionMap.has(questionText)) {
           questionMap.set(questionText, []);
         }
@@ -356,14 +377,11 @@ export class AppService {
       });
     });
 
-    // Convert the map into an array of EndGameAnswers
-    const result: EndGameAnswers[] = Array.from(questionMap.entries()).map(
+    return Array.from(questionMap.entries()).map(
       ([questionText, questionAnswers]) => ({
         questionText,
         questionAnswers,
       }),
     );
-
-    return result;
   }
 }

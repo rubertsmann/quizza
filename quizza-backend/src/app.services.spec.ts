@@ -60,7 +60,7 @@ describe('AppServices', () => {
         endGameState: [],
       };
 
-      appService.endGame(gameState);
+      appService.endGameInProgress(gameState);
 
       const endpoints = gameState.endGameState[0].points;
 

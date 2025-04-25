@@ -84,7 +84,7 @@ export enum GameStatus {
 export interface EndGameState {
   points: number;
   allAnswers: QuestionWithAnswer[];
-  player: Player;
+  player: string;
 }
 
 export interface PreGameState {
@@ -108,6 +108,21 @@ export interface GeneralGameState {
   maxRoundTime: number;
   allQuestionIds: QuestionId[];
   currentQuestion?: Question;
+  playerSpecificGameState: Map<PlayerId, PlayerGameState>;
+  endGameState: EndGameState[];
+  preGameState?: PreGameState;
+}
+
+export interface GeneralGameStateReduced {
+  gameId: GameId;
+  gameStatus: GameStatus;
+  currentRound: number;
+  maxRounds: number;
+  roundTime: number;
+  currentQuestionTimer: number;
+  maxRoundTime: number;
+  allQuestionIds: QuestionId[];
+  currentQuestion?: Omit<Question, 'correctAnswerId'>;
   playerSpecificGameState: Map<PlayerId, PlayerGameState>;
   endGameState: EndGameState[];
   preGameState?: PreGameState;

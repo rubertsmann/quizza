@@ -4,7 +4,7 @@ import { Injectable } from '@angular/core';
   providedIn: 'root',
 })
 export class SoundManagerService {
-  private _soundActive = true;
+  private _soundActive = localStorage.getItem("soundActive") === "true";
 
   beep = new Audio('tick.mp3');
   musicStart = new Audio('MusicStart.mp3');
@@ -14,18 +14,18 @@ export class SoundManagerService {
   private _allSounds = new Map<string, HTMLAudioElement>();
   private _allSongs = new Map<string, HTMLAudioElement>();
 
-
-
   constructor() {
     this._allSounds.set('beep', this.beep);
-
+    this.beep.volume = 0.3;
 
     this._allSongs.set('start', this.musicStart);
     this.musicStart.loop = true;
     this.musicStart.volume = 0.2;
+
     this._allSongs.set('middle', this.musicMiddle);
     this.musicMiddle.loop = true;
     this.musicMiddle.volume = 0.2;
+
     this._allSongs.set('end', this.musicEnd);
     this.musicEnd.loop = true;
     this.musicEnd.volume = 0.2;
@@ -36,8 +36,9 @@ export class SoundManagerService {
   }
 
   public toggleSound() {
-    console.log(this.soundActive);
     this._soundActive = !this.soundActive;
+    localStorage.setItem("soundActive", this._soundActive.toString());
+    console.log(this.soundActive);
 
     this._allSounds.forEach((sound) => {
       sound.pause();
@@ -49,7 +50,7 @@ export class SoundManagerService {
   }
 
   public playMusic(musicName: string) {
-    if(!this.soundActive) {
+    if (!this.soundActive) {
       return;
     }
 
@@ -62,7 +63,7 @@ export class SoundManagerService {
   }
 
   public playSound(soundName: string) {
-    if(!this.soundActive) {
+    if (!this.soundActive) {
       return;
     }
     this._allSounds.get(soundName)?.play();

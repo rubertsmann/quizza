@@ -3,7 +3,7 @@ import { AppService } from './app.service';
 import {
   EndGameAnswers,
   GameId,
-  GeneralGameState,
+  GeneralGameStateReduced,
   NewGame,
   PlayerId,
 } from './models/backendmodels';
@@ -21,7 +21,7 @@ export class AppController {
   getGameState(
     @Param('playerId') playerId: PlayerId,
     @Param('gameId') gameId: string,
-  ): GeneralGameState {
+  ): GeneralGameStateReduced {
     //TODO add input validation
     return this.appService.getGeneralGameState(playerId, gameId);
   }
@@ -65,11 +65,7 @@ export class AppController {
     @Param('vote') vote: string,
   ) {
     //TODO add input validation
-    return this.appService.voteStartPlayer(
-      gameId,
-      playerId,
-      vote === 'true' ? true : false,
-    );
+    return this.appService.voteStartPlayer(gameId, playerId, vote === 'true');
   }
 
   @Post('/createGame')
