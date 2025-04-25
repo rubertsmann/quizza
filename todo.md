@@ -1,23 +1,30 @@
-- [ ] Create lobby ui
-- [ ] Create Lobby Login - did parts i send a user and get a lobby token back
-- [ ] Create Passwort/Token Local Storage
-- [ ] Create JSON File Loader
-- [ ] Create api call that is called in a loop - works
-- [ ] Display Questions
-- [ ] Send answer to backend - send answer is selected - update gamestate to actually which answer is selected - done
-- [ ] make either timer or admin view to end round and show next question.
-- [ ] Style Components
-- [ ] Create victory animation
-- [ ] RoundTime Vote
-- [ ] Questions from chat gpt.
-- [ ] performance improvements - gameState nur entsprechend des gameStatus rausgeben.
-- [ ] Alle Subscribes checken das die aufgelöst werden.
-- [ ] User Lobby Spezfisch ein und ausloggen.
-- [ ] PlayerSelector
-- [ ] HeartBeat für den User, entfernen wenn heartbeat x sekunden weg war in pregame lobby.
-- [ ] In endgame Lobby display answers by all users. And perhaps add auto scroll.
-- [ ] Finally add a celebration animation
-- [ ] fix answer not correctly mapped on endgame lobby
+- [X] Create lobby ui - works
+- [x] Create Lobby Login - did parts i send a user and get a lobby token back
+- [x] Create Passwort/Token Local Storage - more or less, user for the current session is stored.
+- [x] Create JSON File Loader - more or less, static typescript object questions
+- [x] Create api call that is called in a loop - works
+- [x] Display Questions
+- [x] Send answer to backend - send answer is selected - update gamestate to actually which answer is selected - done
+- [x] make either timer or admin view to end round and show next question. - currently timer based
+- [x] Style Components - could be better perhaps try new neubrutalism
+- [x] Create victory animation - could be better is a progressbar now
+- [x] RoundTime Vote - lobby is created with certain setup
+- [x] Questions from chat gpt. - currently done manually
+- [x] performance improvements - gameState nur entsprechend des gameStatus rausgeben. - muss nicht unbedingt
+- [x] Alle Subscribes checken das die aufgelöst werden. - could be still an issue
+- [x] User Lobby Spezfisch ein und ausloggen - yes
+- [x] PlayerSelector - yes
+- [ ] HeartBeat für den User, entfernen wenn heartbeat x sekunden weg war in pregame lobby. - 
+- [x] In endgame Lobby display answers by all users. And perhaps add auto scroll. - works but really simple
+- [x] Finally add a celebration animation - progressbar
+- [x] fix answer not correctly mapped on endgame lobby
 - [ ] fix order is not correct highest point is displayed at the lowest
-- [ ] make beatiful
-- [ ] add sound
+- [x] make beatiful - debatable
+- [x] add sound - sound service addest
+- [ ] Make answer selection actually satisfiying
+- [ ] Add three js bouncy face icons
+- [ ] Fix Round Votestart that every user can vote properly.
+- [ ] Make sound adjustable
+- [ ] Add more different sounds
+- [ ] Add music and toggleable music
+  

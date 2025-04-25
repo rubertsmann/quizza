@@ -5,7 +5,7 @@
   >
     <div class="center">
       <div class="counter gradient-background">
-        <div [@numberChange]="gamestate?.currentQuestionTimer">
+        <div (@numberChange.start)="onCounterChange()" [@numberChange]="gamestate?.currentQuestionTimer">
           {{ gamestate?.currentQuestionTimer }}
         </div>
       </div>

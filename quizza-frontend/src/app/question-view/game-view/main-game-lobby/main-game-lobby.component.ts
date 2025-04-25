@@ -13,6 +13,7 @@ import { ActivatedRoute } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
 import { Answer } from '../../../models/backendmodels-copy';
 import { GameStateService } from '../../game-state.service';
+import { SoundManagerService } from '../../sound-manager.service';
 
 const numberChangeIncrementAnimation: AnimationMetadata[] = [
   style({ transform: 'translateY(100%)', opacity: 0 }),
@@ -63,6 +64,7 @@ const questionChangeAnimation: AnimationMetadata = animate(
 })
 export class MainGameLobbyComponent {
   constructor(
+    private soundManager: SoundManagerService,
     private http: HttpClient,
     private route: ActivatedRoute,
     public gameStateService: GameStateService,
@@ -89,5 +91,9 @@ export class MainGameLobbyComponent {
 
   trackById(index: number, item: Answer) {
     return item.answerId;
+  }
+
+  onCounterChange() {
+    this.soundManager.playSound('beep');
   }
 }

@@ -6,6 +6,9 @@
   >
     {{ this.gameStateService.player.name }}
     <button class="add-border" (click)="logOut()">LEAVE</button>
+    <button class="add-border" (click)="this.soundManagerService.toggleSound()">Sound
+    {{this.soundManagerService.soundActive ? 'ON' : 'OFF'}}
+    </button>
   </div>
 </div>
 

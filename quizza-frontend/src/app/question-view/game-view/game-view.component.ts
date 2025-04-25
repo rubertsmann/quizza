@@ -21,6 +21,7 @@ import { GameStateService } from '../game-state.service';
 import { AfterGameLobbyComponent } from './after-game-lobby/after-game-lobby.component';
 import { MainGameLobbyComponent } from './main-game-lobby/main-game-lobby.component';
 import { PreGameLobbyComponent } from './pre-game-lobby/pre-game-lobby.component';
+import { SoundManagerService } from '../sound-manager.service';
 
 @Component({
   selector: 'app-game-view',
@@ -86,6 +87,7 @@ export class GameViewComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     public gameStateService: GameStateService,
+    public soundManagerService: SoundManagerService,
   ) {
     this.route.queryParams.subscribe((params) => {
       console.log(params['isDev']);
