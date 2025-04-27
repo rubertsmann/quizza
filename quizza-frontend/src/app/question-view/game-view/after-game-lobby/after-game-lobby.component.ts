@@ -27,7 +27,7 @@ export class AfterGameLobbyComponent {
   }
 
   trackByEndGame(index: number, endgame: EndGameState): string {
-    return endgame.player.id;
+    return endgame.player;
   }
 
   showOverlay = false;

@@ -71,7 +71,7 @@ button {
   font-weight: bold;
   border: none;
   padding: 0.5rem 1rem;
-  height: 2rem;
+  height: 3rem;
   margin: 0.5rem;
 }
 
@@ -81,7 +81,7 @@ button {
   flex-direction: column;
 }
 
-.column-layout > *:last-child {
+.column-layout>*:last-child {
   margin-top: auto;
 }
 
@@ -124,7 +124,8 @@ button {
 .element-view {
   background-color: var(--color-accent);
   padding: 1rem;
-  flex-grow: 1; /* Allow elements to stretch vertically */
+  flex-grow: 1;
+  /* Allow elements to stretch vertically */
   /* margin: 1rem; */
   overflow: hidden;
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);

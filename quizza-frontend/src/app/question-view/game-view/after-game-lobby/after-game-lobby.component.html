@@ -4,9 +4,7 @@
       <button style="height: 3rem; width: 3rem; border-radius: 3rem" (click)="closeOverlay()">V</button>
       <div style="max-height: 80%; overflow-y: auto">
 
-        <ng-container
-          *ngIf="this.gameStateService.allAnswers$ | async as answers"
-        >
+        <ng-container *ngIf="this.gameStateService.allAnswers$ | async as answers">
           <ng-container *ngFor="let allAnswers of answers">
             <h3 style="padding-top: 1rem" class="question-title">Question: {{ allAnswers.questionText }}</h3>
             <div class="grid-table player-answers">
@@ -27,20 +25,14 @@
   <ng-container *ngIf="this.gameStateService.gameState$ | async as gamestate">
     <div>
       <h2>Game Over</h2>
-      <ng-container
-        *ngFor="
+      <ng-container *ngFor="
           let endgame of gamestate.endGameState;
           let i = index;
           trackBy: trackByEndGame
-        "
-      >
+        ">
         <div class="endgame-container">
-          <app-points-bar
-            [maxPoints]="getMaxPoints(gamestate.endGameState)"
-            [points]="endgame.points"
-            [playerName]="endgame.player.name"
-            [place]="i + 1"
-          >
+          <app-points-bar [maxPoints]="getMaxPoints(gamestate.endGameState)" [points]="endgame.points"
+            [playerName]="endgame.player" [place]="i + 1">
           </app-points-bar>
         </div>
       </ng-container>

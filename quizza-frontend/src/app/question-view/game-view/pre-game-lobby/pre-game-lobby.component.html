@@ -6,11 +6,8 @@
       <button class="vote-button" [ngClass]="{'active-button': voteStart === false}" (click)="vote(false)">No</button>
     </div>
     Players:
-    <ng-container
-      class="icon-thing"
-      style="width: 100%"
-      *ngFor="let playerName of gameState?.preGameState?.playerNames"
-    >
+    <ng-container class="icon-thing" style="width: 100%"
+      *ngFor="let playerName of gameState?.preGameState?.playerNames">
       <div>- {{ playerName }}</div>
     </ng-container>
 
@@ -19,5 +16,5 @@
     </ng-container>
   </ng-container>
 
-  <div></div>
+  <button class="add-border center" (click)="shareLink()">Copy Game Invite Link</button>
 </div>

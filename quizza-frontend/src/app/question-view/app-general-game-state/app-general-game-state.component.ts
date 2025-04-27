@@ -140,7 +140,7 @@ import { GameStateService } from '../../services/game-state.service';
               *ngFor="let endState of gameState.endGameState"
               class="end-state-item"
             >
-              <h4>{{ endState.player.name }} (ID: {{ endState.player.id }})</h4>
+              <h4>{{ endState.player }}</h4>
               <p><strong>Total Points:</strong> {{ endState.points }}</p>
               <h5>Answers:</h5>
               <ul *ngIf="endState.allAnswers.length > 0; else noAnswersEnd">
@@ -276,5 +276,5 @@ import { GameStateService } from '../../services/game-state.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GeneralGameStateComponent {
-  constructor(public gameStateService: GameStateService) {}
+  constructor(public gameStateService: GameStateService) { }
 }

@@ -1,8 +1,5 @@
 <ng-container *ngIf="this.gameStateService.gameState$ | async as gamestate">
-  <div
-    [@questionChange]="gamestate.currentQuestion.question"
-    class="column-layout"
-  >
+  <div [@questionChange]="gamestate.currentQuestion?.question" class="column-layout">
     <div class="center">
       <div class="counter gradient-background">
         <div (@numberChange.start)="onCounterChange()" [@numberChange]="gamestate?.currentQuestionTimer">
@@ -13,25 +10,16 @@
     </div>
 
     <h3 class="center">{{ gamestate?.currentQuestion?.question }}</h3>
-      <div class="center"
-        *ngFor="
-          let answer of gamestate.currentQuestion.answers;
+    <div class="center" *ngFor="
+          let answer of gamestate.currentQuestion?.answers;
           trackBy: trackById
-        "
-      >
-        <label>
-          <input
-            type="radio"
-            name="radioGroup"
-            [value]="answer.answerId"
-            #radioGroup="ngModel"
-            ngModel
-            required
-            (change)="onAnswerChange(radioGroup.value)"
-          />
-          {{ answer.answerText }}
-        </label>
-      </div>
+        ">
+      <label>
+        <input type="radio" name="radioGroup" [value]="answer.answerId" #radioGroup="ngModel" ngModel required
+          (change)="onAnswerChange(radioGroup.value)" />
+        {{ answer.answerText }}
+      </label>
+    </div>
     <div class="last-item-bottom-right">
       {{ gamestate?.currentRound }}/ {{ gamestate?.maxRounds }}
     </div>
