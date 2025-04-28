@@ -1,9 +1,8 @@
 <div class="game">
-      <ng-container *ngIf="initialConnection$ | async; else loading"></ng-container>
-      <app-game-view class="game-box"></app-game-view>
+  <ng-container *ngIf="initialConnection$ | async; else loading"></ng-container>
+  <app-game-view class="game-box"></app-game-view>
 </div>
 
-  <ng-template #loading>
-    <p>Loading...</p>
-  </ng-template>
-<div class="background"></div>
+<ng-template #loading>
+  <p>Loading...</p>
+</ng-template>

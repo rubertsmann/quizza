@@ -3,9 +3,10 @@
     "private": true,
     "scripts": {
         "dev": "concurrently \"npm --prefix quizza-frontend run watch\" \"npm --prefix quizza-backend run start:dev\"",
-        "package": "npm --prefix quizza-frontend run build && npm --prefix quizza-backend run build && npx pkg quizza-backend/dist/main.js"
+        "package": "rimraf main-linux main-macos main-win.exe && npm --prefix quizza-frontend run build && npm --prefix quizza-backend run build && npx pkg quizza-backend/dist/main.js"
     },
     "devDependencies": {
-        "concurrently": "^8.0.0"
+        "concurrently": "^8.0.0",
+        "rimraf": "^5.0.10"
     }
 }

@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { GameStatus } from '../../models/backendmodels-copy';
 import { GameStateService } from '../../services/game-state.service';
 
 @Component({
@@ -276,5 +275,5 @@ import { GameStateService } from '../../services/game-state.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GeneralGameStateComponent {
-  constructor(public gameStateService: GameStateService) { }
+  constructor(public gameStateService: GameStateService) {}
 }
