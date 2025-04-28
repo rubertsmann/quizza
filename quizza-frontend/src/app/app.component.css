@@ -2,7 +2,3 @@ main {
   height: 100vh;
   width: 100%;
 }
-
-router-outlet {
-  width: 100%;
-}

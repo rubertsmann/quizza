@@ -14,6 +14,8 @@ export class SoundManagerService {
   private _allSounds = new Map<string, HTMLAudioElement>();
   private _allSongs = new Map<string, HTMLAudioElement>();
 
+  private _lastPlayedSong = '';
+
   constructor() {
     this._allSounds.set('beep', this.beep);
     this.beep.volume = 0.3;
@@ -38,8 +40,18 @@ export class SoundManagerService {
   public toggleSound() {
     this._soundActive = !this.soundActive;
     localStorage.setItem("soundActive", this._soundActive.toString());
-    console.log(this.soundActive);
 
+    if (this._soundActive) {
+      this.playLastSong();
+    } else {
+      this.stopAllSounds();
+    }
+  }
+  playLastSong() {
+    this.playMusic(this._lastPlayedSong);
+  }
+
+  public stopAllSounds() {
     this._allSounds.forEach((sound) => {
       sound.pause();
     });
@@ -50,6 +62,8 @@ export class SoundManagerService {
   }
 
   public playMusic(musicName: string) {
+    this._lastPlayedSong = musicName;
+
     if (!this.soundActive) {
       return;
     }
@@ -58,8 +72,7 @@ export class SoundManagerService {
       sound.pause();
     });
 
-    const newVar = this._allSongs.get(musicName);
-    newVar?.play();
+    this._allSongs.get(musicName)?.play();
   }
 
   public playSound(soundName: string) {

@@ -1,15 +1,9 @@
-<div class="container">
-  <ng-container *ngIf="initialConnection$ | async; else loading">
-    <app-general-game-state class="panel debug"></app-general-game-state>
-    <div class="game">
+<div class="game">
+      <ng-container *ngIf="initialConnection$ | async; else loading"></ng-container>
       <app-game-view class="game-box"></app-game-view>
-    </div>
-
-    <app-stat-view class="panel stats debug"></app-stat-view>
-  </ng-container>
+</div>
 
   <ng-template #loading>
     <p>Loading...</p>
   </ng-template>
-</div>
 <div class="background"></div>

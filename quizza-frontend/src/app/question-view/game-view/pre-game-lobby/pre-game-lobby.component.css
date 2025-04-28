@@ -5,5 +5,8 @@
 .vote-button {
   width: 7rem;
   height: 7rem;
-  border-radius: 7rem
+  margin: 0;
+  padding: 1rem;
+  margin-right: 0.5rem;
+  border-radius: 8rem
 }
