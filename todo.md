@@ -14,17 +14,18 @@
 - [x] Alle Subscribes checken das die aufgelöst werden. - could be still an issue
 - [x] User Lobby Spezfisch ein und ausloggen - yes
 - [x] PlayerSelector - yes
-- [ ] HeartBeat für den User, entfernen wenn heartbeat x sekunden weg war in pregame lobby. - 
+- [x] HeartBeat für den User, entfernen wenn heartbeat x sekunden weg war in pregame lobby. - 
 - [x] In endgame Lobby display answers by all users. And perhaps add auto scroll. - works but really simple
 - [x] Finally add a celebration animation - progressbar
 - [x] fix answer not correctly mapped on endgame lobby
 - [ ] fix order is not correct highest point is displayed at the lowest
 - [x] make beatiful - debatable
 - [x] add sound - sound service addest
-- [ ] Make answer selection actually satisfiying
+- [x] Make answer selection actually satisfiying - somewhat, could be a bouncy transform
 - [ ] Add three js bouncy face icons
 - [ ] Fix Round Votestart that every user can vote properly.
 - [x] Add more different sounds - can be more
 - [x] Add music and toggleable music
 - [x] Make adjustable sounds
+- [ ] add firebase connection for serving questions
   

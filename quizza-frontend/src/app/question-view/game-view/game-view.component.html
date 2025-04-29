@@ -1,11 +1,19 @@
 <div class="element-header add-border">
   <h1>Quizza</h1>
-  <div style="display: flex; width: 100%" class="element-view add-border-bottom">
-    <div style="float: left" *ngIf="this.gameStateService.player">{{ this.gameStateService.player.name }}
+  <div
+    style="display: flex; width: 100%"
+    class="element-view add-border-bottom"
+  >
+    <div style="float: left" *ngIf="this.gameStateService.player">
+      {{ this.gameStateService.player.name }}
       <button class="add-border" (click)="logOut()">LEAVE</button>
     </div>
-    <button style="margin-left: auto;float: right;" class="add-border" (click)="this.soundManagerService.toggleSound()">
-      Sound {{ this.soundManagerService.soundActive ? 'ON' : 'OFF' }}
+    <button
+      style="margin-left: auto; float: right"
+      class="add-border"
+      (click)="this.soundManagerService.toggleSound()"
+    >
+      Sound {{ this.soundManagerService.soundActive ? "ON" : "OFF" }}
     </button>
   </div>
 </div>
@@ -18,18 +26,34 @@
 >
   <div class="element-view add-border column-layout">
     <h2>? What's your name ?</h2>
-    <input type="text" class="add-border" placeholder="Give yourself a cool name." #playerNameInput/>
-    <button class="add-border center" (click)="sendLoginRequest(playerNameInput.value)">
+    <input
+      type="text"
+      class="add-border"
+      placeholder="Give yourself a cool name."
+      #playerNameInput
+    />
+    <button
+      class="add-border center"
+      (click)="sendLoginRequest(playerNameInput.value)"
+    >
       Join Lobby
     </button>
   </div>
 </ng-container>
 
 <ng-template #preGameLobby>
-  <div *ngIf="!this.gameStateService.gameId" class="element-view add-border column-layout">
+  <div
+    *ngIf="!this.gameStateService.gameId"
+    class="element-view add-border column-layout"
+  >
     <h2>Create new Lobby</h2>
     <div>GameId:</div>
-    <input class="add-border gradient-border" type="text" value="{{randomGameId}}" #roomNameInput/>
+    <input
+      class="add-border gradient-border"
+      type="text"
+      value="{{ randomGameId }}"
+      #roomNameInput
+    />
 
     <div>Max Rounds:</div>
     <input
@@ -47,16 +71,17 @@
       value="20"
       #maxRoundTimeInput
     />
-    <button class="add-border center"
-            (click)="
-          openNewLobby(
-            roomNameInput.value,
-            maxRoundCountInput.value,
-            maxRoundTimeInput.value
-          )
-        "
+    <button
+      class="add-border center"
+      (click)="
+        openNewLobby(
+          roomNameInput.value,
+          maxRoundCountInput.value,
+          maxRoundTimeInput.value
+        )
+      "
     >
-      <div>Start Game</div>
+      Start Game
     </button>
   </div>
 </ng-template>
@@ -64,7 +89,7 @@
 <div *ngIf="this.gameStateService.player" class="element-view add-border">
   <ng-container *ngIf="getGameState$ | async as gamestate">
     <div *ngIf="gamestate.gameStatus === GameStatus.PRE_GAME">
-      <app-pre-game-lobby/>
+      <app-pre-game-lobby />
     </div>
 
     <div
