@@ -2,3 +2,72 @@
   margin-top: auto;
   text-align: right;
 }
+
+.question-container {
+  overflow-y: scroll;
+  max-height: 45vh;
+  padding: 1.5rem;
+}
+
+.base-selected {
+  background-color: var(--color-accent);
+  box-shadow: 0 4px 5px rgba(0, 0, 0, 0.3);
+  color: var(--color-text-inverted);
+  font-size: 1.2rem;
+  width: 100%;
+  margin-bottom: 1rem;
+  height: 4rem;
+  text-align: center;
+  transition:
+    background-color 300ms ease-in-out,
+    box-shadow 300ms ease-in-out,
+    color 300ms ease-in-out;
+}
+
+@keyframes glow-animation {
+  0% {
+    box-shadow:
+      0 0 10px rgba(0, 58, 255, 0.7),
+      0 0 20px rgba(105, 136, 251, 0.6),
+      0 0 30px rgba(0, 28, 244, 0.5);
+  }
+  50% {
+    box-shadow:
+      0 0 30px rgba(187, 51, 232, 1),
+      0 0 20px rgba(187, 51, 232, 0.8),
+      0 0 10px rgba(187, 51, 232, 0.6);
+  }
+  75% {
+    box-shadow:
+      0 0 10px rgba(0, 255, 246, 0.7),
+      0 0 20px rgba(0, 108, 98, 0.6),
+      0 0 30px rgba(154, 255, 247, 0.5);
+  }
+  100% {
+    box-shadow:
+      0 0 10px rgba(0, 58, 255, 0.7),
+      0 0 20px rgba(105, 136, 251, 0.6),
+      0 0 30px rgba(0, 28, 244, 0.5);
+  }
+}
+
+.selected-answer {
+  background-color: var(--color-text-inverted);
+  color: var(--color-accent);
+  animation: glow-animation 5s infinite ease-in-out;
+}
+
+@keyframes gradient-animation {
+  0% {
+    background-position: 0 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  75% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0 50%;
+  }
+}

@@ -40,6 +40,7 @@ export class SoundManagerService {
   public toggleSound() {
     this._soundActive = !this.soundActive;
     localStorage.setItem("soundActive", this._soundActive.toString());
+    console.log("Play", this.soundActive)
 
     if (this._soundActive) {
       this.playLastSong();

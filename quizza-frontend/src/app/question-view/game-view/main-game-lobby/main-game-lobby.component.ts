@@ -1,9 +1,10 @@
 import {
-  animate, AnimationMetadata,
+  animate,
+  AnimationMetadata,
   keyframes,
   style,
   transition,
-  trigger
+  trigger,
 } from '@angular/animations';
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
@@ -26,25 +27,23 @@ const numberChangeDecrementAnimation: AnimationMetadata[] = [
 ];
 
 const questionChangeAnimation: AnimationMetadata = animate(
-  '500ms ease-out',
+  '500ms ease-out', // Keep the duration and easing
   keyframes([
+    // Start off-screen to the right and invisible
     style({
-      transform: 'scale(0.5) rotate(-90deg)',
+      transform: 'translateX(100%)', // Start 100% of its own width to the right
       opacity: 0,
       offset: 0,
     }),
+    // End at its natural position and fully visible
     style({
-      transform: 'scale(1.1) rotate(10deg)',
-      opacity: 0.8,
-      offset: 0.7,
-    }),
-    style({
-      transform: 'scale(1) rotate(0deg)',
+      transform: 'translateX(0)',     // End at the original horizontal position
       opacity: 1,
       offset: 1,
     }),
   ]),
 );
+
 
 @Component({
   selector: 'app-main-game-lobby',
@@ -63,6 +62,8 @@ const questionChangeAnimation: AnimationMetadata = animate(
   styleUrl: './main-game-lobby.component.css',
 })
 export class MainGameLobbyComponent {
+  currentAnswerId = -1;
+
   constructor(
     private soundManager: SoundManagerService,
     private http: HttpClient,
@@ -78,7 +79,7 @@ export class MainGameLobbyComponent {
   }
 
   protected onAnswerChange(answerId: number) {
-    console.log(answerId);
+    this.currentAnswerId = answerId;
     const url = `${this.gameStateService.apiUrl}/answer/${this.gameStateService.player?.id}/${this.gameStateService.gameId}/${answerId}`;
 
     this.http

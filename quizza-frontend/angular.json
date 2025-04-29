@@ -65,6 +65,9 @@
             },
             "development": {
               "buildTarget": "quizza-frontend:build:development"
+            },
+            "options": {
+              "host": "0.0.0.0"
             }
           },
           "options": {
