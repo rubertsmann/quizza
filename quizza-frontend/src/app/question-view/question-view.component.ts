@@ -15,13 +15,6 @@ import { GameViewComponent } from './game-view/game-view.component';
   templateUrl: './question-view.component.html',
 })
 export class QuestionViewComponent {
-  initialConnection$ = defer(() =>
-    interval(15000).pipe(
-      startWith(0),
-      switchMap(() => this.getIsAlivePing()),
-    ),
-  );
-
   constructor(
     private http: HttpClient,
     public gameStateService: GameStateService,
