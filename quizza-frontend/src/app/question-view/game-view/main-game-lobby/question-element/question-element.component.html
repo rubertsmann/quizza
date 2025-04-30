@@ -1,0 +1,17 @@
+<div class="question-container">
+  <div
+    class="center"
+    *ngFor="
+        let answer of question.answers;
+        trackBy: trackById
+      "
+  >
+    <button
+      [class.selected-answer]="currentAnswerId === answer.answerId"
+      class="base-selected add-border"
+      (click)="onAnswerChange(answer.answerId)"
+    >
+      {{ answer.answerText }}
+    </button>
+  </div>
+</div>

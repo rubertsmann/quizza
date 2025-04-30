@@ -1,9 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { defer, interval, Observable, startWith, switchMap } from 'rxjs';
-import { GameStateService } from '../services/game-state.service';
 import { GameViewComponent } from './game-view/game-view.component';
 
 @Component({
@@ -14,16 +11,4 @@ import { GameViewComponent } from './game-view/game-view.component';
   styleUrl: './question-view.component.css',
   templateUrl: './question-view.component.html',
 })
-export class QuestionViewComponent {
-  constructor(
-    private http: HttpClient,
-    public gameStateService: GameStateService,
-  ) {}
-
-  getIsAlivePing(): Observable<{ message: string; serverTime: string }> {
-    return this.http.get<{
-      message: string;
-      serverTime: string;
-    }>(this.gameStateService.apiUrl);
-  }
-}
+export class QuestionViewComponent {}

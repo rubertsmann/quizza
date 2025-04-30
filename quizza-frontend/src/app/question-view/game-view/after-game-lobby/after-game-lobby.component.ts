@@ -21,8 +21,9 @@ export class AfterGameLobbyComponent {
 
   getMaxPoints(endGameState: EndGameState[]): number {
     if (!endGameState || endGameState.length === 0) {
-      return 0;
+      return 1;
     }
+
     return Math.max(...endGameState.map((endgame) => endgame.points || 0));
   }
 

@@ -1,6 +1,5 @@
 .overlay {
   position: absolute;
-
   padding: -1rem;
   top: 5rem;
   width: 100%;
@@ -51,16 +50,12 @@
   height: 100%;
 }
 
-
-
-/* Titel-Styling (optional) */
 .question-title {
   margin-bottom: 15px;
   font-size: 1.2em;
-  color: #333;
+  color: var(--color-muted-faded);
 }
 
-/* Der Haupt-Grid-Container */
 .grid-table.player-answers {
   display: grid;
 
@@ -69,25 +64,25 @@
   width: 100%;
   max-width: 800px;
   margin: 0 auto;
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--color-accent);
   border-radius: 8px;
   overflow: hidden;
-  background-color: #959595;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05); /* Leichter Schatten */
+  background-color: var(--color-muted-faded);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
 
 .grid-cell {
   padding: 12px 15px;
-  background-color: #959595;
+  background-color: var(--color-accent);
   font-size: 0.95em;
   line-height: 1.4;
-  color: #444;
+  color: var(--color-text-inverted);
 }
 
 .grid-cell.header-cell {
-  background-color: #f5f5f5;
+  background-color: var(--color-accent);
   font-weight: 600;
-  color: #333;
+  color: var(--color-text-inverted);
   position: sticky;
   top: 0;
   z-index: 10;
@@ -97,28 +92,17 @@
   font-weight: 500;
 }
 
-/* Optional: Zebra-Streifen für bessere Lesbarkeit (jede zweite Datenzeile) */
-/* Hinweis: Dies zielt auf die Zellen, nicht auf die Zeilen direkt, da wir keinen Zeilen-Wrapper haben */
-/* Zielt auf die 4., 5., 6. Zelle (2. Datenzeile), dann 7., 8., 9. (3. Datenzeile) usw. */
-.grid-table.player-answers .grid-cell:nth-child(3n + 4), /* Zelle 4, 7, 10, ... */
-.grid-table.player-answers .grid-cell:nth-child(3n + 5), /* Zelle 5, 8, 11, ... */
-.grid-table.player-answers .grid-cell:nth-child(3n + 6)  /* Zelle 6, 9, 12, ... */
-{
-  /* Alle 3 Zellen ab der 4. Zelle (beginnend mit der 2. Datenzeile) */
-}
 
-/* Speziell für Zebra-Streifen (jede zweite Datenreihe hervorheben) */
-/* Wir müssen alle Zellen der *geraden* Datenreihen (2., 4., ...) anvisieren */
-/* Zellen 4-6, 10-12, 16-18, etc. */
+.grid-table.player-answers .grid-cell:nth-child(3n + 4),
+.grid-table.player-answers .grid-cell:nth-child(3n + 5),
+.grid-table.player-answers .grid-cell:nth-child(3n + 6),
+
+
 .grid-table.player-answers .grid-cell:nth-child(6n + 4),
 .grid-table.player-answers .grid-cell:nth-child(6n + 5),
 .grid-table.player-answers .grid-cell:nth-child(6n + 6) {
-  background-color: #f9f9f9; /* Sehr heller Grauton für Zebra-Streifen */
+  background-color: var(--color-accent);
 }
 
-
-/* Optional: Hover-Effekt für Datenzellen */
 .grid-table.player-answers .grid-cell:not(.header-cell):hover {
-  /* Leichte Hervorhebung beim Überfahren einzelner Zellen */
-  /* background-color: #f0f8ff; */
 }

@@ -2,8 +2,8 @@
   <h2>Are you ready?</h2>
   <ng-container *ngIf="this.gameStateService.gameState$ | async as gameState">
     <div style="padding: 2rem;" class="center">
-      <button class="vote-button" [ngClass]="{'active-button': voteStart === true}" (click)="vote(true)">Yes</button>
-      <button class="vote-button" [ngClass]="{'active-button': voteStart === false}" (click)="vote(false)">No</button>
+      <button class="vote-button base-selected add-border" [class.selected-answer]="voteStart === true" (click)="vote(true)">Yes</button>
+      <button class="vote-button base-selected add-border" [class.selected-answer]="voteStart === false" (click)="vote(false)">No</button>
     </div>
     Players:
     <ng-container class="icon-thing" style="width: 100%"

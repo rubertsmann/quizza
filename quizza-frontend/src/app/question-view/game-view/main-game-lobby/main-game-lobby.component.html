@@ -14,24 +14,11 @@
       </div>
     </div>
 
-    <h3 class="center">{{ gamestate?.currentQuestion?.question }}</h3>
-    <div class="question-container">
-      <div
-        class="center"
-        *ngFor="
-        let answer of gamestate.currentQuestion?.answers;
-        trackBy: trackById
-      "
-      >
-        <button
-          [class.selected-answer]="currentAnswerId === answer.answerId"
-          class="base-selected add-border"
-          (click)="onAnswerChange(answer.answerId)"
-        >
-          {{ answer.answerText }}
-        </button>
-      </div>
-    </div>
+    <ng-container *ngIf="gamestate?.currentQuestion as question">
+      <h3 class="center">{{ question.question }}</h3>
+      <app-question-element [question]="question"></app-question-element>
+    </ng-container>
+
 
     <div class="last-item-bottom-right">
       {{ gamestate?.currentRound }}/ {{ gamestate?.maxRounds }}

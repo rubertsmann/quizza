@@ -11,15 +11,6 @@
   overflow: auto;
 }
 
-.game {
-  width: 375px;
-  max-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-
 .question {
   text-align: center;
   font-size: 1.2rem;

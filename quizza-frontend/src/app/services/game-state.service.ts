@@ -6,8 +6,8 @@ import {
   GeneralGameState,
   Player,
 } from '../models/backendmodels-copy';
-import { HttpClient } from '@angular/common/http';
-import { defer, first, Observable, switchMap, takeWhile, timer } from 'rxjs';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { catchError, defer, first, Observable, switchMap, takeWhile, throwError, timer } from 'rxjs';
 import { environment } from '../../environments/environment';
 
 @Injectable({
@@ -101,5 +101,20 @@ export class GameStateService {
 
     const url = `${this.apiUrl}/gamestate/${this.player?.id}/${this.gameId}/allanswers`;
     return this.http.get<EndGameAnswers[]>(url);
+  }
+
+  postSelectedAnswer(answerId: number) {
+    const url = `${this.apiUrl}/answer/${this.player?.id}/${this.gameId}/${answerId}`;
+
+    this.http
+      .get(url)
+      .pipe(
+        first(),
+        catchError((error: HttpErrorResponse) => {
+          console.log(error);
+          return throwError(() => error);
+        }),
+      )
+      .subscribe();
   }
 }
