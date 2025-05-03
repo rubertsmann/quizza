@@ -23,6 +23,7 @@ export interface NewGame {
   gameId: GameId;
   maxRounds: number;
   maxRoundTime: number;
+  quickRoundActive: boolean;
 }
 
 export interface Question {
@@ -104,6 +105,7 @@ export interface GeneralGameState {
   currentRound: number;
   maxRounds: number;
   roundTime: number;
+  quickRoundActive: boolean;
   currentQuestionTimer: number;
   maxRoundTime: number;
   allQuestionIds: QuestionId[];

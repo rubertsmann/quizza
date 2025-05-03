@@ -71,13 +71,17 @@
       value="20"
       #maxRoundTimeInput
     />
+    <div>Quick Rounds:</div>
+    <input type="checkbox" placeholder="Enter Round Time" #quickRoundActive />
+
     <button
       class="add-border center"
       (click)="
         openNewLobby(
           roomNameInput.value,
           maxRoundCountInput.value,
-          maxRoundTimeInput.value
+          maxRoundTimeInput.value,
+          quickRoundActive.checked
         )
       "
     >

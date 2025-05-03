@@ -41,7 +41,6 @@ export class AppService {
     const playerGameState = gameState?.playerSpecificGameState.get(playerName);
 
     if (gameState && playerGameState && gameState.currentQuestion) {
-      // TODO check if the answerId is valid for the current question
       playerGameState.currentAnswerId = answerId;
       playerGameState.answerText =
         gameState.currentQuestion.answers.find((a) => a.answerId === answerId)
@@ -71,14 +70,14 @@ export class AppService {
   }
 
   debugGameState(gameId: GameId) {
-    const test = this.globalGameState.get(gameId);
-    console.log('---START---');
-    console.log('SpielerCount' + test?.playerSpecificGameState.size);
-    test?.playerSpecificGameState.forEach((element) => {
-      console.log(element.player.name);
-      console.log(element);
-    });
-    console.log('---END---');
+    // const test = this.globalGameState.get(gameId);
+    // console.log('---START---');
+    // console.log('SpielerCount' + test?.playerSpecificGameState.size);
+    // test?.playerSpecificGameState.forEach((element) => {
+    //   console.log(element.player.name);
+    //   console.log(element);
+    // });
+    // console.log('---END---');
   }
 
   login(playerName: string, gameId: GameId): Player {
@@ -90,6 +89,7 @@ export class AppService {
         gameId,
         maxRounds: 3,
         maxRoundTime: 20,
+        quickRoundActive: false,
       });
     }
 
@@ -135,6 +135,7 @@ export class AppService {
       gameId: newGame.gameId,
       gameStatus: GameStatus.PRE_GAME,
       roundTime: newGame.maxRoundTime,
+      quickRoundActive: newGame.quickRoundActive,
       currentRound: 1,
       maxRounds: newGame.maxRounds,
       currentQuestionTimer: newGame.maxRoundTime,
@@ -237,7 +238,10 @@ export class AppService {
     gameState.currentQuestionTimer--;
 
     //TODO Probably change this logic according to the game mode.
-    if (gameState.currentQuestionTimer <= 0) {
+    if (
+      gameState.currentQuestionTimer <= 0 ||
+      this.quickRoundEnded(gameState)
+    ) {
       this.persistCurrentRound(gameState, gameId);
 
       if (gameState.currentRound == gameState.maxRounds) {
@@ -383,5 +387,15 @@ export class AppService {
         questionAnswers,
       }),
     );
+  }
+
+  private quickRoundEnded(gameState: GeneralGameState): boolean {
+    if (gameState?.quickRoundActive) {
+      return Array.from(gameState?.playerSpecificGameState.values()).every(
+        (player) => player.currentAnswerId !== -1,
+      );
+    } else {
+      return false;
+    }
   }
 }

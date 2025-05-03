@@ -22,7 +22,6 @@ export class AppController {
     @Param('playerId') playerId: PlayerId,
     @Param('gameId') gameId: string,
   ): GeneralGameStateReduced {
-    //TODO add input validation
     return this.appService.getGeneralGameState(playerId, gameId);
   }
 
@@ -31,7 +30,6 @@ export class AppController {
     @Param('playerId') playerId: PlayerId,
     @Param('gameId') gameId: string,
   ): EndGameAnswers[] {
-    console.log('Hello');
     return this.appService.getGeneralGameStateAllAnswers(playerId, gameId);
   }
 
@@ -40,7 +38,6 @@ export class AppController {
     @Param('playerName') playerName: string,
     @Param('gameId') gameId: string,
   ) {
-    //TODO add input validation
     return this.appService.login(playerName, gameId);
   }
 
@@ -50,7 +47,6 @@ export class AppController {
     @Param('gameId') gameId: GameId,
     @Param('answerId') answerId: string,
   ) {
-    //TODO add input validation
     return this.appService.answerQuestionForPlayer(
       gameId,
       playerId,
@@ -64,13 +60,11 @@ export class AppController {
     @Param('gameId') gameId: GameId,
     @Param('vote') vote: string,
   ) {
-    //TODO add input validation
     return this.appService.voteStartPlayer(gameId, playerId, vote === 'true');
   }
 
   @Post('/createGame')
   postNewGame(@Body() newGame: NewGame): NewGame {
-    //TODO add input validation
     return this.appService.createNewGame(newGame);
   }
 }

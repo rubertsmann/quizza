@@ -105,19 +105,18 @@ export class GameViewComponent implements OnInit {
     interval(1000).pipe(switchMap(() => this.getGameState())),
   );
 
-  openNewLobby(gameId: string, maxRounds: string, maxRoundTime: string) {
+  openNewLobby(gameId: string, maxRounds: string, maxRoundTime: string, quickRoundActive: boolean) {
     const isValid = /^[a-z,A-Z]{1,10}$/.test(gameId);
-    console.log(gameId);
     if (!isValid) {
       //Replace with a better indicator
       alert('GameId is invalid a-z, 1-10, single word');
     } else {
       //Add more input validation
-      this.sendNewGame(gameId, parseInt(maxRounds), parseInt(maxRoundTime));
+      this.sendNewGame(gameId, parseInt(maxRounds), parseInt(maxRoundTime), quickRoundActive);
     }
   }
 
-  sendNewGame(gameId: string, maxRounds: number, maxRoundTime: number): void {
+  sendNewGame(gameId: string, maxRounds: number, maxRoundTime: number, quickRoundActive: boolean): void {
     const url = `${this.gameStateService.apiUrl}/createGame`;
 
     this.http
@@ -125,6 +124,7 @@ export class GameViewComponent implements OnInit {
         gameId,
         maxRounds,
         maxRoundTime,
+        quickRoundActive,
       })
       .subscribe({
         next: (response) => {
