@@ -50,6 +50,7 @@ export class AppService {
         gameState.currentQuestion.answers.find((a) => a.answerId === answerId)
           ?.answerText || 'Answer Unknown';
 
+      playerGameState.remainingSeconds = gameState.currentQuestionTimer;
       gameState?.playerSpecificGameState.set(playerId, playerGameState);
     }
 
@@ -146,6 +147,7 @@ export class AppService {
         currentAnswerId: -1,
         answerText: '',
         allAnswers: new Map<QuestionId, QuestionWithAnswer>(),
+        remainingSeconds: -1,
       });
     }
   }
@@ -306,9 +308,13 @@ export class AppService {
           ? this.calculatePoints(
               gameState.currentRound,
               gameState.maxRounds,
-              10,
+              gameState.quickRoundActive
+                ? playerGameState.remainingSeconds
+                : 10,
             )
           : 0,
+        answeredInSeconds:
+          gameState.maxRoundTime - playerGameState.remainingSeconds,
       };
 
       playerGameState.allAnswers.set(
@@ -351,6 +357,8 @@ export class AppService {
       gameState.endGameState.push({
         player: playerGameState.player.name,
         points: correctAnswerCount,
+        answeredInSeconds:
+          gameState.maxRoundTime - playerGameState.remainingSeconds,
         allAnswers: [...playerGameState.allAnswers.values()],
       });
 
@@ -388,7 +396,12 @@ export class AppService {
 
     const questionMap = new Map<
       string,
-      { playerName: string; answerText: string; points: number }[]
+      {
+        playerName: string;
+        answerText: string;
+        points: number;
+        answeredInSeconds: number;
+      }[]
     >();
 
     gameState.playerSpecificGameState.forEach((playerGameState) => {
@@ -403,6 +416,7 @@ export class AppService {
           playerName: playerGameState.player.name,
           answerText: answer.answerText || 'No answer provided',
           points: answer.calculatedPoints,
+          answeredInSeconds: answer.answeredInSeconds,
         });
       });
     });

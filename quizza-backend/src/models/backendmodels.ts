@@ -60,9 +60,11 @@ export interface QuestionWithAnswer {
   };
   isCorrectAnswer: boolean;
   calculatedPoints: number;
+  answeredInSeconds: number;
 }
 
 export interface PlayerGameState {
+  remainingSeconds: number;
   player: Player;
   currentAnswerId: AnswerId;
   answerText: string;
@@ -86,6 +88,7 @@ export enum GameStatus {
 export interface EndGameState {
   points: number;
   allAnswers: QuestionWithAnswer[];
+  answeredInSeconds: number;
   player: string;
 }
 
@@ -142,5 +145,6 @@ export interface EndGameAnswers {
     playerName: string;
     answerText: string;
     points: number;
+    answeredInSeconds: number;
   }[];
 }
