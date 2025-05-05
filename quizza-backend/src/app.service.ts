@@ -193,6 +193,11 @@ export class AppService {
     return {
       ...rest,
       currentQuestion: reducedQuestion,
+      preGameState: {
+        howManyHaveVoted: gameState.preGameState!.howManyHaveVoted,
+        playerNames: gameState.preGameState!.playerNames,
+        playerVotes: Array.from(gameState.preGameState!.playerVotes.values()),
+      },
     };
   }
 

@@ -95,6 +95,12 @@ export interface PreGameState {
   playerVotes: Map<PlayerId, PlayerVote>;
 }
 
+export interface PreGameStateReduced {
+  howManyHaveVoted: number;
+  playerNames: string[];
+  playerVotes: PlayerVote[];
+}
+
 export interface PlayerVote {
   voteStart: boolean;
   playerName: string;
@@ -126,9 +132,8 @@ export interface GeneralGameStateReduced {
   maxRoundTime: number;
   allQuestionIds: QuestionId[];
   currentQuestion?: Omit<Question, 'correctAnswerId'>;
-  playerSpecificGameState: Map<PlayerId, PlayerGameState>;
   endGameState: EndGameState[];
-  preGameState?: PreGameState;
+  preGameState?: PreGameStateReduced;
 }
 
 export interface EndGameAnswers {
