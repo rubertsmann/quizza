@@ -27,27 +27,30 @@ export class AppService {
   startGameStateUpdateLoop() {
     setInterval(() => {
       this.updateGame();
-    }, 1000); // Runs every 1000ms (1 second)
+    }, 1000);
   }
 
   globalGameState = new Map<GameId, GeneralGameState>();
 
   answerQuestionForPlayer(
     gameId: GameId,
-    playerName: PlayerId,
+    playerId: PlayerId,
     answerId: AnswerId,
   ) {
-    const gameState = this.globalGameState.get(gameId);
-    const playerGameState = gameState?.playerSpecificGameState.get(playerName);
+    const gameState = this.getGameStateOrFail(gameId);
 
-    if (gameState && playerGameState && gameState.currentQuestion) {
+    const playerGameState = this.getPlayerSpecificGameStateOrFail(
+      gameState,
+      playerId,
+    );
+
+    if (gameState.currentQuestion) {
       playerGameState.currentAnswerId = answerId;
       playerGameState.answerText =
         gameState.currentQuestion.answers.find((a) => a.answerId === answerId)
           ?.answerText || 'Answer Unknown';
 
-      gameState?.playerSpecificGameState.set(playerName, playerGameState);
-      this.globalGameState.set(gameId, gameState);
+      gameState?.playerSpecificGameState.set(playerId, playerGameState);
     }
 
     this.debugGameState(gameId);
@@ -63,7 +66,7 @@ export class AppService {
         playerName: playerName,
         voteStart,
       });
-      this.globalGameState.set(gameId, gameState);
+      gameState.preGameState!.playerVotes = pregameState.playerVotes;
     }
 
     this.debugGameState(gameId);
@@ -84,42 +87,61 @@ export class AppService {
     const uuid = crypto.randomUUID();
     const player = { name: playerName, id: uuid };
 
-    if (!this.globalGameState.has(gameId)) {
-      this.initializeGeneralGameState({
-        gameId,
-        maxRounds: 3,
-        maxRoundTime: 20,
-        quickRoundActive: false,
-      });
-    }
-
     this.initializePlayerGameState(player, gameId);
-
     this.updatePreGamePlayerList(player, gameId);
     return player;
   }
 
-  updatePreGamePlayerList(player: Player, gameId: GameId) {
+  getGameStateOrFail(gameId: GameId): GeneralGameState {
     const gameState = this.globalGameState.get(gameId);
 
     if (gameState) {
-      const playerNames: string[] = [];
-      gameState?.playerSpecificGameState.forEach((playerGameState) => {
-        playerNames.push(playerGameState.player.name);
-      });
+      return gameState;
+    }
 
-      if (gameState.preGameState) {
-        gameState.preGameState.playerNames = playerNames;
-      }
+    throw new Error('Game does not Exist');
+  }
+
+  setGameStateOrFail(state: GeneralGameState) {
+    this.globalGameState.set(state.gameId, state);
+  }
+
+  getPlayerSpecificGameStateOrFail(
+    gameState: GeneralGameState,
+    playerId: PlayerId,
+  ): PlayerGameState {
+    if (!gameState.playerSpecificGameState.has(playerId)) {
+      throw new Error('Player not part of the game.');
+    }
+
+    return gameState.playerSpecificGameState.get(playerId)!;
+  }
+
+  updatePreGamePlayerList(player: Player, gameId: GameId) {
+    const gameState = this.getGameStateOrFail(gameId);
+    const playerNames: string[] = [];
+
+    gameState.playerSpecificGameState.forEach((playerGameState) => {
+      playerNames.push(playerGameState.player.name);
+    });
+
+    if (gameState.preGameState) {
+      gameState.preGameState.playerNames = playerNames;
     }
   }
 
   initializePlayerGameState(player: Player, gameId: GameId) {
-    console.log('initializePlayerGameState', player, gameId);
-    const gameState = this.globalGameState.get(gameId);
+    const gameState = this.getGameStateOrFail(gameId);
+    const doesPlayerNameExist = !Array.from(
+      gameState.playerSpecificGameState.values(),
+    ).find((it) => it.player.name === player.name);
 
-    if (!gameState?.playerSpecificGameState.has(player.id)) {
-      gameState?.playerSpecificGameState.set(player.id, {
+    if (!doesPlayerNameExist) {
+      throw Error('Playername already taken.');
+    }
+
+    if (!gameState.playerSpecificGameState.has(player.id)) {
+      gameState.playerSpecificGameState.set(player.id, {
         player: player,
         currentAnswerId: -1,
         answerText: '',
@@ -128,12 +150,12 @@ export class AppService {
     }
   }
 
-  initializeGeneralGameState(newGame: NewGame) {
+  initializeGeneralGameState(newGame: NewGame): GeneralGameState {
     const playerGameState = new Map<PlayerId, PlayerGameState>();
 
     const gameState: GeneralGameState = {
       gameId: newGame.gameId,
-      gameStatus: GameStatus.PRE_GAME,
+      gameStatus: GameStatus.INIT,
       roundTime: newGame.maxRoundTime,
       quickRoundActive: newGame.quickRoundActive,
       currentRound: 1,
@@ -150,21 +172,19 @@ export class AppService {
       maxRoundTime: newGame.maxRoundTime,
     };
 
-    this.globalGameState.set(newGame.gameId, gameState);
+    this.setGameStateOrFail(gameState);
+    this.updateGameStatus(gameState, GameStatus.PRE_GAME);
+
+    return gameState;
   }
 
   getGeneralGameState(
     playerId: PlayerId,
     gameId: GameId,
   ): GeneralGameStateReduced {
-    const gameState = this.globalGameState.get(gameId);
+    const gameState = this.getGameStateOrFail(gameId);
 
-    if (!gameState!.playerSpecificGameState.has(playerId)) {
-      throw new Error('Player not part of the game.');
-    }
-
-    const { currentQuestion, ...rest } = gameState!;
-
+    const { currentQuestion, ...rest } = gameState;
     const reducedQuestion = currentQuestion
       ? // eslint-disable-next-line @typescript-eslint/no-unused-vars
         (({ correctAnswerId, ...q }) => q)(currentQuestion)
@@ -184,6 +204,7 @@ export class AppService {
     );
 
     if (remainingQuestionIds.length === 0) {
+      //End Game instantly
       throw new Error('No more questions available.');
     }
 
@@ -207,30 +228,31 @@ export class AppService {
 
   updatePreGame(gameState: GeneralGameState) {
     if (!gameState.preGameState) {
-      console.error('Game is not initialized');
-    } else {
-      let howManyVotedYes = 0;
-      gameState.preGameState.playerVotes.forEach((playerGameState) => {
-        if (playerGameState.voteStart) {
-          howManyVotedYes++;
-        } else {
-          howManyVotedYes--;
-        }
-      });
+      throw new Error('Game state must be initialized');
+    }
 
-      gameState.preGameState.howManyHaveVoted = howManyVotedYes;
-
-      if (
-        howManyVotedYes >= 1 &&
-        gameState.playerSpecificGameState.size === howManyVotedYes
-      ) {
-        this.endPreGame(gameState);
+    let howManyVotedYes = 0;
+    gameState.preGameState.playerVotes.forEach((playerGameState) => {
+      if (playerGameState.voteStart) {
+        howManyVotedYes++;
+      } else {
+        howManyVotedYes--;
       }
+    });
+
+    gameState.preGameState.howManyHaveVoted = howManyVotedYes;
+
+    if (
+      howManyVotedYes >= 1 &&
+      gameState.playerSpecificGameState.size === howManyVotedYes
+    ) {
+      this.endPreGame(gameState);
     }
   }
 
   private endPreGame(gameState: GeneralGameState) {
-    gameState.gameStatus = GameStatus.IN_PROGRESS;
+    this.updateGameStatus(gameState, GameStatus.IN_PROGRESS);
+
     gameState.currentQuestion = this.getRandomQuestion(gameState);
   }
 
@@ -242,7 +264,7 @@ export class AppService {
       gameState.currentQuestionTimer <= 0 ||
       this.quickRoundEnded(gameState)
     ) {
-      this.persistCurrentRound(gameState, gameId);
+      this.persistCurrentRound(gameState);
 
       if (gameState.currentRound == gameState.maxRounds) {
         this.endGameInProgress(gameState);
@@ -254,42 +276,41 @@ export class AppService {
     }
   }
 
-  persistCurrentRound(gameState: GeneralGameState, gameId: GameId) {
+  persistCurrentRound(gameState: GeneralGameState) {
     if (gameState.currentQuestion === null) {
       throw Error('Game is not active');
     }
 
-    this.globalGameState
-      .get(gameId)
-      ?.playerSpecificGameState.forEach((playerGameState) => {
-        const isCorrect =
-          playerGameState.currentAnswerId ===
-          gameState.currentQuestion!.correctAnswerId;
-        const answeredQuestion: QuestionWithAnswer = {
-          id: gameState.currentQuestion!.id,
-          answerId: playerGameState.currentAnswerId,
-          answerText: playerGameState.answerText,
-          originalQuestion: {
-            text: gameState.currentQuestion!.question,
-            answerText: gameState.currentQuestion!.answers.find(
-              (a) => a.answerId === gameState.currentQuestion!.correctAnswerId,
-            ),
-          },
-          isCorrectAnswer: isCorrect,
-          calculatedPoints: isCorrect
-            ? this.calculatePoints(
-                gameState.currentRound,
-                gameState.maxRounds,
-                10,
-              )
-            : 0,
-        };
+    gameState.playerSpecificGameState.forEach((playerGameState) => {
+      const isCorrect =
+        playerGameState.currentAnswerId ===
+        gameState.currentQuestion!.correctAnswerId;
 
-        playerGameState.allAnswers.set(
-          gameState.currentQuestion!.id,
-          answeredQuestion,
-        );
-      });
+      const answeredQuestion: QuestionWithAnswer = {
+        id: gameState.currentQuestion!.id,
+        answerId: playerGameState.currentAnswerId,
+        answerText: playerGameState.answerText,
+        originalQuestion: {
+          text: gameState.currentQuestion!.question,
+          answerText: gameState.currentQuestion!.answers.find(
+            (a) => a.answerId === gameState.currentQuestion!.correctAnswerId,
+          ),
+        },
+        isCorrectAnswer: isCorrect,
+        calculatedPoints: isCorrect
+          ? this.calculatePoints(
+              gameState.currentRound,
+              gameState.maxRounds,
+              10,
+            )
+          : 0,
+      };
+
+      playerGameState.allAnswers.set(
+        gameState.currentQuestion!.id,
+        answeredQuestion,
+      );
+    });
   }
 
   calculatePoints(
@@ -303,10 +324,16 @@ export class AppService {
   }
 
   endGameInProgress(gameState: GeneralGameState) {
-    console.log('Game finished!');
-    gameState.gameStatus = GameStatus.FINISHED;
+    this.updateGameStatus(gameState, GameStatus.FINISHED);
 
     this.evaluateCorrectPlayerAnswers(gameState);
+  }
+
+  updateGameStatus(gameState: GeneralGameState, gameStatus: GameStatus) {
+    console.log(
+      `gameStatus changed - GameId: ${gameState.gameId}, OldState: ${gameState.gameStatus}, NewState: ${gameStatus}`,
+    );
+    gameState.gameStatus = gameStatus;
   }
 
   private evaluateCorrectPlayerAnswers(gameState: GeneralGameState) {
@@ -341,24 +368,18 @@ export class AppService {
   }
 
   createNewGame(newGame: NewGame): NewGame {
-    if (!this.globalGameState.has(newGame.gameId)) {
-      this.initializeGeneralGameState(newGame);
-
-      return newGame;
-    } else {
+    if (this.globalGameState.has(newGame.gameId)) {
       throw new Error('Game already exist.');
     }
+
+    return this.initializeGeneralGameState(newGame);
   }
 
   getGeneralGameStateAllAnswers(
     playerId: string,
     gameId: string,
   ): EndGameAnswers[] {
-    const gameState = this.globalGameState.get(gameId);
-
-    if (!gameState) {
-      throw new Error(`Game with ID ${gameId} does not exist.`);
-    }
+    const gameState = this.getGameStateOrFail(gameId);
 
     const questionMap = new Map<
       string,

@@ -80,6 +80,7 @@ export enum GameStatus {
   IN_PROGRESS = 'IN_PROGRESS',
   FINISHED = 'FINISHED',
   PRE_GAME = 'PRE_GAME',
+  INIT = 'INIT',
 }
 
 export interface EndGameState {
