@@ -28,4 +28,8 @@
 - [x] Add music and toggleable music
 - [x] Make adjustable sounds
 - [ ] add firebase connection for serving questions
+- [ ] add player vote to the frontend.
+- [ ] display player state who answered.
+- [ ] display answeredInSeconds into the endscreen.
+- [ ] Add a websocket connection.
   

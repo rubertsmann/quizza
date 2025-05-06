@@ -92,9 +92,9 @@
 
 <div *ngIf="this.gameStateService.player" class="element-view add-border">
   <ng-container *ngIf="getGameState$ | async as gamestate">
-    <div *ngIf="gamestate.gameStatus === GameStatus.PRE_GAME">
+    <ng-container *ngIf="gamestate.gameStatus === GameStatus.PRE_GAME">
       <app-pre-game-lobby />
-    </div>
+    </ng-container>
 
     <div
       *ngIf="
