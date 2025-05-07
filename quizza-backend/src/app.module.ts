@@ -3,11 +3,10 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
-import { EventsModule } from './events/events.module';
+import { EventsGateway } from './events/events.gateway';
 
 @Module({
   imports: [
-    EventsModule,
     ServeStaticModule.forRoot({
       rootPath: join(
         process.cwd(),
@@ -19,6 +18,6 @@ import { EventsModule } from './events/events.module';
     }),
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, EventsGateway],
 })
 export class AppModule {}

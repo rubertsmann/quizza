@@ -438,4 +438,9 @@ export class AppService {
       return false;
     }
   }
+
+  getPlayerLogin(gameId: string, playerId: string): Player {
+    const gameState = this.getGameStateOrFail(gameId);
+    return gameState.playerSpecificGameState.get(playerId)!.player;
+  }
 }
