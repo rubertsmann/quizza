@@ -38,7 +38,7 @@ export class PlayerPhysicsDisplayComponent
   private currentPlayersList: string[] = [];
   private subscriptions: Subscription = new Subscription();
 
-  private readonly BALL_RADIUS = 10;
+  private readonly BALL_RADIUS = 60;
 
   constructor(
     private socketService: SocketService,
@@ -160,9 +160,9 @@ export class PlayerPhysicsDisplayComponent
 
   private addBoundaries() {
     const container = this.physicsContainerRef.nativeElement;
-    const width = container.clientWidth;
-    const height = container.clientHeight;
-    const wallThickness = 100; // Make walls thick and outside view
+    const width = container.clientWidth - 60;
+    const height = container.clientHeight - 60;
+    const wallThickness = 300; // Make walls thick and outside view
 
     Matter.World.add(this.world, [
       // Ground
@@ -171,7 +171,7 @@ export class PlayerPhysicsDisplayComponent
         height + wallThickness / 2 - 1,
         width,
         wallThickness,
-        { isStatic: true, render: { visible: false } },
+        { isStatic: true, render: { visible: true } },
       ),
       // Ceiling
       Matter.Bodies.rectangle(
@@ -179,7 +179,7 @@ export class PlayerPhysicsDisplayComponent
         -wallThickness / 2 + 1,
         width,
         wallThickness,
-        { isStatic: true, render: { visible: false } },
+        { isStatic: true, render: { visible: true } },
       ),
       // Left wall
       Matter.Bodies.rectangle(
@@ -187,7 +187,7 @@ export class PlayerPhysicsDisplayComponent
         height / 2,
         wallThickness,
         height,
-        { isStatic: true, render: { visible: false } },
+        { isStatic: true, render: { visible: true } },
       ),
       // Right wall
       Matter.Bodies.rectangle(
@@ -195,7 +195,7 @@ export class PlayerPhysicsDisplayComponent
         height / 2,
         wallThickness,
         height,
-        { isStatic: true, render: { visible: false } },
+        { isStatic: true, render: { visible: true } },
       ),
     ]);
   }
@@ -246,12 +246,8 @@ export class PlayerPhysicsDisplayComponent
     const element = document.createElement('div');
     element.classList.add('player-ball');
     element.innerText = name;
-    element.style.width = `${this.BALL_RADIUS * 0.5}rem`;
-    element.style.height = `${this.BALL_RADIUS * 0.5}rem`;
-    element.style.backgroundColor = "red";
-    element.style.fontSize = '1rem';
-    element.style.borderRadius = "50%";
-
+    element.style.width = `${this.BALL_RADIUS * 3}px`;
+    element.style.height = `${this.BALL_RADIUS * 3}px`;
     container.appendChild(element);
     this.playerElements.set(name, { body, element });
   }

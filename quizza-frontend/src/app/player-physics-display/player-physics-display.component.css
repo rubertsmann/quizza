@@ -7,24 +7,3 @@
   background-color: #f0f0f0; /* Light background for visibility */
   border: 1px solid #ccc; /* Optional: for visual debugging */
 }
-
-.player-ball {
-  position: absolute; /* Positioned by JavaScript via Matter.js body coordinates */
-  background-color: black;
-  color: white;
-  border-radius: 50%; /* Makes it a circle */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  font-size: 12px; /* Adjust as needed */
-  font-weight: bold;
-  box-sizing: border-box;
-  padding: 5px; /* Internal padding for text */
-  overflow: hidden; /* Prevents text from spilling out if too long for fixed size */
-  text-overflow: ellipsis; /* Show ... if text is too long */
-  white-space: nowrap; /* Keep name on one line */
-  /* Width and height are set by JS (BALL_RADIUS * 2) */
-  will-change: transform; /* Performance hint for browsers */
-  user-select: none; /* Prevent text selection */
-}
