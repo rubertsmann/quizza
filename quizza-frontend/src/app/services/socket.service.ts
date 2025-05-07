@@ -44,7 +44,7 @@ export class SocketService {
 
     // Use environment variable for socket URL
     //REPLACE WITH LOCAL URL
-    this.socket = io(environment.socketUrl || 'http://localhost:3000', {
+    this.socket = io(environment.socketUrl || window.location.origin, {
       query: { gameId, playerId },
       transports: ['websocket'] // Recommended for consistency
     });
