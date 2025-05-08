@@ -2,11 +2,10 @@ import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { GameStateService } from '../../../services/game-state.service';
 import { SoundManagerService } from '../../../services/sound-manager.service';
-import { WebSocketElementComponent } from '../../web-socket-element/web-socket-element.component';
 
 @Component({
   selector: 'app-pre-game-lobby',
-  imports: [CommonModule, WebSocketElementComponent],
+  imports: [CommonModule],
   standalone: true,
   templateUrl: './pre-game-lobby.component.html',
   styleUrl: './pre-game-lobby.component.css',

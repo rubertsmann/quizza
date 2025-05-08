@@ -41,8 +41,8 @@ export interface Answer {
 }
 
 export interface Player {
-  name: string;
   id: PlayerId;
+  name: string;
 }
 
 export type GameId = string;

@@ -1,3 +1,6 @@
 <div class="game">
+  <ng-container *ngIf="this.gameStateService.player">
+    <app-player-physics-display></app-player-physics-display>
+  </ng-container>
   <app-game-view class="game-box"></app-game-view>
 </div>

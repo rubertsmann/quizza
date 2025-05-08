@@ -1,9 +1,27 @@
-
 .physics-container {
-  width: 500px; /* Or specific dimensions as per your layout */
-  height: 500px; /* Example height, adjust as needed */
-  position: relative; /* Crucial for absolute positioning of player balls */
-  overflow: hidden; /* To keep balls within bounds */
-  background-color: #f0f0f0; /* Light background for visibility */
-  border: 1px solid #ccc; /* Optional: for visual debugging */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9998;
+  overflow: hidden;
+  background-color: rgba(240, 240, 240, 0);
+  border: 1px solid #ccc;
+  backdrop-filter: blur(3px);
+}
+
+.top-right-fixed-button {
+  margin: 1rem;
+  top: 0;
+  right: 0; /* Changed from left: 0 to right: 0 */
+  position: fixed;
+  z-index: 9999;
+  width: 5rem;
+  height: 5rem;
+  font-size: 4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 5rem; /* Or adjust to ensure text is centered if font-size changes padding */
 }

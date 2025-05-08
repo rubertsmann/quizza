@@ -17,9 +17,8 @@ import { SocketService } from '../services/socket.service';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div #physicsContainer class="physics-container">
-      <!-- Player balls will be rendered here by Matter.js or as DOM elements -->
-    </div>
+    <button class="add-border top-right-fixed-button">x</button>
+    <div #physicsContainer class="physics-container"></div>
   `,
   styleUrls: ['./player-physics-display.component.css'],
 })
@@ -32,7 +31,6 @@ export class PlayerPhysicsDisplayComponent
   private engine!: Matter.Engine;
   private world!: Matter.World;
   private runner!: Matter.Runner;
-  // private renderer!: Matter.Render; // Use if rendering with Matter's canvas
 
   private playerElements = new Map<string, { body: Matter.Body; element: HTMLDivElement }>();
   private currentPlayersList: string[] = [];
@@ -61,8 +59,6 @@ export class PlayerPhysicsDisplayComponent
       this.initMatterJS();
       this.setupGyroscope();
       this.addBoundaries();
-      // Request initial player list if backend doesn't send on connect immediately
-      // or if this component might initialize after the first 'updatePlayers' emit.
       this.socketService.requestPlayerList();
 
       Matter.Events.on(this.engine, 'afterUpdate', () => {
@@ -74,23 +70,7 @@ export class PlayerPhysicsDisplayComponent
   private initMatterJS() {
     this.engine = Matter.Engine.create();
     this.world = this.engine.world;
-    this.setFallbackGravity(); // Initial gravity
-
-    // If using Matter's built-in renderer (optional, we are using DOM elements)
-    /*
-    const container = this.physicsContainerRef.nativeElement;
-    this.renderer = Matter.Render.create({
-      element: container,
-      engine: this.engine,
-      options: {
-        width: container.clientWidth,
-        height: container.clientHeight,
-        wireframes: false,
-        background: 'transparent' // Or your desired background
-      }
-    });
-    Matter.Render.run(this.renderer);
-    */
+    this.setFallbackGravity();
 
     this.runner = Matter.Runner.create();
     Matter.Runner.run(this.runner, this.engine);
@@ -99,7 +79,7 @@ export class PlayerPhysicsDisplayComponent
   private setFallbackGravity() {
     if (this.engine) {
       this.engine.world.gravity.x = 0;
-      this.engine.world.gravity.y = 1; // Standard portrait gravity
+      this.engine.world.gravity.y = 1;
     }
   }
 
@@ -108,24 +88,21 @@ export class PlayerPhysicsDisplayComponent
       const handleOrientation = (event: DeviceOrientationEvent) => {
         if (!this.engine) return;
 
-        const beta = event.beta; // X-axis rotation (front to back) [-180, 180]
-        const gamma = event.gamma; // Y-axis rotation (side to side) [-90, 90]
+        const beta = event.beta;
+        const gamma = event.gamma;
 
         if (beta === null || gamma === null) {
           this.setFallbackGravity();
           return;
         }
 
-        // Normalize and apply sensitivity. Max ~1g for 90deg tilt.
-        // Beta influences Y gravity, Gamma influences X gravity in portrait.
-        const gravityStrength = 1; // Max gravity force (like 1g)
+        const gravityStrength = 1;
         this.engine.world.gravity.x =
           Math.max(-1, Math.min(1, gamma / 90)) * gravityStrength;
         this.engine.world.gravity.y =
           Math.max(-1, Math.min(1, beta / 90)) * gravityStrength;
       };
 
-      // @ts-ignore
       const requestPermission = (DeviceOrientationEvent as any)
         .requestPermission;
       if (typeof requestPermission === 'function') {
@@ -147,7 +124,6 @@ export class PlayerPhysicsDisplayComponent
             this.setFallbackGravity();
           });
       } else {
-        // For browsers that don't require explicit permission
         window.addEventListener('deviceorientation', handleOrientation, true);
       }
     } else {
@@ -204,14 +180,12 @@ export class PlayerPhysicsDisplayComponent
     const currentNamesSet = new Set(this.currentPlayersList);
     const newNamesSet = new Set(newPlayerNames);
 
-    // Remove players no longer in the list
     this.currentPlayersList.forEach((name) => {
       if (!newNamesSet.has(name)) {
         this.removePlayerElement(name);
       }
     });
 
-    // Add new players
     newPlayerNames.forEach((name) => {
       if (!currentNamesSet.has(name)) {
         this.addPlayerElement(name);
@@ -225,21 +199,17 @@ export class PlayerPhysicsDisplayComponent
 
     const container = this.physicsContainerRef.nativeElement;
     const containerWidth = container.clientWidth;
-    // const containerHeight = container.clientHeight; // Use if needed for y-positioning
 
     const x =
       this.BALL_RADIUS +
       Math.random() * (containerWidth - this.BALL_RADIUS * 2);
-    const y = this.BALL_RADIUS + Math.random() * 50; // Spawn near top, within bounds
+    const y = this.BALL_RADIUS + Math.random() * 50;
 
     const body = Matter.Bodies.circle(x, y, this.BALL_RADIUS, {
-      restitution: 0.6, // Bounciness
-      friction: 0.05, // Surface friction
-      frictionAir: 0.01, // Air resistance
+      restitution: 0.6,
+      friction: 0.05,
+      frictionAir: 0.01,
       density: 0.001,
-      render: {
-        // visible: false // if using Matter's renderer and custom DOM overlaps
-      },
     });
     Matter.World.add(this.world, body);
 
@@ -264,7 +234,6 @@ export class PlayerPhysicsDisplayComponent
   private syncDOMElements() {
     this.playerElements.forEach((playerData) => {
       const { body, element } = playerData;
-      // Center the element on the body's position
       element.style.transform = `translate(
         ${body.position.x - this.BALL_RADIUS}px,
         ${body.position.y - this.BALL_RADIUS}px
@@ -276,12 +245,13 @@ export class PlayerPhysicsDisplayComponent
     this.subscriptions.unsubscribe();
     this.ngZone.runOutsideAngular(() => {
       if (this.runner) Matter.Runner.stop(this.runner);
-      // if (this.renderer) Matter.Render.stop(this.renderer); // If using Matter's renderer
       if (this.world) Matter.World.clear(this.world, false);
       if (this.engine) Matter.Engine.clear(this.engine);
     });
-    window.removeEventListener('deviceorientation', (event) =>
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    window.removeEventListener('deviceorientation', (_event) =>
       this.setupGyroscope(),
-    ); // Clean up listener
+    );
   }
 }

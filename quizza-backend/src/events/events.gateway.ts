@@ -8,18 +8,13 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { AppService } from '../app.service'; // Assuming AppService provides player details
-
-interface Player {
-  id: string;
-  name: string;
-}
+import { AppService } from '../app.service';
+import { Player } from '../models/backendmodels'; // Assuming AppService provides player details
 
 interface ExtendedSocket extends Socket {
   data: {
     gameId?: string;
-    playerId?: string; // Store playerId for easier lookup on disconnect
-    username?: string;
+    player?: Player;
   };
 }
 
@@ -30,7 +25,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
 
-  // Map to store players: gameId -> Set of Player objects
   private playersPerGame: Map<string, Set<Player>> = new Map();
 
   constructor(private readonly appService: AppService) {}
@@ -63,10 +57,12 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
 
     client.data.gameId = gameId;
-    client.data.playerId = playerId; // Store playerId
-    client.data.username = player.name;
-
+    client.data.player = {
+      id: player.id,
+      name: player.name,
+    };
     client.join(gameId);
+
     console.log(
       `User ${player.name} (ID: ${playerId}) joined game ${gameId} (${client.id})`,
     );
@@ -80,35 +76,33 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   handleDisconnect(client: ExtendedSocket) {
-    const { gameId, playerId, username } = client.data;
+    const { gameId, player } = client.data;
+    if (!gameId || !player?.name) return;
 
-    if (gameId && playerId) {
-      const playersInGame = this.playersPerGame.get(gameId);
-      if (playersInGame) {
-        let playerToRemove: Player | undefined;
-        for (const p of playersInGame) {
-          if (p.id === playerId) {
-            playerToRemove = p;
-            break;
-          }
-        }
-
-        if (playerToRemove) {
-          playersInGame.delete(playerToRemove);
-          console.log(
-            `User ${playerToRemove.name} (ID: ${playerToRemove.id}) disconnected from game ${gameId}`,
-          );
-          if (playersInGame.size === 0) {
-            this.playersPerGame.delete(gameId);
-            console.log(`Game room ${gameId} is now empty and removed.`);
-          }
-          this.broadcastPlayers(gameId);
+    const playersInGame = this.playersPerGame.get(gameId);
+    if (playersInGame) {
+      let playerToRemove: Player | undefined;
+      for (const p of playersInGame) {
+        if (p.id === player?.id) {
+          playerToRemove = p;
+          break;
         }
       }
-    } else {
-      console.log(
-        `User (details unknown, socketId: ${client.id}) disconnected without full game/player data.`,
-      );
+
+      if (!playerToRemove) return;
+
+      playersInGame.delete(playerToRemove);
+
+      this.broadcastPlayers(gameId);
+    }
+
+    this.removeGameIfEmpty(gameId);
+  }
+
+  private removeGameIfEmpty(gameId: string) {
+    if (this.playersPerGame.get(gameId)?.size === 0) {
+      this.playersPerGame.delete(gameId);
+      console.log(`Game room ${gameId} is now empty and removed.`);
     }
   }
 
@@ -117,17 +111,21 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() client: ExtendedSocket,
     @MessageBody() msg: string,
   ) {
-    const { gameId, username } = client.data;
-    if (!gameId || !username) return;
+    const { gameId, player } = client.data;
+    if (!gameId || !player?.name) return;
 
-    const message = `${username}: ${msg}`;
+    const message = `${player?.name}: ${msg}`;
     this.server.to(gameId).emit('message', message);
   }
 
   private broadcastPlayers(gameId: string) {
-    const playersInGame = this.playersPerGame.get(gameId) || new Set();
-    const playerNames = Array.from(playersInGame).map((p) => p.name);
-    this.server.to(gameId).emit('updatePlayers', playerNames); // Changed event name
+    const playersInGame = this.playersPerGame.get(gameId);
+
+    if (playersInGame) {
+      const playerNames = Array.from(playersInGame).map((p) => p.name);
+
+      this.server.to(gameId).emit('updatePlayers', playerNames);
+    }
   }
 
   // Example: If clients need to manually request the player list (optional)
