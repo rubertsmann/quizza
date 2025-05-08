@@ -1,3 +1,5 @@
+# Closed Tasks
+
 - [X] Create lobby ui - works
 - [x] Create Lobby Login - did parts i send a user and get a lobby token back
 - [x] Create Passwort/Token Local Storage - more or less, user for the current session is stored.
@@ -14,22 +16,39 @@
 - [x] Alle Subscribes checken das die aufgelöst werden. - could be still an issue
 - [x] User Lobby Spezfisch ein und ausloggen - yes
 - [x] PlayerSelector - yes
-- [x] HeartBeat für den User, entfernen wenn heartbeat x sekunden weg war in pregame lobby. - 
+- [x] HeartBeat für den User, entfernen wenn heartbeat x sekunden weg war in pregame lobby. -
 - [x] In endgame Lobby display answers by all users. And perhaps add auto scroll. - works but really simple
 - [x] Finally add a celebration animation - progressbar
 - [x] fix answer not correctly mapped on endgame lobby
-- [ ] fix order is not correct highest point is displayed at the lowest
 - [x] make beatiful - debatable
 - [x] add sound - sound service addest
 - [x] Make answer selection actually satisfiying - somewhat, could be a bouncy transform
-- [ ] Add three js bouncy face icons
-- [ ] Fix Round Votestart that every user can vote properly.
 - [x] Add more different sounds - can be more
 - [x] Add music and toggleable music
 - [x] Make adjustable sounds
+- [x] Add a websocket connection.
+- [x] Add three js bouncy face icons - matter
+- [x] display answeredInSeconds into the endscreen.t
+
+# Open Tasks
+
+- [ ] Add websockets security
+- [ ] Add database and postgres + some kind of liquibase to instantly persists the question
+- [ ] Add XSS and input validation for all forms.
 - [ ] add firebase connection for serving questions
 - [ ] add player vote to the frontend.
 - [ ] display player state who answered.
-- [ ] display answeredInSeconds into the endscreen.
-- [ ] Add a websocket connection.
-  
+- [ ] select color -> according to that get the icon/avatar
+- [ ] Fix Round Votestart that every user can vote properly.
+- [ ] Show answer state has answered or not on websocket screen
+
+## DB
+
+- [ ] Add import and export for questions
+- [ ] Add mongo db connection and support to store and read the questions from there. - docker-compose
+
+# bugs
+
+- [ ] Cleanup websocket connection events, there is a bug when a player is already logged in
+
+# Stretch Ideas

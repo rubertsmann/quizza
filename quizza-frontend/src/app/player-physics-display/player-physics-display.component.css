@@ -6,65 +6,44 @@
   height: 100vh;
   z-index: 9998;
   overflow: hidden;
-  background-color: rgba(240, 240, 240, 0);
-  border: 1px solid #ccc;
+  background-color: rgba(255, 0, 0, 0.1);
   backdrop-filter: blur(3px);
-
   --button-visual-size: 5rem;
   --button-margin: 1rem;
+  --animation-offset-from-right-edge: calc(
+    var(--button-margin) + var(--button-visual-size) / 2
+  );
+  --animation-offset-from-bottom-edge: calc(
+    var(--button-margin) + var(--button-visual-size) / 2
+  );
 
-  --button-center-from-right: calc(
-    var(--button-margin) + var(--button-visual-size) / 2
-  );
-  --button-center-from-top: calc(
-    var(--button-margin) + var(--button-visual-size) / 2
-  );
   clip-path: circle(
-    150vmax at calc(100vw - var(--button-center-from-right)) var(--button-center-from-top)
+    150vmax at calc(100vw - var(--animation-offset-from-right-edge)) calc(100vh - var(--animation-offset-from-bottom-edge))
   );
-  transition: clip-path 0.6s cubic-bezier(0.7, 0, 0.3, 1); /* Animation timing */
+  transition: clip-path 0.6s cubic-bezier(0.7, 0, 0.3, 1);
 }
 
 .physics-container.hidden-by-mask {
   clip-path: circle(
-    0% at calc(100vw - var(--button-center-from-right)) var(--button-center-from-top)
+    0% at calc(100vw - var(--animation-offset-from-right-edge)) calc(100vh - var(--animation-offset-from-bottom-edge))
   );
   pointer-events: none;
 }
 
-.top-right-fixed-button {
+.fixed-button {
   margin: 2.1rem;
-  top: 0;
+  bottom: 0;
   right: 0;
   position: fixed;
   z-index: 9999;
   width: 3rem;
   height: 3rem;
-  font-size: 2rem;
   display: flex;
   align-items: center;
   justify-content: center;
   line-height: 1;
   cursor: pointer;
   user-select: none;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
 }
 
-.player-ball {
-  position: absolute;
-  background-color: black;
-  color: white;
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  font-size: 12px;
-  font-weight: bold;
-  box-sizing: border-box;
-  padding: 5px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  will-change: transform;
-  user-select: none;
-}

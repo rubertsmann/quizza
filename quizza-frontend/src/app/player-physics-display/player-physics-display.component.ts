@@ -19,7 +19,7 @@ import { SocketService } from '../services/socket.service'; // Ensure path is co
   template: `
     <button
       (click)="toggleVisibility()"
-      class="add-border top-right-fixed-button gradient-background"
+      class="add-border fixed-button gradient-background"
       aria-label="Toggle physics display"
       [attr.aria-pressed]="isHidden"
     >
@@ -29,9 +29,7 @@ import { SocketService } from '../services/socket.service'; // Ensure path is co
       #physicsContainer
       class="physics-container"
       [class.hidden-by-mask]="isHidden"
-    >
-      <!-- Player ball DOM elements will be appended here by addPlayerElement -->
-    </div>
+    ></div>
   `,
   styleUrls: ['./player-physics-display.component.css'],
 })
@@ -256,7 +254,6 @@ export class PlayerPhysicsDisplayComponent
     const x =
       this.BALL_RADIUS +
       Math.random() * (physicsWorldWidth - this.BALL_RADIUS * 2);
-    // Spawn near top of physics world
     const y = this.BALL_RADIUS + Math.random() * 50;
 
     const body = Matter.Bodies.circle(x, y, this.BALL_RADIUS, {
@@ -269,8 +266,8 @@ export class PlayerPhysicsDisplayComponent
 
     const element = document.createElement('div');
     element.classList.add('player-ball');
-    element.innerText = name;
-    // Corrected DOM element size to match physics body diameter
+
+    element.innerHTML = this.getPlayerComponent(name);
     element.style.width = `${this.BALL_RADIUS * 2}px`;
     element.style.height = `${this.BALL_RADIUS * 2}px`;
 
@@ -296,5 +293,16 @@ export class PlayerPhysicsDisplayComponent
         ${body.position.y - this.BALL_RADIUS}px
       ) rotate(${body.angle}rad)`;
     });
+  }
+
+  private getPlayerComponent(name: string) {
+    const replaceMeWithTheActualStatusOfThePlayerAndPerhapsSwitchStateAtRuntime =
+      'o';
+    return `<div class="player-ball-container">
+  <!--Should display readiness-->
+  <span class="player-tag">${replaceMeWithTheActualStatusOfThePlayerAndPerhapsSwitchStateAtRuntime}</span>
+  <img src="faces/face2.png" alt="playerPicture" style="height: 100%; width: 100%;" />
+  <span class="player-ball">${name}</span>
+</div>`;
   }
 }

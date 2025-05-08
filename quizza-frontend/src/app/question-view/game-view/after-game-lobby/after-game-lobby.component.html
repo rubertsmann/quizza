@@ -1,17 +1,25 @@
 <div class="component-container column-layout">
-  <div class="overlay" *ngIf="showOverlay">
+  <div *ngIf="showOverlay" class="overlay">
     <div class="overlay-content">
-      <button style="height: 3rem; width: 3rem; border-radius: 3rem" (click)="closeOverlay()">V</button>
+      <button (click)="closeOverlay()" style="height: 3rem; width: 3rem; border-radius: 3rem">V</button>
       <div style="max-height: 80%; overflow-y: auto">
 
         <ng-container *ngIf="this.gameStateService.allAnswers$ | async as answers">
+          <div class="grid-table player-answers">
+            <div class="grid-cell header-cell">Name</div>
+            <div class="grid-cell header-cell">Answer</div>
+            <div class="grid-cell header-cell">Points</div>
+            <div class="grid-cell header-cell">Seconds</div>
+          </div>
           <ng-container *ngFor="let allAnswers of answers">
-            <h3 style="padding-top: 1rem" class="question-title">Question: {{ allAnswers.questionText }}</h3>
+
+            <h3 class="question-title" style="padding-top: 1rem">Question: {{ allAnswers.questionText }}</h3>
             <div class="grid-table player-answers">
               <ng-container *ngFor="let answerByPlayer of allAnswers.questionAnswers">
                 <div class="grid-cell header-cell">{{ answerByPlayer.playerName }}</div>
                 <div class="grid-cell header-cell">{{ answerByPlayer.answerText }}</div>
                 <div class="grid-cell header-cell">{{ answerByPlayer.points }}</div>
+                <div class="grid-cell header-cell">{{ answerByPlayer.answeredInSeconds }}</div>
               </ng-container>
             </div>
 
@@ -31,12 +39,12 @@
           trackBy: trackByEndGame
         ">
         <div class="endgame-container">
-          <app-points-bar [maxPoints]="getMaxPoints(gamestate.endGameState)" [points]="endgame.points"
-            [playerName]="endgame.player" [place]="i + 1">
+          <app-points-bar [maxPoints]="getMaxPoints(gamestate.endGameState)" [place]="i + 1"
+                          [playerName]="endgame.player" [points]="endgame.points">
           </app-points-bar>
         </div>
       </ng-container>
     </div>
-    <button class="add-border" (click)="openOverlay()">Show all answers.</button>
+    <button (click)="openOverlay()" class="add-border">Show all answers.</button>
   </ng-container>
 </div>

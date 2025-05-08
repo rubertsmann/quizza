@@ -9,6 +9,7 @@
   --gradient-color-2: #d173ff;
   --gradient-color-3: #fbfaab;
 }
+
 /*color: var(--color-accent);*/
 html,
 body {
@@ -188,6 +189,7 @@ button {
     background-position: 0 50%;
   }
 }
+
 .game-box {
   max-width: 600px;
   width: 100%;
@@ -279,43 +281,38 @@ li {
 
 .base-selected {
   background-color: var(--color-accent);
-  box-shadow: 1px -1px 5px 1px rgba(0,0,0,0.3);
+  box-shadow: 1px -1px 5px 1px rgba(0, 0, 0, 0.3);
   color: var(--color-text-inverted);
   font-size: 1.2rem;
   width: 100%;
   margin-bottom: 1rem;
   height: 4rem;
   text-align: center;
-  transition:
-    background-color 300ms ease-in-out,
-    box-shadow 300ms ease-in-out,
-    color 300ms ease-in-out;
+  transition: background-color 300ms ease-in-out,
+  box-shadow 300ms ease-in-out,
+  color 300ms ease-in-out;
 }
 
 @keyframes glow-animation {
   0% {
-    box-shadow:
-      0 0 10px rgba(154, 219, 255, 0.71),
-      0 0 20px rgba(154, 219, 255, 0.71),
-      0 0 30px rgba(154, 219, 255, 0.71);
+    box-shadow: 0 0 10px rgba(154, 219, 255, 0.71),
+    0 0 20px rgba(154, 219, 255, 0.71),
+    0 0 30px rgba(154, 219, 255, 0.71);
   }
   50% {
-    box-shadow:
-      0 0 30px rgba(209, 115, 255, 0.68),
-      0 0 20px rgba(209, 115, 255, 0.68),
-      0 0 10px rgba(209, 115, 255, 0.68);
+    box-shadow: 0 0 30px rgba(209, 115, 255, 0.68),
+    0 0 20px rgba(209, 115, 255, 0.68),
+    0 0 10px rgba(209, 115, 255, 0.68);
   }
   75% {
-    box-shadow:
-      0 0 10px rgba(251, 250, 171, 0.95),
-      0 0 20px rgba(251, 250, 171, 0.95),
-      0 0 30px rgba(251, 250, 171, 0.95);
+    box-shadow: 0 0 10px rgba(251, 250, 171, 0.95),
+    0 0 20px rgba(251, 250, 171, 0.95),
+    0 0 30px rgba(251, 250, 171, 0.95);
   }
   0% {
-    box-shadow:
-      0 0 10px rgba(154, 219, 255, 0.71),
-      0 0 20px rgba(154, 219, 255, 0.71),
-      0 0 30px rgba(154, 219, 255, 0.71);
+    box-shadow: 0 0 10px rgba(154, 219, 255, 0.71),
+    0 0 20px rgba(154, 219, 255, 0.71),
+    0 0 30px rgba(154, 219, 255, 0.71);
   }
 }
 
@@ -342,21 +339,49 @@ li {
 }
 
 .player-ball {
-  position: absolute; /* Positioned by JavaScript via Matter.js body coordinates */
-  background-color: black;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
   color: white;
-  border-radius: 50%; /* Makes it a circle */
+  /*border-radius: 50%;*/
   display: flex;
   justify-content: center;
   align-items: center;
   text-align: center;
-  font-size: 12px; /* Adjust as needed */
+  font-size: 12px;
   font-weight: bold;
   box-sizing: border-box;
-  padding: 5px; /* Internal padding for text */
-  overflow: hidden; /* Prevents text from spilling out if too long for fixed size */
-  text-overflow: ellipsis; /* Show ... if text is too long */
-  white-space: nowrap; /* Keep name on one line */
-  will-change: transform; /* Performance hint for browsers */
-  user-select: none; /* Prevent text selection */
+  padding: 5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  will-change: transform;
+  user-select: none;
+  pointer-events: none;
+
+  bottom: -5rem;
+  text-shadow: 0 0 3px black, 0 0 5px black;
+}
+
+.player-ball-container {
+  height: 120px;
+  width: 100px;
+  position: relative;
+}
+
+.player-tag {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 20px;
+  height: 20px;
+  background-color: var(--color-muted-faded);
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--color-accent);
+  text-shadow: 0 0 3px black, 0 0 5px black;
+  z-index: 1;
 }
