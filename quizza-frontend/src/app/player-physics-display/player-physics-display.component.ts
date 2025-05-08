@@ -1,24 +1,37 @@
 import {
-  Component,
-  OnInit,
-  OnDestroy,
-  ElementRef,
-  ViewChild,
   AfterViewInit,
+  Component,
+  ElementRef,
   NgZone,
+  OnDestroy,
+  OnInit,
+  ViewChild,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
 import Matter from 'matter-js';
-import { SocketService } from '../services/socket.service';
+import { SocketService } from '../services/socket.service'; // Ensure path is correct
 
 @Component({
   selector: 'app-player-physics-display',
   standalone: true,
   imports: [CommonModule],
   template: `
-    <button class="add-border top-right-fixed-button">x</button>
-    <div #physicsContainer class="physics-container"></div>
+    <button
+      (click)="toggleVisibility()"
+      class="add-border top-right-fixed-button gradient-background"
+      aria-label="Toggle physics display"
+      [attr.aria-pressed]="isHidden"
+    >
+      {{ isHidden ? 'o' : 'x' }}
+    </button>
+    <div
+      #physicsContainer
+      class="physics-container"
+      [class.hidden-by-mask]="isHidden"
+    >
+      <!-- Player ball DOM elements will be appended here by addPlayerElement -->
+    </div>
   `,
   styleUrls: ['./player-physics-display.component.css'],
 })
@@ -27,15 +40,19 @@ export class PlayerPhysicsDisplayComponent
 {
   @ViewChild('physicsContainer')
   physicsContainerRef!: ElementRef<HTMLDivElement>;
-
+  public isHidden = true;
   private engine!: Matter.Engine;
   private world!: Matter.World;
   private runner!: Matter.Runner;
-
-  private playerElements = new Map<string, { body: Matter.Body; element: HTMLDivElement }>();
+  private playerElements = new Map<
+    string,
+    { body: Matter.Body; element: HTMLDivElement }
+  >();
   private currentPlayersList: string[] = [];
   private subscriptions: Subscription = new Subscription();
-
+  private deviceOrientationHandler:
+    | ((event: DeviceOrientationEvent) => void)
+    | null = null;
   private readonly BALL_RADIUS = 60;
 
   constructor(
@@ -45,8 +62,6 @@ export class PlayerPhysicsDisplayComponent
 
   ngOnInit() {
     const playersSub = this.socketService.onPlayers().subscribe((players) => {
-      // Run updates outside Angular zone to prevent unnecessary change detection cycles
-      // if a lot of DOM manipulation happens inside updatePlayerVisuals
       this.ngZone.runOutsideAngular(() => {
         this.updatePlayerVisuals(players);
       });
@@ -58,13 +73,35 @@ export class PlayerPhysicsDisplayComponent
     this.ngZone.runOutsideAngular(() => {
       this.initMatterJS();
       this.setupGyroscope();
-      this.addBoundaries();
+      this.addBoundaries(); // Call addBoundaries *after* initMatterJS
       this.socketService.requestPlayerList();
 
       Matter.Events.on(this.engine, 'afterUpdate', () => {
         this.syncDOMElements();
       });
     });
+  }
+
+  toggleVisibility() {
+    this.isHidden = !this.isHidden;
+  }
+
+  ngOnDestroy() {
+    this.subscriptions.unsubscribe();
+    this.ngZone.runOutsideAngular(() => {
+      if (this.runner) Matter.Runner.stop(this.runner);
+      if (this.world) Matter.World.clear(this.world, false); // Clear non-static bodies
+      if (this.engine) Matter.Engine.clear(this.engine);
+    });
+
+    if (this.deviceOrientationHandler) {
+      window.removeEventListener(
+        'deviceorientation',
+        this.deviceOrientationHandler,
+        true,
+      );
+      this.deviceOrientationHandler = null;
+    }
   }
 
   private initMatterJS() {
@@ -85,7 +122,16 @@ export class PlayerPhysicsDisplayComponent
 
   private setupGyroscope() {
     if (typeof window !== 'undefined' && 'DeviceOrientationEvent' in window) {
-      const handleOrientation = (event: DeviceOrientationEvent) => {
+      // Remove previous handler if any
+      if (this.deviceOrientationHandler) {
+        window.removeEventListener(
+          'deviceorientation',
+          this.deviceOrientationHandler,
+          true,
+        );
+      }
+
+      this.deviceOrientationHandler = (event: DeviceOrientationEvent) => {
         if (!this.engine) return;
 
         const beta = event.beta;
@@ -111,7 +157,7 @@ export class PlayerPhysicsDisplayComponent
             if (permissionState === 'granted') {
               window.addEventListener(
                 'deviceorientation',
-                handleOrientation,
+                this.deviceOrientationHandler!,
                 true,
               );
             } else {
@@ -124,7 +170,11 @@ export class PlayerPhysicsDisplayComponent
             this.setFallbackGravity();
           });
       } else {
-        window.addEventListener('deviceorientation', handleOrientation, true);
+        window.addEventListener(
+          'deviceorientation',
+          this.deviceOrientationHandler!,
+          true,
+        );
       }
     } else {
       console.warn(
@@ -135,43 +185,45 @@ export class PlayerPhysicsDisplayComponent
   }
 
   private addBoundaries() {
+    if (!this.physicsContainerRef || !this.world) {
+      console.error(
+        'Cannot add boundaries: physics container or world not initialized.',
+      );
+      return;
+    }
     const container = this.physicsContainerRef.nativeElement;
     const width = container.clientWidth - 60;
     const height = container.clientHeight - 60;
-    const wallThickness = 300; // Make walls thick and outside view
+    const wallThickness = 300;
 
     Matter.World.add(this.world, [
-      // Ground
       Matter.Bodies.rectangle(
         width / 2,
         height + wallThickness / 2 - 1,
         width,
         wallThickness,
-        { isStatic: true, render: { visible: true } },
+        { isStatic: true },
       ),
-      // Ceiling
       Matter.Bodies.rectangle(
         width / 2,
         -wallThickness / 2 + 1,
         width,
         wallThickness,
-        { isStatic: true, render: { visible: true } },
+        { isStatic: true },
       ),
-      // Left wall
       Matter.Bodies.rectangle(
         -wallThickness / 2 + 1,
         height / 2,
         wallThickness,
         height,
-        { isStatic: true, render: { visible: true } },
+        { isStatic: true },
       ),
-      // Right wall
       Matter.Bodies.rectangle(
         width + wallThickness / 2 - 1,
         height / 2,
         wallThickness,
         height,
-        { isStatic: true, render: { visible: true } },
+        { isStatic: true },
       ),
     ]);
   }
@@ -187,7 +239,7 @@ export class PlayerPhysicsDisplayComponent
     });
 
     newPlayerNames.forEach((name) => {
-      if (!currentNamesSet.has(name)) {
+      if (!currentNamesSet.has(name) && !this.playerElements.has(name)) {
         this.addPlayerElement(name);
       }
     });
@@ -195,14 +247,16 @@ export class PlayerPhysicsDisplayComponent
   }
 
   private addPlayerElement(name: string) {
-    if (this.playerElements.has(name) || !this.physicsContainerRef) return;
+    if (!this.physicsContainerRef || !this.world) return;
 
     const container = this.physicsContainerRef.nativeElement;
-    const containerWidth = container.clientWidth;
+    // Spawn within the physics world boundaries (which are container.clientWidth - 60)
+    const physicsWorldWidth = container.clientWidth - 60;
 
     const x =
       this.BALL_RADIUS +
-      Math.random() * (containerWidth - this.BALL_RADIUS * 2);
+      Math.random() * (physicsWorldWidth - this.BALL_RADIUS * 2);
+    // Spawn near top of physics world
     const y = this.BALL_RADIUS + Math.random() * 50;
 
     const body = Matter.Bodies.circle(x, y, this.BALL_RADIUS, {
@@ -216,16 +270,18 @@ export class PlayerPhysicsDisplayComponent
     const element = document.createElement('div');
     element.classList.add('player-ball');
     element.innerText = name;
-    element.style.width = `${this.BALL_RADIUS * 3}px`;
-    element.style.height = `${this.BALL_RADIUS * 3}px`;
-    container.appendChild(element);
+    // Corrected DOM element size to match physics body diameter
+    element.style.width = `${this.BALL_RADIUS * 2}px`;
+    element.style.height = `${this.BALL_RADIUS * 2}px`;
+
+    container.appendChild(element); // Append to visual container
     this.playerElements.set(name, { body, element });
   }
 
   private removePlayerElement(name: string) {
     const playerData = this.playerElements.get(name);
     if (playerData) {
-      Matter.World.remove(this.world, playerData.body);
+      if (this.world) Matter.World.remove(this.world, playerData.body);
       playerData.element.remove();
       this.playerElements.delete(name);
     }
@@ -234,24 +290,11 @@ export class PlayerPhysicsDisplayComponent
   private syncDOMElements() {
     this.playerElements.forEach((playerData) => {
       const { body, element } = playerData;
+      // Center the DOM element (whose size is 2 * BALL_RADIUS) on the physics body's position
       element.style.transform = `translate(
         ${body.position.x - this.BALL_RADIUS}px,
         ${body.position.y - this.BALL_RADIUS}px
       ) rotate(${body.angle}rad)`;
     });
-  }
-
-  ngOnDestroy() {
-    this.subscriptions.unsubscribe();
-    this.ngZone.runOutsideAngular(() => {
-      if (this.runner) Matter.Runner.stop(this.runner);
-      if (this.world) Matter.World.clear(this.world, false);
-      if (this.engine) Matter.Engine.clear(this.engine);
-    });
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    window.removeEventListener('deviceorientation', (_event) =>
-      this.setupGyroscope(),
-    );
   }
 }

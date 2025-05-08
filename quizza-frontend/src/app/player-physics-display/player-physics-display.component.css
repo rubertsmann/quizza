@@ -9,19 +9,62 @@
   background-color: rgba(240, 240, 240, 0);
   border: 1px solid #ccc;
   backdrop-filter: blur(3px);
+
+  --button-visual-size: 5rem;
+  --button-margin: 1rem;
+
+  --button-center-from-right: calc(
+    var(--button-margin) + var(--button-visual-size) / 2
+  );
+  --button-center-from-top: calc(
+    var(--button-margin) + var(--button-visual-size) / 2
+  );
+  clip-path: circle(
+    150vmax at calc(100vw - var(--button-center-from-right)) var(--button-center-from-top)
+  );
+  transition: clip-path 0.6s cubic-bezier(0.7, 0, 0.3, 1); /* Animation timing */
+}
+
+.physics-container.hidden-by-mask {
+  clip-path: circle(
+    0% at calc(100vw - var(--button-center-from-right)) var(--button-center-from-top)
+  );
+  pointer-events: none;
 }
 
 .top-right-fixed-button {
-  margin: 1rem;
+  margin: 2.1rem;
   top: 0;
-  right: 0; /* Changed from left: 0 to right: 0 */
+  right: 0;
   position: fixed;
   z-index: 9999;
-  width: 5rem;
-  height: 5rem;
-  font-size: 4rem;
+  width: 3rem;
+  height: 3rem;
+  font-size: 2rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  line-height: 5rem; /* Or adjust to ensure text is centered if font-size changes padding */
+  line-height: 1;
+  cursor: pointer;
+  user-select: none;
+}
+
+.player-ball {
+  position: absolute;
+  background-color: black;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  font-size: 12px;
+  font-weight: bold;
+  box-sizing: border-box;
+  padding: 5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  will-change: transform;
+  user-select: none;
 }

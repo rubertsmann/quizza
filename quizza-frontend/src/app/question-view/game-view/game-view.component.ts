@@ -81,6 +81,10 @@ export class GameViewComponent implements OnInit {
   GameStatus = GameStatus;
   isDev = false;
   randomGameId = this.getRandomString();
+  randomName = this.getRandomName();
+  getGameState$ = defer(() =>
+    interval(1000).pipe(switchMap(() => this.getGameState())),
+  );
 
   constructor(
     private http: HttpClient,
@@ -100,10 +104,6 @@ export class GameViewComponent implements OnInit {
     this.gameStateService.player = this.getPlayerFromLocalStorage();
     console.log('PlayerLog: ', this.gameStateService.player);
   }
-
-  getGameState$ = defer(() =>
-    interval(1000).pipe(switchMap(() => this.getGameState())),
-  );
 
   openNewLobby(
     gameId: string,
@@ -169,10 +169,6 @@ export class GameViewComponent implements OnInit {
     return JSON.parse(value) as Player;
   }
 
-  private deletePlayerFromLocalStorage() {
-    localStorage.removeItem('player' + this.gameStateService.gameId);
-  }
-
   getGameState(): Observable<GeneralGameState> {
     if (!this.gameStateService.player || !this.gameStateService.gameId) {
       return new Observable<GeneralGameState>();
@@ -213,5 +209,81 @@ export class GameViewComponent implements OnInit {
       result += characters.charAt(Math.floor(Math.random() * charactersLength));
     }
     return result;
+  }
+
+  getRandomName() {
+    const funnyAdjectives: string[] = [
+      'goofy',
+      'wonky',
+      'snarky',
+      'loopy',
+      'clumsy',
+      'sassy',
+      'nutty',
+      'zany',
+      'quirky',
+      'wobbly',
+      'grumpy',
+      'fluffy',
+      'skunky',
+      'noisy',
+      'dorky',
+      'wiggly',
+      'pudgy',
+      'spunky',
+      'whiny',
+      'itchy',
+      'grubby',
+      'smelly',
+      'jumpy',
+      'clanky',
+      'cranky',
+      'giddy',
+      'cheeky',
+      'wonky',
+      'dingy',
+      'freaky',
+    ];
+
+    const funnyOldNames: string[] = [
+      'Mildred',
+      'Eustace',
+      'Beulah',
+      'Norbert',
+      'Gertrude',
+      'Wilbur',
+      'Agnes',
+      'Otis',
+      'Bertha',
+      'Clovis',
+      'Eunice',
+      'Horace',
+      'Maude',
+      'Elmer',
+      'Blanche',
+      'Mabel',
+      'Orville',
+      'Hortense',
+      'Cletus',
+      'Velma',
+      'Chester',
+      'Edna',
+      'Eugene',
+      'Dorcas',
+      'Herman',
+      'Gladys',
+      'Barney',
+      'Bessie',
+      'Mortimer',
+      'Phyllis',
+    ];
+    const number1 = Math.floor(Math.random() * funnyAdjectives.length);
+    const number2 = Math.floor(Math.random() * funnyOldNames.length);
+
+    return funnyAdjectives[number1] + ' ' + funnyOldNames[number2];
+  }
+
+  private deletePlayerFromLocalStorage() {
+    localStorage.removeItem('player' + this.gameStateService.gameId);
   }
 }
