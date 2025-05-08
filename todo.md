@@ -41,6 +41,7 @@
 - [ ] select color -> according to that get the icon/avatar
 - [ ] Fix Round Votestart that every user can vote properly.
 - [ ] Show answer state has answered or not on websocket screen
+- [ ] serve player avatars from the backend
 
 ## DB
 
