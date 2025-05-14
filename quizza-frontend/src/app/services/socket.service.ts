@@ -10,6 +10,7 @@ export class SocketService {
   private messageSubject = new BehaviorSubject<string | null>(null);
   private currentGameId: string | null = null;
   private playersSubject = new BehaviorSubject<string[]>([]);
+  private answeredPlayersSubject = new BehaviorSubject<string[]>([]);
 
   constructor(private gameStateService: GameStateService) {
     const initialGameId = this.getGameIdFromUrl();
@@ -21,8 +22,39 @@ export class SocketService {
     }
   }
 
+  switchRoom(newGameId: string) {
+    if (newGameId && newGameId !== this.currentGameId) {
+      // Ensure newGameId is valid
+      this.connect(newGameId);
+    }
+  }
+
+  sendMessage(msg: string) {
+    this.socket?.emit('message', msg);
+  }
+
+  onMessage(): Observable<string | null> {
+    return this.messageSubject.asObservable();
+  }
+
+  onPlayers(): Observable<string[]> {
+    return this.playersSubject.asObservable();
+  }
+
+  onPlayersAnswered(): Observable<string[]> {
+    return this.answeredPlayersSubject.asObservable();
+  }
+
+  // Optional: Allow manual request for players if needed
+  requestPlayerList() {
+    if (this.socket?.connected) {
+      this.socket.emit('requestPlayers');
+    }
+  }
+
   private getGameIdFromUrl(): string | null {
-    if (typeof window !== 'undefined') { // Guard for SSR or non-browser environments
+    if (typeof window !== 'undefined') {
+      // Guard for SSR or non-browser environments
       return new URLSearchParams(window.location.search).get('gameId');
     }
     return null;
@@ -37,7 +69,9 @@ export class SocketService {
     const playerId = this.gameStateService.player?.id;
 
     if (!playerId) {
-      console.warn('Player ID not available in GameStateService. Cannot connect socket.');
+      console.warn(
+        'Player ID not available in GameStateService. Cannot connect socket.',
+      );
       // Optionally, you could retry or queue the connection once playerId is available.
       return;
     }
@@ -46,7 +80,11 @@ export class SocketService {
     //REPLACE WITH LOCAL URL
     this.socket = io(environment.socketUrl || window.location.origin, {
       query: { gameId, playerId },
-      transports: ['websocket'] // Recommended for consistency
+      transports: ['websocket'], // Recommended for consistency
+    });
+
+    this.socket.on('playersAnswered', (playerList: string[]) => {
+      this.answeredPlayersSubject.next(playerList);
     });
 
     this.socket.on('connect', () => {
@@ -69,30 +107,5 @@ export class SocketService {
     this.socket.on('updatePlayers', (playerList: string[]) => {
       this.playersSubject.next(playerList);
     });
-  }
-
-  switchRoom(newGameId: string) {
-    if (newGameId && newGameId !== this.currentGameId) { // Ensure newGameId is valid
-      this.connect(newGameId);
-    }
-  }
-
-  sendMessage(msg: string) {
-    this.socket?.emit('message', msg);
-  }
-
-  onMessage(): Observable<string | null> {
-    return this.messageSubject.asObservable();
-  }
-
-  onPlayers(): Observable<string[]> {
-    return this.playersSubject.asObservable();
-  }
-
-  // Optional: Allow manual request for players if needed
-  requestPlayerList() {
-    if (this.socket?.connected) {
-      this.socket.emit('requestPlayers');
-    }
   }
 }

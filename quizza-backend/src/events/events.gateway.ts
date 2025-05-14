@@ -8,8 +8,9 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { Player } from '../models/backendmodels';
 import { AppService } from '../app.service';
-import { Player } from '../models/backendmodels'; // Assuming AppService provides player details
+import { forwardRef, Inject } from '@nestjs/common';
 
 interface ExtendedSocket extends Socket {
   data: {
@@ -27,7 +28,15 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   private playersPerGame: Map<string, Set<Player>> = new Map();
 
-  constructor(private readonly appService: AppService) {}
+  constructor(
+    @Inject(forwardRef(() => AppService))
+    private readonly appService: AppService,
+  ) {}
+
+  broadcastAnsweredPlayers(gameId: string) {
+    const players = this.appService.getPlayersWhoAnswered(gameId);
+    this.server.to(gameId).emit('playersAnswered', players);
+  }
 
   handleConnection(client: ExtendedSocket) {
     const gameId = client.handshake.query['gameId'] as string;
@@ -99,13 +108,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.removeGameIfEmpty(gameId);
   }
 
-  private removeGameIfEmpty(gameId: string) {
-    if (this.playersPerGame.get(gameId)?.size === 0) {
-      this.playersPerGame.delete(gameId);
-      console.log(`Game room ${gameId} is now empty and removed.`);
-    }
-  }
-
   @SubscribeMessage('message')
   handleMessage(
     @ConnectedSocket() client: ExtendedSocket,
@@ -118,16 +120,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.server.to(gameId).emit('message', message);
   }
 
-  private broadcastPlayers(gameId: string) {
-    const playersInGame = this.playersPerGame.get(gameId);
-
-    if (playersInGame) {
-      const playerNames = Array.from(playersInGame).map((p) => p.name);
-
-      this.server.to(gameId).emit('updatePlayers', playerNames);
-    }
-  }
-
   // Example: If clients need to manually request the player list (optional)
   @SubscribeMessage('requestPlayers')
   handlePlayerListRequest(@ConnectedSocket() client: ExtendedSocket) {
@@ -137,5 +129,22 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const playersInGame = this.playersPerGame.get(gameId) || new Set();
     const playerNames = Array.from(playersInGame).map((p) => p.name);
     client.emit('updatePlayers', playerNames); // Send only to requester
+  }
+
+  private removeGameIfEmpty(gameId: string) {
+    if (this.playersPerGame.get(gameId)?.size === 0) {
+      this.playersPerGame.delete(gameId);
+      console.log(`Game room ${gameId} is now empty and removed.`);
+    }
+  }
+
+  private broadcastPlayers(gameId: string) {
+    const playersInGame = this.playersPerGame.get(gameId);
+
+    if (playersInGame) {
+      const playerNames = Array.from(playersInGame).map((p) => p.name);
+
+      this.server.to(gameId).emit('updatePlayers', playerNames);
+    }
   }
 }

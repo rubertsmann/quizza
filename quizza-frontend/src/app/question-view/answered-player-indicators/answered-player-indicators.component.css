@@ -1,0 +1,30 @@
+.circle-container {
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  min-height: 3rem;
+  white-space: nowrap;
+  animation: fadeInUp 0.4s ease;
+}
+
+.circle {
+  flex: 0 0 auto;
+  padding: 0.5rem;
+  align-content: center;
+  height: 1rem;
+  border-radius: 1rem;
+  position: relative;
+  animation: fadeInUp 0.4s ease;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

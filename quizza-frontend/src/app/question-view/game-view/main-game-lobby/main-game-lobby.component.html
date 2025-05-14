@@ -1,4 +1,6 @@
 <ng-container *ngIf="this.gameStateService.gameState$ | async as gamestate">
+  <app-answered-player-indicators></app-answered-player-indicators>
+
   <div
     [@questionChange]="gamestate.currentQuestion?.question"
     class="column-layout"
@@ -9,12 +11,14 @@
           (@numberChange.start)="onCounterChange()"
           [@numberChange]="gamestate?.currentQuestionTimer"
         >
-          {{ gamestate?.currentQuestionTimer }}
+          {{ this.getTimerOrInfinitSymbol(gamestate!.currentQuestionTimer) }}
         </div>
       </div>
     </div>
 
     <ng-container *ngIf="gamestate?.currentQuestion as question">
+      <h3 class="center"> -- {{ CategoryEnum[question.category] }} --</h3>
+      
       <h3 class="center">{{ question.question }}</h3>
       <app-question-element [question]="question"></app-question-element>
     </ng-container>
@@ -23,5 +27,6 @@
     <div class="last-item-bottom-right">
       {{ gamestate?.currentRound }}/ {{ gamestate?.maxRounds }}
     </div>
+
   </div>
 </ng-container>

@@ -189,6 +189,7 @@ import { GameStateService } from '../../services/game-state.service';
       h5 {
         margin-bottom: 0.5em;
       }
+
       h2 {
         text-align: center;
         border-bottom: 1px solid #eee;

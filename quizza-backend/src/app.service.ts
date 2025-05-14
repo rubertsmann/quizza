@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import * as crypto from 'crypto';
 import {
   AnswerId,
@@ -17,9 +17,17 @@ import {
   QuestionWithAnswer,
 } from './models/backendmodels';
 import { questions } from './models/static-questions';
+import { EventsGateway } from './events/events.gateway';
 
 @Injectable()
 export class AppService {
+  globalGameState = new Map<GameId, GeneralGameState>();
+
+  constructor(
+    @Inject(forwardRef(() => EventsGateway))
+    private readonly eventsGateway: EventsGateway,
+  ) {}
+
   onModuleInit() {
     this.startGameStateUpdateLoop();
   }
@@ -29,8 +37,6 @@ export class AppService {
       this.updateGame();
     }, 1000);
   }
-
-  globalGameState = new Map<GameId, GeneralGameState>();
 
   answerQuestionForPlayer(
     gameId: GameId,
@@ -52,6 +58,8 @@ export class AppService {
 
       playerGameState.remainingSeconds = gameState.currentQuestionTimer;
       gameState?.playerSpecificGameState.set(playerId, playerGameState);
+
+      this.eventsGateway.broadcastAnsweredPlayers(gameId);
     }
 
     this.debugGameState(gameId);
@@ -257,12 +265,6 @@ export class AppService {
     }
   }
 
-  private endPreGame(gameState: GeneralGameState) {
-    this.updateGameStatus(gameState, GameStatus.IN_PROGRESS);
-
-    gameState.currentQuestion = this.getRandomQuestion(gameState);
-  }
-
   updateGameInProgress(gameState: GeneralGameState, gameId: GameId) {
     gameState.currentQuestionTimer--;
 
@@ -347,25 +349,6 @@ export class AppService {
     gameState.gameStatus = gameStatus;
   }
 
-  private evaluateCorrectPlayerAnswers(gameState: GeneralGameState) {
-    gameState.playerSpecificGameState.forEach((playerGameState) => {
-      let correctAnswerCount = 0;
-      playerGameState.allAnswers.forEach((questionWithAnswer) => {
-        correctAnswerCount += questionWithAnswer.calculatedPoints;
-      });
-
-      gameState.endGameState.push({
-        player: playerGameState.player.name,
-        points: correctAnswerCount,
-        answeredInSeconds:
-          gameState.maxRoundTime - playerGameState.remainingSeconds,
-        allAnswers: [...playerGameState.allAnswers.values()],
-      });
-
-      gameState.endGameState.sort((a, b) => a.points + b.points);
-    });
-  }
-
   startNewRound(gameState: GeneralGameState) {
     gameState.currentRound++;
     gameState.currentQuestionTimer = gameState.maxRoundTime;
@@ -374,6 +357,8 @@ export class AppService {
       it.answerText = '';
       it.currentAnswerId = -1;
     });
+
+    this.eventsGateway.broadcastAnsweredPlayers(gameState.gameId);
   }
 
   getHello(): { message: string; serverTime: string } {
@@ -429,6 +414,48 @@ export class AppService {
     );
   }
 
+  getPlayerLogin(gameId: string, playerId: string): Player {
+    const gameState = this.getGameStateOrFail(gameId);
+    return gameState.playerSpecificGameState.get(playerId)!.player;
+  }
+
+  getPlayersWhoAnswered(gameId: GameId): string[] {
+    const gameState = this.getGameStateOrFail(gameId);
+
+    if (!gameState.currentQuestion) {
+      throw new Error('No active question.');
+    }
+
+    return Array.from(gameState.playerSpecificGameState.values())
+      .filter((playerState) => playerState.currentAnswerId !== -1)
+      .map((playerState) => playerState.player.name);
+  }
+
+  private endPreGame(gameState: GeneralGameState) {
+    this.updateGameStatus(gameState, GameStatus.IN_PROGRESS);
+
+    gameState.currentQuestion = this.getRandomQuestion(gameState);
+  }
+
+  private evaluateCorrectPlayerAnswers(gameState: GeneralGameState) {
+    gameState.playerSpecificGameState.forEach((playerGameState) => {
+      let correctAnswerCount = 0;
+      playerGameState.allAnswers.forEach((questionWithAnswer) => {
+        correctAnswerCount += questionWithAnswer.calculatedPoints;
+      });
+
+      gameState.endGameState.push({
+        player: playerGameState.player.name,
+        points: correctAnswerCount,
+        answeredInSeconds:
+          gameState.maxRoundTime - playerGameState.remainingSeconds,
+        allAnswers: [...playerGameState.allAnswers.values()],
+      });
+
+      gameState.endGameState.sort((a, b) => a.points + b.points);
+    });
+  }
+
   private quickRoundEnded(gameState: GeneralGameState): boolean {
     if (gameState?.quickRoundActive) {
       return Array.from(gameState?.playerSpecificGameState.values()).every(
@@ -437,10 +464,5 @@ export class AppService {
     } else {
       return false;
     }
-  }
-
-  getPlayerLogin(gameId: string, playerId: string): Player {
-    const gameState = this.getGameStateOrFail(gameId);
-    return gameState.playerSpecificGameState.get(playerId)!.player;
   }
 }

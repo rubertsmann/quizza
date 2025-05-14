@@ -13,6 +13,8 @@ import { ActivatedRoute } from '@angular/router';
 import { GameStateService } from '../../../services/game-state.service';
 import { SoundManagerService } from '../../../services/sound-manager.service';
 import { QuestionElementComponent } from './question-element/question-element.component';
+import { AnsweredPlayerIndicatorsComponent } from '../../answered-player-indicators/answered-player-indicators.component';
+import { Category } from '../../../models/backendmodels-copy';
 
 const numberChangeIncrementAnimation: AnimationMetadata[] = [
   style({ transform: 'translateY(100%)', opacity: 0 }),
@@ -42,7 +44,12 @@ const questionChangeAnimation: AnimationMetadata = animate(
 
 @Component({
   selector: 'app-main-game-lobby',
-  imports: [CommonModule, FormsModule, QuestionElementComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    QuestionElementComponent,
+    AnsweredPlayerIndicatorsComponent,
+  ],
   animations: [
     trigger('numberChange', [
       transition(':increment', numberChangeIncrementAnimation),
@@ -57,6 +64,8 @@ const questionChangeAnimation: AnimationMetadata = animate(
   styleUrl: './main-game-lobby.component.css',
 })
 export class MainGameLobbyComponent {
+  public CategoryEnum = Category;
+
   constructor(
     private soundManager: SoundManagerService,
     private route: ActivatedRoute,
@@ -68,6 +77,10 @@ export class MainGameLobbyComponent {
     this.route.queryParams.subscribe((params) => {
       this.gameStateService.gameId = params['gameId'];
     });
+  }
+
+  public getTimerOrInfinitSymbol(number: number) {
+    return number > 99 ? '∞' : number.toString();
   }
 
   onCounterChange() {
