@@ -1,12 +1,3 @@
-export interface GameState {
-  gameId: GameId;
-  playerId: number;
-  playerName: string;
-  currentQuestion: Omit<Question, 'correctAnswer'>;
-  currentQuestionTimer: number;
-  currentAnswer: string;
-}
-
 export enum Category {
   HUMAN,
   SPORT,
@@ -19,25 +10,53 @@ export enum Category {
   COMPUTER,
 }
 
-export interface NewGame {
-  gameId: GameId;
-  maxRounds: number;
-  maxRoundTime: number;
-  quickRoundActive: boolean;
+export enum EnumQuestionTypes {
+  MultipleChoice = 'MultipleChoice',
+  Estimation = 'Estimation',
+}
+
+export interface Answer {
+  answerId: AnswerId; // Unique within a question
+  answerText: string;
+}
+
+export interface MultipleChoiceDetails {
+  questionText: string;
+  answers: Answer[];
+  correctAnswerId: number;
+}
+
+export interface EstimationDetails {
+  questionText: string;
+  correctAnswerValue: number;
+  toleranceBelowPercent: number;
+  toleranceAbovePercent: number;
 }
 
 export interface Question {
   id: QuestionId;
   category: Category;
-  question: string;
-  answers: Answer[];
-  correctAnswerId: number;
+  questionType: EnumQuestionTypes;
+  details: MultipleChoiceDetails | EstimationDetails;
 }
 
-export interface Answer {
-  questionId?: QuestionId;
-  answerId: AnswerId;
-  answerText: string;
+export interface GameState {
+  gameId: GameId;
+  playerId: number;
+  playerName: string;
+  currentQuestion: Omit<
+    Question,
+    'details.correctAnswerId' | 'details.correctAnswerValue'
+  >;
+  currentQuestionTimer: number;
+  currentAnswer: string;
+}
+
+export interface NewGame {
+  gameId: GameId;
+  maxRounds: number;
+  maxRoundTime: number;
+  quickRoundActive: boolean;
 }
 
 export interface Player {
@@ -52,22 +71,27 @@ export type PlayerId = string;
 
 export interface QuestionWithAnswer {
   id: QuestionId;
-  answerId: AnswerId;
-  answerText: string;
-  originalQuestion: {
-    text: string;
-    answerText: Answer | undefined;
-  };
-  isCorrectAnswer: boolean;
+  questionType: EnumQuestionTypes;
+  originalQuestionDetails: Question['details'];
+
+  submittedPayload: string;
+  displayedAnswer: string;
+
+  isCorrectOrWithinTolerance: boolean;
   calculatedPoints: number;
   answeredInSeconds: number;
+
+  // Optional: For detailed results display in estimation
+  correctNumericAnswer?: number;
+  submittedNumericAnswer?: number;
+  deviationPercent?: number;
 }
 
 export interface PlayerGameState {
   remainingSeconds: number;
   player: Player;
-  currentAnswerId: AnswerId;
-  answerText: string;
+  currentSubmittedPayload?: string;
+  currentAnswerDisplayTest?: string;
   allAnswers: Map<QuestionId, QuestionWithAnswer>;
 }
 
@@ -125,6 +149,20 @@ export interface GeneralGameState {
   preGameState?: PreGameState;
 }
 
+export type MultipleChoiceDetailsReduced = Omit<
+  MultipleChoiceDetails,
+  'correctAnswerId'
+>;
+
+export type EstimationDetailsReduced = Omit<
+  EstimationDetails,
+  'correctAnswerValue' | 'toleranceBelowPercent' | 'toleranceAbovePercent'
+>;
+
+export interface QuestionReduced extends Omit<Question, 'details'> {
+  details: MultipleChoiceDetailsReduced | EstimationDetailsReduced;
+}
+
 export interface GeneralGameStateReduced {
   gameId: GameId;
   gameStatus: GameStatus;
@@ -134,13 +172,15 @@ export interface GeneralGameStateReduced {
   currentQuestionTimer: number;
   maxRoundTime: number;
   allQuestionIds: QuestionId[];
-  currentQuestion?: Omit<Question, 'correctAnswerId'>;
+  currentQuestion?: QuestionReduced;
   endGameState: EndGameState[];
   preGameState?: PreGameStateReduced;
 }
 
 export interface EndGameAnswers {
   questionText: string;
+  questionType: EnumQuestionTypes;
+  correctAnswerDisplay: string;
   questionAnswers: {
     playerName: string;
     answerText: string;

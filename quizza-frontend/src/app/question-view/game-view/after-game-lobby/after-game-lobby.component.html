@@ -14,6 +14,7 @@
           <ng-container *ngFor="let allAnswers of answers">
 
             <h3 class="question-title" style="padding-top: 1rem">Question: {{ allAnswers.questionText }}</h3>
+            <h3 class="question-title" style="padding-top: 1rem">Answer: {{ allAnswers.correctAnswerDisplay }}</h3>
             <div class="grid-table player-answers">
               <ng-container *ngFor="let answerByPlayer of allAnswers.questionAnswers">
                 <div class="grid-cell header-cell">{{ answerByPlayer.playerName }}</div>

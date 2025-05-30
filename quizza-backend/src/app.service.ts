@@ -1,12 +1,17 @@
+// app.service.ts
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import * as crypto from 'crypto';
 import {
-  AnswerId,
   EndGameAnswers,
+  EnumQuestionTypes,
+  EstimationDetails,
+  EstimationDetailsReduced,
   GameId,
   GameStatus,
   GeneralGameState,
   GeneralGameStateReduced,
+  MultipleChoiceDetails,
+  MultipleChoiceDetailsReduced,
   NewGame,
   Player,
   PlayerGameState,
@@ -14,6 +19,7 @@ import {
   PlayerVote,
   Question,
   QuestionId,
+  QuestionReduced,
   QuestionWithAnswer,
 } from './models/backendmodels';
 import { questions } from './models/static-questions';
@@ -38,46 +44,41 @@ export class AppService {
     }, 1000);
   }
 
-  answerQuestionForPlayer(
-    gameId: GameId,
-    playerId: PlayerId,
-    answerId: AnswerId,
-  ) {
+  answerQuestionForPlayer(gameId: GameId, playerId: PlayerId, answerPayload: string) {
     const gameState = this.getGameStateOrFail(gameId);
-
-    const playerGameState = this.getPlayerSpecificGameStateOrFail(
-      gameState,
-      playerId,
-    );
+    const playerGameState = this.getPlayerSpecificGameStateOrFail(gameState, playerId);
 
     if (gameState.currentQuestion) {
-      playerGameState.currentAnswerId = answerId;
-      playerGameState.answerText =
-        gameState.currentQuestion.answers.find((a) => a.answerId === answerId)
-          ?.answerText || 'Answer Unknown';
-
+      playerGameState.currentSubmittedPayload = answerPayload;
       playerGameState.remainingSeconds = gameState.currentQuestionTimer;
-      gameState?.playerSpecificGameState.set(playerId, playerGameState);
 
+      if (gameState.currentQuestion.questionType === EnumQuestionTypes.MultipleChoice) {
+        const mcDetails = gameState.currentQuestion.details as MultipleChoiceDetails;
+        const answerId = parseInt(answerPayload, 10);
+        playerGameState.currentAnswerDisplayTest =
+          mcDetails.answers.find((a) => a.answerId === answerId)?.answerText || 'Answer Unknown';
+      } else if (gameState.currentQuestion.questionType === EnumQuestionTypes.Estimation) {
+        playerGameState.currentAnswerDisplayTest = answerPayload;
+      }
+
+      gameState.playerSpecificGameState.set(playerId, playerGameState);
       this.eventsGateway.broadcastAnsweredPlayers(gameId);
     }
-
     this.debugGameState(gameId);
   }
 
-  voteStartPlayer(gameId: GameId, playerName: PlayerId, voteStart: boolean) {
+  voteStartPlayer(gameId: GameId, playerId: PlayerId, voteStart: boolean) {
     const gameState = this.globalGameState.get(gameId);
-    const playerGameState = gameState?.playerSpecificGameState.get(playerName);
+    const playerGameState = gameState?.playerSpecificGameState.get(playerId);
     const pregameState = gameState?.preGameState;
 
     if (gameState && playerGameState && pregameState) {
       pregameState.playerVotes.set(playerGameState.player.id, {
-        playerName: playerName,
+        playerName: playerGameState.player.name, // Ensure this uses player.name if playerId is UUID
         voteStart,
       });
       gameState.preGameState!.playerVotes = pregameState.playerVotes;
     }
-
     this.debugGameState(gameId);
   }
 
@@ -103,11 +104,7 @@ export class AppService {
 
   getGameStateOrFail(gameId: GameId): GeneralGameState {
     const gameState = this.globalGameState.get(gameId);
-
-    if (gameState) {
-      return gameState;
-    }
-
+    if (gameState) return gameState;
     throw new Error('Game does not Exist');
   }
 
@@ -122,18 +119,13 @@ export class AppService {
     if (!gameState.playerSpecificGameState.has(playerId)) {
       throw new Error('Player not part of the game.');
     }
-
     return gameState.playerSpecificGameState.get(playerId)!;
   }
 
   updatePreGamePlayerList(player: Player, gameId: GameId) {
     const gameState = this.getGameStateOrFail(gameId);
     const playerNames: string[] = [];
-
-    gameState.playerSpecificGameState.forEach((playerGameState) => {
-      playerNames.push(playerGameState.player.name);
-    });
-
+    gameState.playerSpecificGameState.forEach((pgs) => playerNames.push(pgs.player.name));
     if (gameState.preGameState) {
       gameState.preGameState.playerNames = playerNames;
     }
@@ -141,9 +133,9 @@ export class AppService {
 
   initializePlayerGameState(player: Player, gameId: GameId) {
     const gameState = this.getGameStateOrFail(gameId);
-    const doesPlayerNameExist = !Array.from(
-      gameState.playerSpecificGameState.values(),
-    ).find((it) => it.player.name === player.name);
+    const doesPlayerNameExist = !Array.from(gameState.playerSpecificGameState.values()).find(
+      (it) => it.player.name === player.name,
+    );
 
     if (!doesPlayerNameExist) {
       throw Error('Playername already taken.');
@@ -152,17 +144,15 @@ export class AppService {
     if (!gameState.playerSpecificGameState.has(player.id)) {
       gameState.playerSpecificGameState.set(player.id, {
         player: player,
-        currentAnswerId: -1,
-        answerText: '',
         allAnswers: new Map<QuestionId, QuestionWithAnswer>(),
         remainingSeconds: -1,
+        // currentSubmittedPayload and currentAnswerDisplayTest are set on answer
       });
     }
   }
 
   initializeGeneralGameState(newGame: NewGame): GeneralGameState {
     const playerGameState = new Map<PlayerId, PlayerGameState>();
-
     const gameState: GeneralGameState = {
       gameId: newGame.gameId,
       gameStatus: GameStatus.INIT,
@@ -181,52 +171,72 @@ export class AppService {
       },
       maxRoundTime: newGame.maxRoundTime,
     };
-
     this.setGameStateOrFail(gameState);
     this.updateGameStatus(gameState, GameStatus.PRE_GAME);
-
     return gameState;
   }
 
   getGeneralGameState(
-    playerId: PlayerId,
+    playerId: PlayerId, // playerId is not used here, but kept for API consistency
     gameId: GameId,
   ): GeneralGameStateReduced {
     const gameState = this.getGameStateOrFail(gameId);
 
-    const { currentQuestion, ...rest } = gameState;
-    const reducedQuestion = currentQuestion
-      ? // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        (({ correctAnswerId, ...q }) => q)(currentQuestion)
-      : undefined;
+    let reducedQuestionData: QuestionReduced | undefined = undefined;
+    if (gameState.currentQuestion) {
+      const q = gameState.currentQuestion;
+      const commonData = {
+        id: q.id,
+        category: q.category,
+        questionType: q.questionType,
+      };
+
+      if (q.questionType === EnumQuestionTypes.MultipleChoice) {
+        const details = q.details as MultipleChoiceDetails;
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { correctAnswerId, ...safeDetails } = details;
+        reducedQuestionData = {
+          ...commonData,
+          details: safeDetails as MultipleChoiceDetailsReduced,
+        };
+      } else if (q.questionType === EnumQuestionTypes.Estimation) {
+        const details = q.details as EstimationDetails;
+
+        const { correctAnswerValue, toleranceBelowPercent, toleranceAbovePercent, ...safeDetails } =
+          details;
+        reducedQuestionData = {
+          ...commonData,
+          details: safeDetails as EstimationDetailsReduced,
+        };
+      }
+    }
+
+    const { currentQuestion, playerSpecificGameState, ...restOfGameState } = gameState;
 
     return {
-      ...rest,
-      currentQuestion: reducedQuestion,
-      preGameState: {
-        howManyHaveVoted: gameState.preGameState!.howManyHaveVoted,
-        playerNames: gameState.preGameState!.playerNames,
-        playerVotes: Array.from(gameState.preGameState!.playerVotes.values()),
-      },
+      ...restOfGameState,
+      currentQuestion: reducedQuestionData,
+      preGameState: gameState.preGameState
+        ? {
+            howManyHaveVoted: gameState.preGameState.howManyHaveVoted,
+            playerNames: gameState.preGameState.playerNames,
+            playerVotes: Array.from(gameState.preGameState.playerVotes.values()),
+          }
+        : undefined,
     };
   }
 
   getRandomQuestion(gameState: GeneralGameState): Question {
-    const availableQuestionIds = questions.map((q) => q.id);
+    const availableQuestions = questions.filter((q) => !gameState.allQuestionIds.includes(q.id));
 
-    const remainingQuestionIds = availableQuestionIds.filter(
-      (id) => !gameState.allQuestionIds.includes(id),
-    );
-
-    if (remainingQuestionIds.length === 0) {
-      //End Game instantly
+    if (availableQuestions.length === 0) {
       throw new Error('No more questions available.');
     }
 
-    const randomIndex = Math.floor(Math.random() * remainingQuestionIds.length);
-    const randomQuestionId = remainingQuestionIds[randomIndex];
-
-    return questions.find((q) => q.id === randomQuestionId)!;
+    const randomIndex = Math.floor(Math.random() * availableQuestions.length);
+    const randomQuestion = availableQuestions[randomIndex];
+    gameState.allQuestionIds.push(randomQuestion.id); // Mark as used for this game
+    return randomQuestion;
   }
 
   updateGame() {
@@ -234,7 +244,6 @@ export class AppService {
       if (gameState.gameStatus === GameStatus.PRE_GAME) {
         this.updatePreGame(gameState);
       }
-
       if (gameState.gameStatus === GameStatus.IN_PROGRESS) {
         this.updateGameInProgress(gameState, gameId);
       }
@@ -245,20 +254,15 @@ export class AppService {
     if (!gameState.preGameState) {
       throw new Error('Game state must be initialized');
     }
-
     let howManyVotedYes = 0;
-    gameState.preGameState.playerVotes.forEach((playerGameState) => {
-      if (playerGameState.voteStart) {
-        howManyVotedYes++;
-      } else {
-        howManyVotedYes--;
-      }
+    gameState.preGameState.playerVotes.forEach((vote) => {
+      if (vote.voteStart) howManyVotedYes++;
     });
 
     gameState.preGameState.howManyHaveVoted = howManyVotedYes;
 
     if (
-      howManyVotedYes >= 1 &&
+      gameState.playerSpecificGameState.size > 0 && // Ensure there's at least one player
       gameState.playerSpecificGameState.size === howManyVotedYes
     ) {
       this.endPreGame(gameState);
@@ -268,78 +272,178 @@ export class AppService {
   updateGameInProgress(gameState: GeneralGameState, gameId: GameId) {
     gameState.currentQuestionTimer--;
 
-    //TODO Probably change this logic according to the game mode.
-    if (
-      gameState.currentQuestionTimer <= 0 ||
-      this.quickRoundEnded(gameState)
-    ) {
+    if (gameState.currentQuestionTimer <= 0 || this.quickRoundEnded(gameState)) {
       this.persistCurrentRound(gameState);
-
-      if (gameState.currentRound == gameState.maxRounds) {
+      if (gameState.currentRound >= gameState.maxRounds) {
+        // Use >= for safety
         this.endGameInProgress(gameState);
       } else {
         this.startNewRound(gameState);
       }
-
       this.debugGameState(gameId);
     }
   }
 
   persistCurrentRound(gameState: GeneralGameState) {
-    if (gameState.currentQuestion === null) {
-      throw Error('Game is not active');
+    if (!gameState.currentQuestion) {
+      return;
     }
 
+    const currentQ = gameState.currentQuestion;
+
     gameState.playerSpecificGameState.forEach((playerGameState) => {
-      const isCorrect =
-        playerGameState.currentAnswerId ===
-        gameState.currentQuestion!.correctAnswerId;
+      let answeredQuestion: QuestionWithAnswer | undefined = undefined;
 
-      const answeredQuestion: QuestionWithAnswer = {
-        id: gameState.currentQuestion!.id,
-        answerId: playerGameState.currentAnswerId,
-        answerText: playerGameState.answerText,
-        originalQuestion: {
-          text: gameState.currentQuestion!.question,
-          answerText: gameState.currentQuestion!.answers.find(
-            (a) => a.answerId === gameState.currentQuestion!.correctAnswerId,
-          ),
-        },
-        isCorrectAnswer: isCorrect,
-        calculatedPoints: isCorrect
-          ? this.calculatePoints(
-              gameState.currentRound,
-              gameState.maxRounds,
-              gameState.quickRoundActive
-                ? playerGameState.remainingSeconds
-                : 10,
-            )
-          : 0,
-        answeredInSeconds:
-          gameState.maxRoundTime - playerGameState.remainingSeconds,
-      };
+      let isCorrectOrWithinTolerance = false;
+      let points = 0;
+      let displayedAnswer = playerGameState.currentAnswerDisplayTest || 'No answer';
+      let submittedNumericVal: number | undefined;
+      let correctNumericVal: number | undefined;
+      let deviation: number | undefined;
 
-      playerGameState.allAnswers.set(
-        gameState.currentQuestion!.id,
-        answeredQuestion,
-      );
+      const submittedPayload = playerGameState.currentSubmittedPayload;
+
+      switch (currentQ.questionType) {
+        case EnumQuestionTypes.MultipleChoice: {
+          const mcDetails = currentQ.details as MultipleChoiceDetails;
+          const submittedAnswerId = submittedPayload ? parseInt(submittedPayload, 10) : -1;
+          isCorrectOrWithinTolerance = submittedAnswerId === mcDetails.correctAnswerId;
+          points = isCorrectOrWithinTolerance ? 100 : 0; // Base points for correctness
+          displayedAnswer =
+            mcDetails.answers.find((a) => a.answerId === submittedAnswerId)?.answerText ||
+            'Invalid Answer';
+
+          const finalPoints = this.calculatePoints(
+            gameState.currentRound,
+            gameState.maxRounds,
+            gameState.quickRoundActive && playerGameState.remainingSeconds > 0
+              ? playerGameState.remainingSeconds
+              : points,
+          );
+
+          answeredQuestion = {
+            id: currentQ.id,
+            questionType: currentQ.questionType,
+            originalQuestionDetails: currentQ.details,
+            submittedPayload: playerGameState.currentSubmittedPayload || '',
+            displayedAnswer: displayedAnswer,
+            isCorrectOrWithinTolerance: isCorrectOrWithinTolerance,
+            calculatedPoints: Math.round(finalPoints),
+            answeredInSeconds: gameState.maxRoundTime - playerGameState.remainingSeconds,
+            correctNumericAnswer: correctNumericVal,
+            submittedNumericAnswer: submittedNumericVal,
+            deviationPercent: deviation,
+          };
+          break;
+        }
+        case EnumQuestionTypes.Estimation: {
+          const estDetails = currentQ.details as EstimationDetails;
+          correctNumericVal = estDetails.correctAnswerValue;
+          if (submittedPayload) {
+            submittedNumericVal = parseFloat(submittedPayload);
+            if (!isNaN(submittedNumericVal)) {
+              displayedAnswer = submittedPayload;
+              const lowerBound =
+                estDetails.correctAnswerValue * (1 - estDetails.toleranceBelowPercent / 100);
+              const upperBound =
+                estDetails.correctAnswerValue * (1 + estDetails.toleranceAbovePercent / 100);
+
+              if (submittedNumericVal >= lowerBound && submittedNumericVal <= upperBound) {
+                isCorrectOrWithinTolerance = true;
+                let proximityScore = 0;
+                if (submittedNumericVal === estDetails.correctAnswerValue) {
+                  proximityScore = 1;
+                } else if (submittedNumericVal < estDetails.correctAnswerValue) {
+                  // Avoid division by zero if correctAnswerValue is at the lower bound (unlikely with percent tolerance)
+                  const range = estDetails.correctAnswerValue - lowerBound;
+                  proximityScore =
+                    range > 0
+                      ? (submittedNumericVal - lowerBound) / range
+                      : submittedNumericVal === lowerBound
+                        ? 0
+                        : 1;
+                } else {
+                  // submittedNumericVal > estDetails.correctAnswerValue
+                  // Avoid division by zero if correctAnswerValue is at the upper bound
+                  const range = upperBound - estDetails.correctAnswerValue;
+                  proximityScore =
+                    range > 0
+                      ? (upperBound - submittedNumericVal) / range
+                      : submittedNumericVal === upperBound
+                        ? 0
+                        : 1;
+                }
+                // Ensure proximityScore is between 0 and 1
+                proximityScore = Math.max(0, Math.min(1, proximityScore));
+                points = 100 * Math.pow(proximityScore, 2); // Max 100 points, exponential based on proximity (exponent 2)
+                if (estDetails.correctAnswerValue !== 0) {
+                  deviation =
+                    (Math.abs(submittedNumericVal - estDetails.correctAnswerValue) /
+                      estDetails.correctAnswerValue) *
+                    100;
+                } else {
+                  deviation = submittedNumericVal === 0 ? 0 : Infinity;
+                }
+              }
+            } else {
+              displayedAnswer = 'Invalid number';
+            }
+          } else {
+            displayedAnswer = 'No answer';
+          }
+          const finalPoints = this.calculatePoints(
+            gameState.currentRound,
+            gameState.maxRounds,
+            gameState.quickRoundActive && playerGameState.remainingSeconds > 0
+              ? playerGameState.remainingSeconds
+              : points,
+          );
+
+          answeredQuestion = {
+            id: currentQ.id,
+            questionType: currentQ.questionType,
+            originalQuestionDetails: currentQ.details,
+            submittedPayload: playerGameState.currentSubmittedPayload || '',
+            displayedAnswer: displayedAnswer,
+            isCorrectOrWithinTolerance: isCorrectOrWithinTolerance,
+            calculatedPoints: Math.round(finalPoints),
+            answeredInSeconds: gameState.maxRoundTime - playerGameState.remainingSeconds,
+            correctNumericAnswer: correctNumericVal,
+            submittedNumericAnswer: submittedNumericVal,
+            deviationPercent: deviation,
+          };
+
+          break;
+        }
+      }
+
+      // const answeredQuestion: QuestionWithAnswer = {
+      //   id: currentQ.id,
+      //   questionType: currentQ.questionType,
+      //   originalQuestionDetails: currentQ.details,
+      //   submittedPayload: playerGameState.currentSubmittedPayload || '',
+      //   displayedAnswer: displayedAnswer,
+      //   isCorrectOrWithinTolerance: isCorrectOrWithinTolerance,
+      //   calculatedPoints: Math.round(finalPoints),
+      //   answeredInSeconds: gameState.maxRoundTime - playerGameState.remainingSeconds,
+      //   correctNumericAnswer: correctNumericVal,
+      //   submittedNumericAnswer: submittedNumericVal,
+      //   deviationPercent: deviation,
+      // };
+      playerGameState.allAnswers.set(currentQ.id, answeredQuestion);
     });
   }
 
-  calculatePoints(
-    currentRound: number,
-    maxRounds: number,
-    basePoints: number,
-  ): number {
+  calculatePoints(currentRound: number, maxRounds: number, basePoints: number): number {
+    if (basePoints <= 0) return 0;
     const roundRatio = currentRound / maxRounds;
-    const logScale = Math.log2(1 + roundRatio);
-    return Math.round(basePoints * logScale);
+    const logScale = 1 + Math.log2(1 + roundRatio * 2);
+    return basePoints * logScale;
   }
 
   endGameInProgress(gameState: GeneralGameState) {
     this.updateGameStatus(gameState, GameStatus.FINISHED);
-
-    this.evaluateCorrectPlayerAnswers(gameState);
+    this.evaluatePlayerScores(gameState);
   }
 
   updateGameStatus(gameState: GeneralGameState, gameStatus: GameStatus) {
@@ -354,10 +458,10 @@ export class AppService {
     gameState.currentQuestionTimer = gameState.maxRoundTime;
     gameState.currentQuestion = this.getRandomQuestion(gameState);
     gameState.playerSpecificGameState.forEach((it) => {
-      it.answerText = '';
-      it.currentAnswerId = -1;
+      it.currentSubmittedPayload = undefined;
+      it.currentAnswerDisplayTest = undefined;
+      it.remainingSeconds = gameState.maxRoundTime;
     });
-
     this.eventsGateway.broadcastAnsweredPlayers(gameState.gameId);
   }
 
@@ -369,49 +473,62 @@ export class AppService {
     if (this.globalGameState.has(newGame.gameId)) {
       throw new Error('Game already exist.');
     }
-
-    return this.initializeGeneralGameState(newGame);
+    this.initializeGeneralGameState(newGame);
+    return newGame;
   }
 
-  getGeneralGameStateAllAnswers(
-    playerId: string,
-    gameId: string,
-  ): EndGameAnswers[] {
+  getGeneralGameStateAllAnswers(playerId: string, gameId: string): EndGameAnswers[] {
     const gameState = this.getGameStateOrFail(gameId);
-
-    const questionMap = new Map<
-      string,
-      {
-        playerName: string;
-        answerText: string;
-        points: number;
-        answeredInSeconds: number;
-      }[]
-    >();
-
-    gameState.playerSpecificGameState.forEach((playerGameState) => {
-      playerGameState.allAnswers.forEach((answer) => {
-        const questionText = answer.originalQuestion.text;
-
-        if (!questionMap.has(questionText)) {
-          questionMap.set(questionText, []);
-        }
-
-        questionMap.get(questionText)?.push({
-          playerName: playerGameState.player.name,
-          answerText: answer.answerText || 'No answer provided',
-          points: answer.calculatedPoints,
-          answeredInSeconds: answer.answeredInSeconds,
-        });
-      });
-    });
-
-    return Array.from(questionMap.entries()).map(
-      ([questionText, questionAnswers]) => ({
-        questionText,
-        questionAnswers,
-      }),
+    const allQuestionsAskedInGame = questions.filter((q) =>
+      gameState.allQuestionIds.includes(q.id),
     );
+
+    return allQuestionsAskedInGame.map((question) => {
+      let correctAnswerDisplay = '';
+
+      switch (question.questionType) {
+        case EnumQuestionTypes.MultipleChoice: {
+          const details = question.details as MultipleChoiceDetails;
+          correctAnswerDisplay =
+            details.answers.find((a) => a.answerId === details.correctAnswerId)?.answerText ||
+            'N/A';
+          break;
+        }
+        case EnumQuestionTypes.Estimation: {
+          const details = question.details as EstimationDetails;
+          correctAnswerDisplay = details.correctAnswerValue.toString();
+          break;
+        }
+      }
+
+      const questionAnswers: EndGameAnswers['questionAnswers'] = [];
+      gameState.playerSpecificGameState.forEach((playerState) => {
+        const playerAnswer = playerState.allAnswers.get(question.id);
+        if (playerAnswer) {
+          questionAnswers.push({
+            playerName: playerState.player.name,
+            answerText: playerAnswer.displayedAnswer,
+            points: playerAnswer.calculatedPoints,
+            answeredInSeconds: playerAnswer.answeredInSeconds,
+          });
+        } else {
+          questionAnswers.push({
+            // Player might not have answered if round timed out before they did
+            playerName: playerState.player.name,
+            answerText: 'No answer submitted',
+            points: 0,
+            answeredInSeconds: gameState.maxRoundTime,
+          });
+        }
+      });
+
+      return {
+        questionText: question.details.questionText, // Common field
+        questionType: question.questionType,
+        correctAnswerDisplay,
+        questionAnswers,
+      };
+    });
   }
 
   getPlayerLogin(gameId: string, playerId: string): Player {
@@ -421,48 +538,50 @@ export class AppService {
 
   getPlayersWhoAnswered(gameId: GameId): string[] {
     const gameState = this.getGameStateOrFail(gameId);
-
-    if (!gameState.currentQuestion) {
-      throw new Error('No active question.');
-    }
+    if (!gameState.currentQuestion) return [];
 
     return Array.from(gameState.playerSpecificGameState.values())
-      .filter((playerState) => playerState.currentAnswerId !== -1)
+      .filter((playerState) => !!playerState.currentSubmittedPayload) // Check if payload exists
       .map((playerState) => playerState.player.name);
   }
 
   private endPreGame(gameState: GeneralGameState) {
     this.updateGameStatus(gameState, GameStatus.IN_PROGRESS);
-
     gameState.currentQuestion = this.getRandomQuestion(gameState);
+    gameState.allQuestionIds.push(gameState.currentQuestion.id); // Mark as used
+    gameState.playerSpecificGameState.forEach(
+      (pgs) => (pgs.remainingSeconds = gameState.maxRoundTime),
+    );
   }
 
-  private evaluateCorrectPlayerAnswers(gameState: GeneralGameState) {
+  private evaluatePlayerScores(gameState: GeneralGameState) {
     gameState.playerSpecificGameState.forEach((playerGameState) => {
-      let correctAnswerCount = 0;
+      let totalPoints = 0;
+      let totalAnsweredInSeconds = 0;
+      const answersList: QuestionWithAnswer[] = [];
+
       playerGameState.allAnswers.forEach((questionWithAnswer) => {
-        correctAnswerCount += questionWithAnswer.calculatedPoints;
+        totalPoints += questionWithAnswer.calculatedPoints;
+        totalAnsweredInSeconds += questionWithAnswer.answeredInSeconds;
+        answersList.push(questionWithAnswer);
       });
 
       gameState.endGameState.push({
         player: playerGameState.player.name,
-        points: correctAnswerCount,
-        answeredInSeconds:
-          gameState.maxRoundTime - playerGameState.remainingSeconds,
-        allAnswers: [...playerGameState.allAnswers.values()],
+        points: totalPoints,
+        answeredInSeconds: answersList.length > 0 ? totalAnsweredInSeconds / answersList.length : 0,
+        allAnswers: answersList,
       });
-
-      gameState.endGameState.sort((a, b) => a.points + b.points);
     });
+    gameState.endGameState.sort((a, b) => b.points - a.points); // Sort descending by points
   }
 
   private quickRoundEnded(gameState: GeneralGameState): boolean {
-    if (gameState?.quickRoundActive) {
-      return Array.from(gameState?.playerSpecificGameState.values()).every(
-        (player) => player.currentAnswerId !== -1,
+    if (gameState.quickRoundActive && gameState.playerSpecificGameState.size > 0) {
+      return Array.from(gameState.playerSpecificGameState.values()).every(
+        (player) => !!player.currentSubmittedPayload, // Check if a payload has been submitted
       );
-    } else {
-      return false;
     }
+    return false;
   }
 }

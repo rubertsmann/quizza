@@ -14,7 +14,7 @@ import { GameStateService } from '../../../services/game-state.service';
 import { SoundManagerService } from '../../../services/sound-manager.service';
 import { QuestionElementComponent } from './question-element/question-element.component';
 import { AnsweredPlayerIndicatorsComponent } from '../../answered-player-indicators/answered-player-indicators.component';
-import { Category } from '../../../models/backendmodels-copy';
+import { Category } from '../../../models/backendmodels-copy'; // Added EnumQuestionTypes etc.
 
 const numberChangeIncrementAnimation: AnimationMetadata[] = [
   style({ transform: 'translateY(100%)', opacity: 0 }),
@@ -79,11 +79,28 @@ export class MainGameLobbyComponent {
     });
   }
 
-  public getTimerOrInfinitSymbol(number: number) {
-    return number > 99 ? '∞' : number.toString();
+  public getTimerOrInfinitSymbol(number: number | undefined): string {
+    if (number === undefined) return '∞';
+    return number > 999 ? '∞' : number.toString();
   }
 
   onCounterChange() {
     this.soundManager.playSound('beep');
   }
+
+  // // Helper to get question text, as it's nested now
+  // getQuestionText(question: Question): string {
+  //   if (!question || !question.details) return 'Loading question...';
+  //   return (question.details as MultipleChoiceDetails | EstimationDetails)
+  //     .questionText;
+  // }
+  //
+  // // Helper to trigger animation state change on question text change
+  // getQuestionAnimationTrigger(gamestate: GeneralGameStateReduced): string {
+  //   return gamestate?.currentQuestion?.details?.questionText || '';
+  // }
+
+  // getDate() {
+  //   return new Date();
+  // }
 }

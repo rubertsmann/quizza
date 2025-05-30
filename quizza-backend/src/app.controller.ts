@@ -41,16 +41,16 @@ export class AppController {
     return this.appService.login(playerName, gameId);
   }
 
-  @Get('/answer/:playerId/:gameId/:answerId')
+  @Get('/answer/:playerId/:gameId/:answerPayload')
   postAnswer(
     @Param('playerId') playerId: PlayerId,
     @Param('gameId') gameId: GameId,
-    @Param('answerId') answerId: string,
+    @Param('answerPayload') answerPayload: string,
   ) {
     return this.appService.answerQuestionForPlayer(
       gameId,
       playerId,
-      parseInt(answerId),
+      answerPayload,
     );
   }
 

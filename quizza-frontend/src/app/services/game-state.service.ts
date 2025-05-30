@@ -6,57 +6,23 @@ import {
   GeneralGameState,
   Player,
 } from '../models/backendmodels-copy';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { catchError, defer, first, Observable, switchMap, takeWhile, throwError, timer } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { defer, first, Observable, switchMap, takeWhile, timer } from 'rxjs';
 import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class GameStateService {
-  private _apiUrl = environment.apiUrl || `${window.location.origin}/api`;
-
-  private _player: Player | null = null;
-  private _gameId: GameId | null = null;
-
-  private _gameState$: Observable<GeneralGameState> = defer(() =>
-    timer(0, 1000).pipe(
-      switchMap(() => this.requestGameState()),
-      takeWhile(
-        (gameState) => gameState?.gameStatus !== GameStatus.FINISHED,
-        true,
-      ),
-    ),
-  );
-
-  private _allAnswers$ = defer(() =>
-    timer(0, 1000).pipe(
-      switchMap(() => this.requestAllAnswers()),
-      takeWhile((answers) => !answers || answers.length === 0, true),
-    ),
-  );
-
   constructor(private http: HttpClient) {}
 
-  get gameState$(): Observable<GeneralGameState> {
-    return this._gameState$;
-  }
-
-  private set gameState$(gameState$: Observable<GeneralGameState>) {
-    this._gameState$ = gameState$;
-  }
-
-  get allAnswers$(): Observable<EndGameAnswers[]> {
-    return this._allAnswers$;
-  }
-
-  private set allAnswers$(allAnswers$: Observable<EndGameAnswers[]>) {
-    this._allAnswers$ = allAnswers$;
-  }
+  private _apiUrl = environment.apiUrl || `${window.location.origin}/api`;
 
   get apiUrl(): string {
     return this._apiUrl;
   }
+
+  private _player: Player | null = null;
 
   get player(): Player | null {
     return this._player;
@@ -66,12 +32,47 @@ export class GameStateService {
     this._player = player;
   }
 
+  private _gameId: GameId | null = null;
+
   get gameId(): GameId | null {
     return this._gameId;
   }
 
   set gameId(gameId: GameId | null) {
     this._gameId = gameId;
+  }
+
+  public _gameState$: Observable<GeneralGameState> = defer(() =>
+    timer(0, 1000).pipe(
+      switchMap(() => this.requestGameState()),
+      takeWhile(
+        (gameState) => gameState?.gameStatus !== GameStatus.FINISHED,
+        true,
+      ),
+    ),
+  );
+
+  get gameState$(): Observable<GeneralGameState> {
+    return this._gameState$;
+  }
+
+  private set gameState$(gameState$: Observable<GeneralGameState>) {
+    this._gameState$ = gameState$;
+  }
+
+  private _allAnswers$ = defer(() =>
+    timer(0, 1000).pipe(
+      switchMap(() => this.requestAllAnswers()),
+      takeWhile((answers) => !answers || answers.length === 0, true),
+    ),
+  );
+
+  get allAnswers$(): Observable<EndGameAnswers[]> {
+    return this._allAnswers$;
+  }
+
+  private set allAnswers$(allAnswers$: Observable<EndGameAnswers[]>) {
+    this._allAnswers$ = allAnswers$;
   }
 
   unsetGameState() {
@@ -103,18 +104,19 @@ export class GameStateService {
     return this.http.get<EndGameAnswers[]>(url);
   }
 
-  postSelectedAnswer(answerId: number) {
-    const url = `${this.apiUrl}/answer/${this.player?.id}/${this.gameId}/${answerId}`;
+  public postSelectedAnswer(answerPayload: string): void {
+    if (!this.gameId || !this.player?.id) {
+      console.error('Game ID or Player ID is missing for posting answer.');
+      return;
+    }
 
     this.http
-      .get(url)
-      .pipe(
-        first(),
-        catchError((error: HttpErrorResponse) => {
-          console.log(error);
-          return throwError(() => error);
-        }),
+      .get(
+        `${this.apiUrl}/answer/${this.player.id}/${this.gameId}/${encodeURIComponent(answerPayload)}`,
       )
-      .subscribe();
+      .subscribe({
+        next: () => {},
+        error: (err) => console.error('Error posting answer', err),
+      });
   }
 }

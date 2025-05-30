@@ -1,17 +1,35 @@
 <div class="question-container">
-  <div
-    class="center"
-    *ngFor="
-        let answer of question.answers;
-        trackBy: trackById
-      "
-  >
-    <button
-      [class.selected-answer]="currentAnswerId === answer.answerId"
-      class="base-selected add-border"
-      (click)="onAnswerChange(answer.answerId)"
+  <ng-container
+    *ngIf="question.questionType === EnumQuestionTypes.MultipleChoice && multipleChoiceDetails as mcDetails">
+    <div
+      *ngFor="let answer of mcDetails.answers; trackBy: trackById"
+      class="center"
     >
-      {{ answer.answerText }}
-    </button>
-  </div>
+      <button
+        (click)="onMcAnswerChange(answer.answerId)"
+        [class.selected-answer]="currentAnswerId === answer.answerId"
+        class="base-selected add-border"
+      >
+        {{ answer.answerText }}
+      </button>
+    </div>
+  </ng-container>
+
+  <ng-container *ngIf="question.questionType === EnumQuestionTypes.Estimation">
+    <div class="center column-layout">
+      <input
+        [(ngModel)]="estimationAnswer"
+        class="estimation-input add-border"
+        placeholder="Enter your estimate"
+        type="text"
+      />
+      <button
+        (click)="onEstimationSubmit()"
+        [disabled]="estimationAnswer.trim() === ''"
+        class="base-selected add-border estimation-submit-button"
+      >
+        Submit Estimate
+      </button>
+    </div>
+  </ng-container>
 </div>
